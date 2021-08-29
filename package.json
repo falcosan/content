@@ -1,10 +1,10 @@
 {
   "scripts": {
-    "get:home": "node -e 'require(\"./functions/import\").content(\"home\", \"it\")'",
-    "get:about": "node -e 'require(\"./functions/import\").content(\"about\", \"it\")'",
-    "get:portfolio": "node -e 'require(\"./functions/import\").content(\"portfolio\", \"it\")'",
-    "get:contact": "node -e 'require(\"./functions/import\").content(\"contact\", \"it\")'",
-    "get:blog": "node -e 'require(\"./functions/import\").content(\"blog\", \"it\")'",
+    "get:home": "node -e 'require(\"./data/home/content\").content()'",
+    "get:about": "node -e 'require(\"./data/about/content\").content()'",
+    "get:portfolio": "node -e 'require(\"./data/portfolio/content\").content()'",
+    "get:contact": "node -e 'require(\"./data/contact/content\").content()'",
+    "get:blog": "node -e 'require(\"./data/blog/content\").content()'",
     "fetch": "git fetch",
     "pull": "git pull",
     "push": "git add -A && git commit -m '.' && git push origin master"

@@ -1,4 +1,5 @@
 const fs = require('fs');
+const json2md = require("json2md")
 require('dotenv').config();
 
 const StoryblokClient = require('storyblok-js-client')
@@ -9,11 +10,11 @@ const Storyblok = new StoryblokClient({
       type: 'memory'
     }
   })
-module.exports.content = async function (path, lang, type = 'md', content) { 
-      const { data } = await Storyblok.get(`cdn/stories/${path}`, {
+module.exports.content = async function (path, story, lang, fileName, type = 'md') { 
+      const { data } = await Storyblok.get(`cdn/stories/${story}`, {
         language: lang
       })
-      const story = data.story.content
-      fs.writeFileSync(`./data/${path}/_data.${type}`, JSON.stringify(content ? story[content] : story))
+      const content = JSON.stringify(data)
+      fs.writeFileSync(`./data/${path}/${fileName}.${type}`, content)
  }
 
