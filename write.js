@@ -10,7 +10,7 @@ const Storyblok = new StoryblokClient({
     }
   })
 module.exports = 
-async function content(path, lang, content, type = 'json') { 
+async function content(path, lang, type = 'json', content) { 
       const { data } = await Storyblok.get(`cdn/stories/${path}`, {
         language: lang
       })
