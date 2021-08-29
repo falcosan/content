@@ -1,8 +1,13 @@
 {
   "scripts": {
+    "get:home": "node -e 'require(\"./write\").content(\"home\", \"it\")'",
+    "get:about": "node -e 'require(\"./write\").content(\"about\", \"it\")'",
+    "get:portfolio": "node -e 'require(\"./write\").content(\"portfolio\", \"it\")'",
+    "get:contact": "node -e 'require(\"./write\").content(\"contact\", \"it\")'",
+    "get:blog": "node -e 'require(\"./write\").content(\"blog\", \"it\")'",
     "fetch": "git fetch",
     "pull": "git pull",
-    "publish": "git add -A && git commit -m '.' && git push origin master"
+    "push": "git add -A && git commit -m '.' && git push origin master"
   },
   "dependencies": {
     "axios": "^0.21.1",

@@ -9,12 +9,11 @@ const Storyblok = new StoryblokClient({
       type: 'memory'
     }
   })
-module.exports = 
-async function content(path, lang, type = 'json', content) { 
+module.exports.content = async function (path, lang, type = 'json', content) { 
       const { data } = await Storyblok.get(`cdn/stories/${path}`, {
         language: lang
       })
       const story = data.story.content
-      fs.writeFileSync(`./${path}/data.${type}`, JSON.stringify(content ? story[content] : story))
+      fs.writeFileSync(`./data/${path}/data.${type}`, JSON.stringify(content ? story[content] : story))
  }
 
