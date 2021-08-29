@@ -14,6 +14,6 @@ module.exports.content = async function (path, lang, type = 'json', content) {
         language: lang
       })
       const story = data.story.content
-      fs.writeFileSync(`./data/${path}/data.${type}`, JSON.stringify(content ? story[content] : story))
+      fs.writeFileSync(`./data/${path}/_data.${type}`, JSON.stringify(content ? story[content] : story))
  }
 
