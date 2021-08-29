@@ -3,5 +3,10 @@
     "fetch": "git fetch",
     "pull": "git pull",
     "publish": "git add -A && git commit -m '.' && git push origin master"
+  },
+  "dependencies": {
+    "axios": "^0.21.1",
+    "dotenv": "^10.0.0",
+    "storyblok-js-client": "^4.1.4"
   }
 }
