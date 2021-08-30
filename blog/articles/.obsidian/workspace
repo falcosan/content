@@ -1,0 +1,95 @@
+{
+  "main": {
+    "id": "c5608efceb69f6e3",
+    "type": "split",
+    "children": [
+      {
+        "id": "bc170727f9231c5e",
+        "type": "leaf",
+        "state": {
+          "type": "markdown",
+          "state": {
+            "file": "en/Presentation.md",
+            "mode": "source"
+          }
+        }
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "794365726860f27a",
+    "type": "split",
+    "children": [
+      {
+        "id": "91fe57d9368526c7",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "211c647836eefc47",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {}
+            }
+          },
+          {
+            "id": "bd8e52d0bc0db722",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "f2dd50e5c63189e5",
+    "type": "split",
+    "children": [
+      {
+        "id": "c4bc71be86f4eabe",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "51ac40c7b794d880",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "en/Presentation.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "active": "bc170727f9231c5e",
+  "lastOpenFiles": [
+    "en/Presentation.md",
+    "en/Storyblok webhooks.md",
+    "en/My first post.md"
+  ]
+}
