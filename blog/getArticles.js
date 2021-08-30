@@ -1,6 +1,5 @@
-const storyblok = require('../functions/import');
+const storyblok = require('../utils/api');
 const path = require('path');
-
 
 const field = 'long_text'
 const lang = 'it'
