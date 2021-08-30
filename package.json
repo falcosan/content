@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "get:articles": "node -e 'require(\"./blog/getArticles\").getArticles()'",
+    "get:blog": "node -e 'require(\"./blog/getBlog\").getBlog()'",
     "fetch": "git fetch",
     "pull": "git pull",
     "push": "git add -A && git commit -m '.' && git push origin master"

@@ -5,7 +5,7 @@ const field = 'long_text'
 const lang = 'en'
 const type = 'md'
 
-module.exports.getArticles = async function () { 
+module.exports.getBlog = async function () { 
       const { data } = await storyblok.get('cdn/stories', {
         starts_with: 'blog/',
         language: lang === 'en' ? '' : lang
