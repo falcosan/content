@@ -1,8 +1,9 @@
 const storyblok = require('../functions/import');
-const filter = 'Storyblok webhooks'
+const path = require('path');
+const filter = ''
 const lang = 'it'
 
-module.exports.getArticles = async function (path, type = 'md') { 
+module.exports.getArticles = async function (type = 'md') { 
       const { data } = await storyblok.get('cdn/stories', {
         starts_with: 'blog/',
         filter_query: {
@@ -13,6 +14,6 @@ module.exports.getArticles = async function (path, type = 'md') {
         language: lang
       })
       const content = data.stories[0].content.long_text
-      fs.writeFileSync(`./${path}/${data.stories[0].name}.${type}`, content)
+      fs.writeFileSync(`${path.join(__dirname, '/articles')}/${data.stories[0].name}.${type}`, content)
 };
 
