@@ -1,10 +1,6 @@
 {
   "scripts": {
-    "get:home": "node -e 'require(\"./data/home/content\").getContent()'",
-    "get:about": "node -e 'require(\"./data/about/content\").getContent()'",
-    "get:portfolio": "node -e 'require(\"./data/portfolio/content\").getContent()'",
-    "get:contact": "node -e 'require(\"./data/contact/content\").getContent()'",
-    "get:blog": "node -e 'require(\"./data/blog/content\").getContent()'",
+    "articles": "node -e 'require(\"./articles/getArticles\").getArticles(\"articles\")'",
     "fetch": "git fetch",
     "pull": "git pull",
     "push": "git add -A && git commit -m '.' && git push origin master"
