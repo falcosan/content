@@ -1,10 +1,7 @@
-const field = 'long_text'
-
-
-module.exports.getBlog = async function () { 
 const storyblok = require('../utils/api');
 const path = require('path');
 require('dotenv').config();
+module.exports.getBlog = async function () { 
   const languages = await storyblok.get(`cdn/spaces/${process.env.STORYBLOK_ID_SPACE}`)
   languages.data.space.language_codes.unshift('en')
   languages.data.space.language_codes.forEach( async function (lang){ 
@@ -13,7 +10,7 @@ require('dotenv').config();
         language: lang === 'en' ? '' : lang
       })
      data.stories.map(function(story) {
-        const files = story.name.toLowerCase() !== 'blog' ? fs.writeFileSync(`${path.join(__dirname, `/${lang}`)}/${story.name}.md`, story.content[field]) : ''
+        const files = story.name.toLowerCase() !== 'blog' ? fs.writeFileSync(`${path.join(__dirname, `/${lang}`)}/${story.name}.md`, story.content.long_text) : ''
         return Boolean(files)
       })
     })
