@@ -13,7 +13,7 @@ require('dotenv').config();
         language: lang === 'en' ? '' : lang
       })
      data.stories.map(function(story) {
-        const files = story.name.toLowerCase() !== 'blog' ? fs.writeFileSync(`${path.join(__dirname, `/articles/${lang}`)}/${story.name}.md`, story.content[field]) : ''
+        const files = story.name.toLowerCase() !== 'blog' ? fs.writeFileSync(`${path.join(__dirname, `/${lang}`)}/${story.name}.md`, story.content[field]) : ''
         return Boolean(files)
       })
     })
