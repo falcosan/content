@@ -1,9 +1,14 @@
-Sito nato e pensato come blog alternativo, ossia che non si riferisca direttamente ad un possesso (dandogli il nome "Il blog di …" o simili), ma di renderlo una sorta di brand. Il concept finale di Aprograma si definisce in uno strumento codeless, progettato con il framework *Nuxt.js* e pronto ad essere connesso alle API di gestione dei contenuti di *Storyblok*.
+Inizio a presentare Aprograma facendo un suo piccolo identikit:
 
+- è un sito dinamico  creato con **Nuxt.js**;
+- è connesso al CMS headless di **Storyblok** per la gestione dei contenuti;
+- ha come obbiettivo finale di essere “infinito”, ovvero di aumentare la sua longevità e poterlo gestire senza dove toccare più il codice.
 
-##### Le pagine
+Con questo scopo finale, non sto dicendo di voler creare un CMS dentro il CMS, ma di riuscire ad astrarre tutti i componenti, le pagine e il layout di Aprograma rendendolo completamente dinamico e modulare.
 
+Accettata questa sfida, di seguito spiegherò come sono stati sviluppati questi “moduli”.
 
+### Le pagine
 Di default Aprograma contiene cinque pagine:
 
 - Home
@@ -25,5 +30,5 @@ Il template delle pagine:
 </template>
 ```
 
-Eccezione fatta per le pagine dinamiche dei post e dei progetti. Il loro template è il seguente:
-#### 
+Tutte le pagine hanno lo stesso template eccezione fatta per le pagine dinamiche dei post e dei progetti. Il loro template è il seguente:
+
