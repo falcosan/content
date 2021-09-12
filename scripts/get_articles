@@ -1,4 +1,4 @@
 #!/bin/bash 
 
-cd /Users/danielefalchetti/Documents/projects/content && git add -A && git commit -m '.' && git push origin master
+cd /Users/danielefalchetti/Documents/projects/content && node -e 'require(\"./blog/.getBlog\").getBlog()'
 
