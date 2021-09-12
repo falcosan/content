@@ -1,4 +1,4 @@
 #!/bin/bash 
 
-cd /Users/danielefalchetti/Documents/projects/content && node -e 'require(\"./blog/.getBlog\").getBlog()'
+cd /Users/danielefalchetti/Documents/projects/content && node -e 'require("./blog/.getBlog").getBlog()'
 
