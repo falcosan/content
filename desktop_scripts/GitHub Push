@@ -1,4 +1,0 @@
-#!/bin/bash 
-
-cd /Users/danielefalchetti/Documents/projects/content && git add -A && git commit -m '.' && git push origin master
-
