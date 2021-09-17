@@ -19,7 +19,7 @@ const storyblok = new StoryblokClient({
           language: lang === 'en' ? '' : lang
         })
        data.stories.map(function(story) {
-          const files = story.name.toLowerCase() !== ctx ? fs.writeFileSync(`./${ctx}/${lang}/${story.name}.md`, story.content.long_text) : ''
+          const files = story.name.toLowerCase() !== ctx ? fs.writeFileSync(`./${ctx}/${lang}/${story.content.title}.md`, story.content.long_text) : ''
           return Boolean(files)
         })
       })
