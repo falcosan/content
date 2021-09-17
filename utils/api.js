@@ -15,6 +15,7 @@ const storyblok = new StoryblokClient({
     languages.data.space.language_codes.unshift('en')
     languages.data.space.language_codes.forEach( async function (lang){ 
         const { data } = await storyblok.get('cdn/stories', {
+          version: 'draft',
           starts_with: `${ctx}/`,
           language: lang === 'en' ? '' : lang
         })
