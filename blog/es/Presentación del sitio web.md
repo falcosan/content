@@ -36,34 +36,41 @@ Cada página tiene su propio index y en cada página dinámica hay una carpeta q
 </template>
 ```
 
-Todas las páginas tienen la misma plantilla, excepto las páginas dinámicas de los puestos y de los proyectos. La plantilla es la siguiente:
-
-```js
-<template>
-// Obviamente, el componente <Project/> para los proyectos y el componente <Post/> para los artículos 
-<Project :blok="story.content" />
-</template>
-```
-
 ##### La lógica
 
 ```js
 export default {
-  asyncData (context) {
-    const slug = (context.route.path === ‘/‘ || context.route.path === ‘’) ? ‘/home’ : context.route.path
-    return context.app.$storyapi
+  data () {
+    return {
+      story: {
+        content: {}
+      }
+    }
+  },
+  fetch () {
+    const slug = (this.$route.path === '/' || this.$route.path === '') ? '/home' : this.$route.path
+    return this.$storyapi
       .get(`cdn/stories${slug}`, {
-        language: context.store.state.language.language
+        language: this.$store.state.language.language
       }).then((res) => {
-        return res.data
+        this.story = res.data.story
       }).catch((res) => {
-        context.$errorMessage(res.response,
-          ‘Sorry but this content doesn\’t exist’, `Sorry, but the content called: “${context.route.name}” has a problem or doesn’t exist`
-        )
+        if (!res) {
+          this.error({
+            statusCode: 404,
+            message: 'Sorry but this content doesn\'t exist'
+          })
+        } else {
+          this.error({
+            statusCode: 500,
+            message: `Sorry, but the content called: "${this.$route.name}" has a problem or doesn't exist`
+          })
+        }
       })
   },
+  fetchDelay: 0,
   watch: {
-    ‘$store.state.language.language’ () { this.$nuxt.refresh() }
+    '$store.state.language.language': '$fetch'
   }
 }
 ```

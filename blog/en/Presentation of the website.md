@@ -36,34 +36,41 @@ Each page has its index and in each dynamic page there is a folder containing a 
 </template>
 ~~~
 
-All pages have the same template except for the dynamic post and project pages. The template is as follows:
-
-~~~js
-<template>
-// Obviously the <Project/> component for projects and the <Post/> component for posts
-<Project :blok="story.content" />
-</template>
-~~~
-
 ##### The logic
 
 ~~~js
 export default {
-  asyncData (context) {
-    const slug = (context.route.path === ‘/‘ || context.route.path === ‘’) ? ‘/home’ : context.route.path
-    return context.app.$storyapi
+  data () {
+    return {
+      story: {
+        content: {}
+      }
+    }
+  },
+  fetch () {
+    const slug = (this.$route.path === '/' || this.$route.path === '') ? '/home' : this.$route.path
+    return this.$storyapi
       .get(`cdn/stories${slug}`, {
-        language: context.store.state.language.language
+        language: this.$store.state.language.language
       }).then((res) => {
-        return res.data
+        this.story = res.data.story
       }).catch((res) => {
-        context.$errorMessage(res.response,
-          ‘Sorry but this content doesn\’t exist’, `Sorry, but the content called: “${context.route.name}” has a problem or doesn’t exist`
-        )
+        if (!res) {
+          this.error({
+            statusCode: 404,
+            message: 'Sorry but this content doesn\'t exist'
+          })
+        } else {
+          this.error({
+            statusCode: 500,
+            message: `Sorry, but the content called: "${this.$route.name}" has a problem or doesn't exist`
+          })
+        }
       })
   },
+  fetchDelay: 0,
   watch: {
-    ‘$store.state.language.language’ () { this.$nuxt.refresh() }
+    '$store.state.language.language': '$fetch'
   }
 }
 ~~~
