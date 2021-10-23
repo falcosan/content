@@ -1,4 +1,4 @@
-Chi programma sa cosa vuole dire manipolare dati, spiegandolo brevemente significa manipolare un certo valore attraverso processi matematici (come una funzione per esempio), per definire un secondo valore. Replicando questo processo n volte e inserendo tutto in un insieme organizzato e ben strutturato, si crea un programma. In generale, questo è il modo standard di programmare, ma a volte manca qualcosa: la consapevolezza dell'entropia.
+Chi programma sa cosa vuole dire manipolare dati, spiegandolo brevemente significa manipolare un certo valore attraverso processi matematici (come una funzione per esempio) per definire un secondo valore. Replicando questo processo n volte e inserendo tutto in un insieme organizzato e ben strutturato, si crea un programma. In generale, questo è il modo standard di programmare, ma a volte manca qualcosa: la consapevolezza dell'entropia.
 
 Faccio un esempio in sequenza temporale:
 
@@ -41,6 +41,10 @@ OK .. estrapolando dall'esempio di Vuex più o meno riesco a capire che il modo 
 
 Ora come faccio ad applicare il concetto di astrazione alla situazione di Dev?
 
-Provando ad arrivarci con le associazioni: se il nostro Dev è il negozio Vuex, i contributori sono i componenti/pagine/plugin e i feedback e le idee degli utenti dell'applicazione Dev sono le operazioni fatte sui dati globali, definire la "variabile interna" significherebbe ...
+Provando ad arrivarci con le associazioni: se il nostro Dev è il negozio Vuex, i contributori sono i componenti/pagine/plugin e i feedback e le idee degli utenti dell'applicazione Dev sono le operazioni fatte sui dati globali, definire la "variabile interna" significherebbe rappresentare questo processo: creare varie versioni beta dell’applicazione di Dev dove ciascuna di esse adotta una delle idee dei contributori. Queste versioni parallele, formatesi dall’ insoddisfazione della visione originale del prodotto di Dev, vengono conseguentemente testate da alcuni beta tester. I beta tester in questione sono composti da gruppi di persone selezionate in base all’idea condivisa di come, secondo loro, debba essere la filosofia dell’applicazione di Dev. Infine, la versione che riscuote più gradimento da parte del pubblico, viene scelta come release 2.0 dell’applicazione di Dev.
 
-Ci sto pensando.
+Questa rappresentazione, pur essendo utopica e ignorante circa i limiti del reale, è la mia risposta all’applicazione dell’astrazione per il controllo dell’entropia.
+
+---
+
+Se l'articolo ti è piaciuto, mettigli un mi piace su **[dev.to](https://dev.to/falcosan/the-entropy-of-states-5gbi)**.

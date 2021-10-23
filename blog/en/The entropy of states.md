@@ -1,4 +1,4 @@
-Those who program know what it means to manipulate data, explaining it briefly means to manipulate a certain value through mathematical processes (such as a function for example), to define a second value. If this process is replicated many times, inserted as a set and structured in the best way, then a program will be created. Generally, this is the standard way to program, but sometimes something is missing: the consciousness of entropy.
+Those who program know what it means to manipulate data, explaining it briefly means to manipulate a certain value through mathematical processes (such as a function for example) to define a second value. If this process is replicated many times, inserted as a set and structured in the best way, then a program will be created. Generally, this is the standard way to program, but sometimes something is missing: the consciousness of entropy.
 
 Here is an example in temporal sequence:
 
@@ -29,7 +29,7 @@ It’s not necessary to have an opinion about whether to change your plans is ri
 
 By checking this sketch I ask myself a question: is there a better way to capture the variables Z, S, and X and consequently manage them?
 
-To arrive at a possible answer, I first thought about answering myself through a smaller context, with fewer variables than those present in Dev's situation. As a great user of the Vue.js framework, I stopped to reflect on the store of this framework, Vuex.
+To arrive to a possible answer, I first thought about answering myself through a smaller context, with fewer variables than those present in Dev's situation. As a great user of the Vue.js framework, I stopped to reflect on the store of this framework, Vuex.
 
 For those who don't know what I'm talking about, Vuex, Vue's store, is a set of globally defined variables, through which these variables can be changed or simply read.
 
@@ -41,6 +41,10 @@ OK .. extrapolating from the Vuex example I more or less achieve to understand t
 
 Now how do I apply the concept of abstraction to Dev's situation?
 
-Trying to get there with associations: if our Dev is the Vuex store, the contributors are the components/pages/plugins, and the feedback and ideas of the users of the Dev application are the operations done on the global data, define the "internal variable" would mean ...
+Trying to get there with associations: if our Dev is the Vuex store, the contributors are the components/pages/plugins, and the feedback and ideas of the users of the Dev's application are the operations done on the global data, defining the "internal variable" would mean representing this process: creating various beta versions of Dev's application where each of them adopts one of the contributors' ideas.  These parallel versions, formed from dissatisfaction with the original vision of Dev's product, are consequently tested by some beta testers. These beta testers are composed of groups of people selected on the basis of a shared idea of what they think the philosophy of Dev's application should be. In the end, the version that is most popular with the public is chosen as Dev's application release 2.0.
 
-I'm thinking about it.
+This representation, while utopian and ignorant of the limits of reality, is my response to the application of abstraction for entropy control.
+
+---
+
+If you appreciated the article, give it a like on **[dev.to](https://dev.to/falcosan/the-entropy-of-states-5gbi)**.

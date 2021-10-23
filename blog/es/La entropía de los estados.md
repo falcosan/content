@@ -1,4 +1,4 @@
-Los que desarrollan saben lo que significa manipular datos, explicándolo brevemente significa manipular un determinado valor a través de procesos matemáticos (como una función por ejemplo), para definir un segundo valor. Replicando este proceso X veces y insertando todo en un conjunto estructurado en la mejor manera, se crea un programa. En general esta es la forma estándar de programar, pero a veces falta algo: la conciencia de la entropía.
+Los que desarrollan saben lo que significa manipular datos, explicándolo brevemente significa manipular un determinado valor a través de procesos matemáticos (como una función por ejemplo) para definir un segundo valor. Replicando este proceso X veces y insertando todo en un conjunto estructurado en la mejor manera, se crea un programa. En general esta es la forma estándar de programar, pero a veces falta algo: la conciencia de la entropía.
 
 Hago un ejemplo en secuencia temporal:
 
@@ -41,6 +41,10 @@ BIEN... extrapolando el ejemplo de Vuex más o menos logro entender que la mejor
 
 Ahora, ¿cómo aplico el concepto de abstracción a la situación de Dev?
 
-Intentando llegar a ello con las asociaciones: si nuestro Dev es lo store Vuex, los contribuyentes son los componentes/páginas/plugins y los comentarios y las ideas de los usuarios de la aplicación Dev son las operaciones realizadas sobre los datos globales, definir la "variable interna" significaría...
+Intentando llegar a ello con las asociaciones: si nuestro Dev es lo store Vuex, los contribuyentes son los componentes/páginas/plugins y los comentarios y las ideas de los usuarios de la aplicación de Dev son las operaciones realizadas sobre los datos globales, definir la "variable interna" significaría representar este proceso: crear varias versiones beta de la aplicación de Dev donde cada una de ellas adopte una de las ideas de los contribuidores. Estas versiones paralelas, formadas por las insatisfacción con la visión original del producto por parte de Dev, son testeadas por una serie de beta tester. Los beta tester en cuestión consisten en grupos de personas seleccionadas sobre la base de una idea compartida de lo que, según ellos, debería ser la filosofía de la aplicación de Dev.  Al final, se elige la versión más apreciada por el público como release 2.0 de la aplicación de Dev.
 
-Estoy pensando en ello.
+Esta representación, aunque utópica e ignorante de los límites de la realidad, es mi respuesta a la aplicación de la abstracción para controlar la entropía.
+
+---
+
+Si te gustó el articulo, dale un me gusta en **[dev.to](https://dev.to/falcosan/the-entropy-of-states-5gbi)**.
