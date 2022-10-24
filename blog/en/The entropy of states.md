@@ -4,7 +4,7 @@ Here is an example in temporal sequence:
 
 ##### Background:
 
-* Dev is a good developer.
+- Dev is a good developer.
 
 <br>
 
@@ -47,4 +47,4 @@ This representation, while utopian and ignorant of the limits of reality, is my 
 
 ---
 
-If you appreciated the article, give it a like on **[dev.to](https://dev.to/falcosan/the-entropy-of-states-5gbi)**.
+If you appreciated the article, give it a like on [**dev.to**](https://dev.to/falcosan/the-entropy-of-states-5gbi).
