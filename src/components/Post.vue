@@ -10,8 +10,12 @@ const props = defineProps({
     },
 });
 const post = ref({});
-const editPost = async () => await putStoryblok(post.value, "it");
-watch(props.data, (val) => (post.value = val), { immediate: true });
+const editPost = async () => await putStoryblok(post.value);
+watch(
+    () => props.data,
+    (val) => (post.value = val),
+    { immediate: true }
+);
 </script>
 
 <template>

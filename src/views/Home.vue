@@ -22,18 +22,23 @@ const setDetail = (item) => {
 };
 const getStories = async (language) => {
     const { stories } = await getStoryblok(language, "blog");
-    data.value = stories.filter((story) => !story.is_startpage);
+    const res = stories.filter((story) => !story.is_startpage);
+    data.value = res;
     return stories;
 };
-const getStory = async (language) => {
-    const res = data.value.length ? data.value : await getStories(language);
+const getStory = async (language, forced) => {
+    const res =
+        !forced && data.value.length ? data.value : await getStories(language);
     const item = res.find((item) => String(item.id) === String(route.query.id));
     if (item) {
         setDetail(item);
         router.push({ query: { id: item.id } });
     }
 };
-watch(locale, async (val) => await getStories(val));
+watch(locale, async (val) => {
+    if (route.query) await getStory(val, true);
+    else await getStories(val);
+});
 watch(
     () => route.query,
     async (val) => {
