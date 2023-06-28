@@ -4,13 +4,14 @@ import { computed } from "vue";
 const props = defineProps({
     data: {
         type: Object,
-        default: () => ({}),
+        default: () => ({ content: {} }),
     },
 });
 const setFile = computed(() => {
-    return props.data.content.file.filename
-        ? props.data.content.file.filename
-        : "https://a.storyblok.com/f/106240/4065x1468/5c83c3e7de/noimeageteaser.png";
+    return (
+        props.data.content?.file.filename ||
+        "https://a.storyblok.com/f/106240/4065x1468/5c83c3e7de/noimeageteaser.png"
+    );
 });
 </script>
 
@@ -19,12 +20,7 @@ const setFile = computed(() => {
         :to="{ name: 'post', params: { id: data.id } }"
         class="teaser-content h-full flex flex-col"
     >
-        <div
-            :class="[
-                'teaser-file-container w-full',
-                { 'bg-black': !data.content.file.filename },
-            ]"
-        >
+        <div class="teaser-file-container w-full">
             <img
                 class="teaser-file w-full h-full object-center select-none aspect-video"
                 :src="setFile"

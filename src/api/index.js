@@ -21,12 +21,13 @@ export async function getStoryblok(
         .catch((error) => console.error(error));
 }
 
-export async function putStoryblok(story, publish = false) {
+export async function putStoryblok(story, lang, publish = false) {
     return await Storyblok.put(
         `spaces/${import.meta.env.STORY_ID_SPACE}/stories/${story.id}`,
         {
-            story: { content: story.content },
+            lang,
             publish,
+            story: { content: story.content },
         }
     )
         .then((res) => res)

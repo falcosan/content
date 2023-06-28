@@ -12,10 +12,10 @@ export const router = createRouter({
                 import(/* webpackChunkName: "home" */ "@/views/Home"),
         },
         {
-            path: "/post/:id",
+            path: "/post/:id?",
             name: "post",
             component: () =>
-                import(/* webpackChunkName: "post" */ "@/components/Post"),
+                import(/* webpackChunkName: "post" */ "@/views/Post"),
         },
     ],
 });
