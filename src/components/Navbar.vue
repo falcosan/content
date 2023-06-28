@@ -1,8 +1,9 @@
 <script setup>
-import { setCookie } from "@/utils/cookies.js";
+import { inject } from "vue";
 
+const locale = inject("locale");
 const languages = ["en", "es", "it"];
-const changeLanguage = (language) => setCookie("locale", language);
+const changeLanguage = (language) => (locale.value = language);
 </script>
 
 <template>
@@ -10,8 +11,8 @@ const changeLanguage = (language) => setCookie("locale", language);
         <button
             v-for="(language, indexLanguage) in languages"
             :key="indexLanguage"
-            @click="changeLanguage(language)"
             v-text="language"
+            @click="changeLanguage(language)"
         />
     </div>
 </template>

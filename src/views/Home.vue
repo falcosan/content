@@ -2,12 +2,12 @@
 import { getStoryblok } from "@/api";
 import Post from "@/components/Post.vue";
 import Teaser from "@/components/Teaser.vue";
-import { getCookie } from "@/utils/cookies.js";
 import { useRoute, useRouter } from "vue-router";
-import { reactive, toRefs, watch, computed } from "vue";
+import { inject, reactive, toRefs, watch } from "vue";
 
 const route = useRoute();
 const router = useRouter();
+const locale = inject("locale");
 const state = reactive({
     data: [],
     detail: {
@@ -16,7 +16,6 @@ const state = reactive({
     },
 });
 const { data, detail } = toRefs(state);
-const locale = computed(() => getCookie("locale"));
 const setDetail = (item) => {
     detail.value.item = item;
     router.push({ query: { id: item.id } });
@@ -34,6 +33,7 @@ const getStory = async (language) => {
         router.push({ query: { id: item.id } });
     }
 };
+watch(locale, async (val) => await getStories(val));
 watch(
     () => route.query,
     async (val) => {
