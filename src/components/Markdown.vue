@@ -1,65 +1,55 @@
 <template>
-    <div :class="['flex flex-col', { 'w-full': tools }]">
+    <div class="w-full flex flex-col">
         <span
             v-if="title"
-            class="block mb-5 text-lg font-semibold text-gray-dark"
+            class="block mb-5 text-lg font-semibold text-gray-800"
             v-text="title"
         />
         <div class="flex flex-col">
             <EditorContent
-                :class="[
-                    'h-full',
-                    {
-                        'min-w-[2rem] border rounded px-2 focus:border-gray-very-light outline-none ring-0 focus:outline-0 border-gray-soft':
-                            editable,
-                    },
-                    { 'min-h-[2.875rem]': editable && !tools },
-                    { 'min-h-[16rem] py-2': editable && tools },
-                ]"
+                class="h-full min-w-[2rem] min-h-[16rem] py-2 px-2 border rounded focus:border-gray-200 outline-none ring-0 focus:outline-0 border-gray-300"
                 :editor="editor"
             />
-            <template v-if="tools && editable">
-                <div
-                    v-if="editable"
-                    class="flex flex-wrap mt-2.5 border rounded shadow justify-between border-gray-very-light"
-                >
-                    <div>
-                        <button
-                            v-for="action in setterActions.format"
-                            :key="action.tag"
-                            :class="[
-                                'w-12 border m-1 shadow active:bg-gray-soft border-gray-soft',
-                                action.active
-                                    ? 'bg-gray'
-                                    : 'bg-gray-very-light',
-                                { 'font-bold': action.type === 'bold' },
-                                { italic: action.type === 'italic' },
-                            ]"
-                            @click="setText(action)"
-                        />
-                    </div>
-                    <div>
-                        <button
-                            v-for="action in setterActions.history"
-                            :key="action.tag"
-                            :class="[
-                                'w-12 border m-1 shadow active:bg-gray-soft border-gray-soft bg-gray-very-light',
-                            ]"
-                            @click="setText(action)"
-                        />
-                    </div>
-                </div>
-                <div class="w-full flex items-center justify-end mt-2">
-                    <span
-                        class="inline-block mr-2 text-xs italic text-gray"
-                        v-text="`${t('ui.words')}:`"
-                    />
-                    <span
-                        class="inline-block font-bold text-xs italic text-gray"
-                        v-text="renderLength"
+
+            <div
+                class="flex flex-wrap mt-2.5 border rounded shadow justify-between border-gray-200"
+            >
+                <div>
+                    <button
+                        v-for="action in setterActions.format"
+                        :key="action.tag"
+                        :class="[
+                            'w-12 border m-1 shadow active:bg-gray-300 border-gray-300',
+                            action.active ? 'bg-gray-500' : 'bg-gray-200',
+                            { 'font-bold': action.type === 'bold' },
+                            { italic: action.type === 'italic' },
+                        ]"
+                        v-text="action.value"
+                        @click="setText(action)"
                     />
                 </div>
-            </template>
+                <div>
+                    <button
+                        v-for="action in setterActions.history"
+                        :key="action.tag"
+                        :class="[
+                            'w-12 border m-1 shadow active:bg-gray-300 border-gray-300 bg-gray-200',
+                        ]"
+                        v-text="action.value"
+                        @click="setText(action)"
+                    />
+                </div>
+            </div>
+            <div class="w-full flex items-center justify-end mt-2">
+                <span
+                    class="inline-block mr-2 text-xs italic text-gray-500"
+                    v-text="'words:'"
+                />
+                <span
+                    class="inline-block font-bold text-xs italic text-gray-500"
+                    v-text="renderLength"
+                />
+            </div>
         </div>
     </div>
 </template>
@@ -79,14 +69,6 @@ export default {
             type: String,
             default: "",
         },
-        editable: {
-            type: Boolean,
-            default: false,
-        },
-        tools: {
-            type: Boolean,
-            default: false,
-        },
     },
     emits: ["update:text"],
     setup(props, { emit }) {
@@ -104,22 +86,17 @@ export default {
         const { current } = toRefs(state);
         const editor = useEditor({
             content: props.text,
-            editable: props.editable,
+            editable: true,
             enablePasteRules: true,
             extensions: [StarterKit],
             enableCoreExtensions: true,
             editorProps: {
                 attributes: {
-                    class: `h-full min-h-[inherit] overflow-hidden${
-                        props.tools ? "" : " grid items-center"
-                    }`,
+                    class: "h-full min-h-[inherit] overflow-hidden",
                 },
             },
             onUpdate({ editor }) {
-                emit(
-                    "update:text",
-                    editor[props.tools ? "getHTML" : "getText"]()
-                );
+                emit("update:text", editor.getHTML());
             },
             onSelectionUpdate({ editor }) {
                 checkFormats(editor);
@@ -273,17 +250,11 @@ export default {
         watch(
             () => props.text,
             (val) => {
-                if (
-                    editor.value[props.tools ? "getHTML" : "getText"]() === val
-                ) {
+                if (editor.value.getHTML() === val) {
                     return;
                 }
                 editor.value.commands.setContent(val);
             }
-        );
-        watch(
-            () => props.editable,
-            (val) => editor.value.setEditable(val)
         );
         return {
             editor,

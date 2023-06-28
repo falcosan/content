@@ -4,7 +4,7 @@ import { computed } from "vue";
 const props = defineProps({
     data: {
         type: Object,
-        default: () => ({ content: {} }),
+        default: () => ({}),
     },
 });
 const setFile = computed(() => {
@@ -16,10 +16,7 @@ const setFile = computed(() => {
 </script>
 
 <template>
-    <RouterLink
-        :to="{ name: 'post', params: { id: data.id } }"
-        class="teaser-content h-full flex flex-col"
-    >
+    <div v-if="data.content" class="teaser-content h-full flex flex-col">
         <div class="teaser-file-container w-full">
             <img
                 class="teaser-file w-full h-full object-center select-none aspect-video"
@@ -47,5 +44,5 @@ const setFile = computed(() => {
                 </span>
             </div>
         </div>
-    </RouterLink>
+    </div>
 </template>

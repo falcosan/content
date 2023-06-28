@@ -11,11 +11,5 @@ export const router = createRouter({
             component: () =>
                 import(/* webpackChunkName: "home" */ "@/views/Home"),
         },
-        {
-            path: "/post/:id?",
-            name: "post",
-            component: () =>
-                import(/* webpackChunkName: "post" */ "@/views/Post"),
-        },
     ],
 });

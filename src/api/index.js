@@ -8,13 +8,12 @@ const Storyblok = new StoryblokClient({
 export async function getStoryblok(
     language = "en",
     startsWith,
-    query = "cdn/stories/",
-    lastCache = false
+    query = "cdn/stories/"
 ) {
     return await Storyblok.get(query, {
         language,
         version: "draft",
-        ...(lastCache && { cv: "CURRENT_TIMESTAMP" }),
+        cv: "CURRENT_TIMESTAMP",
         ...(startsWith && { starts_with: startsWith }),
     })
         .then(({ data }) => data)
