@@ -1,9 +1,10 @@
 <script setup>
-import { getStoryblokStories, getStoryblokStory } from "@/api";
+import { Icon } from "@iconify/vue";
 import Post from "@/components/Post.vue";
 import Teaser from "@/components/Teaser.vue";
 import { useRoute, useRouter } from "vue-router";
 import { inject, reactive, toRefs, watch } from "vue";
+import { getStoryblokStories, getStoryblokStory } from "@/api";
 
 const route = useRoute();
 const router = useRouter();
@@ -11,22 +12,34 @@ const locale = inject("locale");
 const state = reactive({
     data: [],
     detail: {
-        state: false,
         item: {},
+        loading: [],
+        state: false,
     },
 });
 const { data, detail } = toRefs(state);
-const setDetail = (item) => {
+const setDetail = (item, type) => {
     detail.value.item = item;
-    router.push({ query: { id: item.id } });
+    router.push({
+        query: { ...route.query, ...(type && { type }), id: item.id },
+    });
 };
 const getStories = async (language) => {
     const { stories } = await getStoryblokStories(language, "blog");
     data.value = stories.filter((story) => !story.is_startpage);
+    detail.value.loading = Array.from(
+        { length: data.value.length },
+        () => false
+    );
 };
 const getStory = async () => {
+    const index = data.value.findIndex(
+        (item) => String(item.id) === String(route.query.id)
+    );
+    detail.value.loading[index] = true;
     const { story } = await getStoryblokStory(route.query.id);
     setDetail(story);
+    detail.value.loading[index] = false;
 };
 watch(locale, async (val) => {
     if (!route.query) await getStories(val);
@@ -38,6 +51,7 @@ watch(
             await getStory(locale.value);
             if (!detail.value.state) detail.value.state = true;
         } else {
+            if (val.type) router.replace({ query: undefined });
             if (detail.value.state) detail.value.state = false;
         }
         if (!data.value.length) await getStories(locale.value);
@@ -47,15 +61,38 @@ watch(
 </script>
 
 <template>
-    <div class="container mx-auto">
+    <div>
         <Post v-if="detail.state" :data="detail.item" />
-        <template v-else>
+        <div
+            v-else
+            class="grid grid-cols-12 sm:grid-cols-[repeat(auto-fit,_minmax(2rem,_1fr))] lg:grid-cols-12 gap-6"
+        >
             <Teaser
-                v-for="post in data"
+                class="col-span-12 sm:col-span-5 md:col-span-4 lg:col-span-3"
+                v-for="(post, indexPost) in data"
                 :data="post"
                 :key="post.uuid"
-                @click="setDetail(post)"
-            />
-        </template>
+                @click="setDetail(post, 'post')"
+            >
+                <template #loader="{ container, icon }">
+                    <transition
+                        enter-from-class="opacity-0"
+                        leave-to-class="opacity-0"
+                        enter-active-class="transition"
+                        leave-active-class="transition"
+                    >
+                        <div
+                            v-if="detail.loading[indexPost]"
+                            :class="container"
+                        >
+                            <Icon
+                                :class="icon"
+                                icon="eos-icons:three-dots-loading"
+                            />
+                        </div>
+                    </transition>
+                </template>
+            </Teaser>
+        </div>
     </div>
 </template>

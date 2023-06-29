@@ -7,7 +7,7 @@ const changeLanguage = (language) => (locale.value = language);
 </script>
 
 <template>
-    <div class="container">
+    <div>
         <button
             v-for="(language, indexLanguage) in languages"
             :key="indexLanguage"

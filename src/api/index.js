@@ -35,9 +35,9 @@ export async function getStoryblokStory(story) {
 export async function putStoryblok(story, lang) {
     return await Storyblok.management
         .put(`spaces/${import.meta.env.STORY_ID_SPACE}/stories/${story.id}`, {
-            story,
             lang,
-            publish: story.published_at ? 1 : 0,
+            story,
+            publish: Number(story.published),
         })
         .then((res) => res)
         .catch((error) => console.error(error));

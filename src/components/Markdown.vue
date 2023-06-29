@@ -250,9 +250,7 @@ export default {
         watch(
             () => props.text,
             (val) => {
-                if (editor.value.getHTML() === val) {
-                    return;
-                }
+                if (editor.value.getHTML() === val) return;
                 editor.value.commands.setContent(val);
             }
         );
