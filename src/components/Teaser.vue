@@ -22,7 +22,7 @@ const setFile = computed(() => {
     >
         <div class="teaser-file-container w-full">
             <img
-                class="teaser-file w-full h-full object-center select-none aspect-video"
+                class="teaser-file w-full h-full object-center object-cover select-none aspect-video"
                 :src="setFile"
             />
         </div>

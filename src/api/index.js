@@ -25,20 +25,29 @@ export async function getStoryblokStories(
         .catch((error) => console.error(error));
 }
 
-export async function getStoryblokStory(story) {
+export async function getStoryblokStory(id) {
     return await Storyblok.management
-        .get(`spaces/${import.meta.env.STORY_ID_SPACE}/stories/${story}`, {})
+        .get(`spaces/${import.meta.env.STORY_ID_SPACE}/stories/${id}`, {})
         .then(({ data }) => data)
         .catch((error) => console.error(error));
 }
 
-export async function putStoryblok(story, lang) {
+export async function editStoryblokStory(story, lang) {
     return await Storyblok.management
         .put(`spaces/${import.meta.env.STORY_ID_SPACE}/stories/${story.id}`, {
             lang,
             story,
-            publish: Number(story.published),
         })
-        .then((res) => res)
+        .then(({ data }) => data)
+        .catch((error) => console.error(error));
+}
+
+export async function toggleStoryblokStory(id, state) {
+    return await Storyblok.management
+        .get(
+            `spaces/${import.meta.env.STORY_ID_SPACE}/stories/${id}/${state}`,
+            {}
+        )
+        .then(({ data }) => data)
         .catch((error) => console.error(error));
 }
