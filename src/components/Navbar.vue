@@ -30,9 +30,11 @@ const goBack = () => {
 };
 const changeLanguage = (language) => (locale.value = language);
 const preventNav = (event) => {
-    if (leave.value) return;
-    event.preventDefault();
-    event.returnValue = "";
+    if (route.query.id) {
+        if (leave.value) return;
+        event.preventDefault();
+        event.returnValue = "";
+    }
 };
 onBeforeMount(() => {
     window.addEventListener("beforeunload", preventNav);

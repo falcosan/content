@@ -2,3 +2,4 @@
 node_modules/
 blog/
 .DS_Store
+dev-dist
