@@ -1,5 +1,5 @@
 <script setup>
-import { getStoryblok } from "@/api";
+import { getStoryblokStories, getStoryblokStory } from "@/api";
 import Post from "@/components/Post.vue";
 import Teaser from "@/components/Teaser.vue";
 import { useRoute, useRouter } from "vue-router";
@@ -21,42 +21,33 @@ const setDetail = (item) => {
     router.push({ query: { id: item.id } });
 };
 const getStories = async (language) => {
-    const { stories } = await getStoryblok(language, "blog");
-    const res = stories.filter((story) => !story.is_startpage);
-    data.value = res;
-    return stories;
+    const { stories } = await getStoryblokStories(language, "blog");
+    data.value = stories.filter((story) => !story.is_startpage);
 };
-const getStory = async (language, forced) => {
-    const res =
-        !forced && data.value.length ? data.value : await getStories(language);
-    const item = res.find((item) => String(item.id) === String(route.query.id));
-    if (item) {
-        setDetail(item);
-        router.push({ query: { id: item.id } });
-    }
+const getStory = async () => {
+    const { story } = await getStoryblokStory(route.query.id);
+    setDetail(story);
 };
 watch(locale, async (val) => {
-    if (route.query) await getStory(val, true);
-    else await getStories(val);
+    if (!route.query) await getStories(val);
 });
 watch(
     () => route.query,
     async (val) => {
-        if (!val.id) {
-            if (!data.value.length) await getStories(locale.value);
-            detail.value.state = false;
+        if (val.id) {
+            await getStory(locale.value);
+            if (!detail.value.state) detail.value.state = true;
         } else {
-            await getStory(locale.value).then(
-                () => (detail.value.state = true)
-            );
+            if (detail.value.state) detail.value.state = false;
         }
+        if (!data.value.length) await getStories(locale.value);
     },
     { immediate: true }
 );
 </script>
 
 <template>
-    <div v-if="data.length" class="container mx-auto">
+    <div class="container mx-auto">
         <Post v-if="detail.state" :data="detail.item" />
         <template v-else>
             <Teaser
