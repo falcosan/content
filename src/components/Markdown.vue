@@ -57,6 +57,7 @@
     </div>
 </template>
 <script>
+import { Markdown } from "tiptap-markdown";
 import StarterKit from "@tiptap/starter-kit";
 import { computed, reactive, toRefs, watch } from "vue";
 import { useEditor, EditorContent } from "@tiptap/vue-3";
@@ -91,7 +92,7 @@ export default {
             content: props.text,
             editable: true,
             enablePasteRules: true,
-            extensions: [StarterKit],
+            extensions: [StarterKit, Markdown],
             enableCoreExtensions: true,
             editorProps: {
                 attributes: {
@@ -99,7 +100,10 @@ export default {
                 },
             },
             onUpdate({ editor }) {
-                emit("update:text", editor.getHTML());
+                emit(
+                    "update:text",
+                    editor.extensionStorage.markdown.getMarkdown()
+                );
             },
             onSelectionUpdate({ editor }) {
                 checkFormats(editor);
@@ -253,7 +257,10 @@ export default {
         watch(
             () => props.text,
             (val) => {
-                if (editor.value.getHTML() === val) return;
+                if (
+                    editor.value.extensionStorage.markdown.getMarkdown() === val
+                )
+                    return;
                 editor.value.commands.setContent(val);
             }
         );

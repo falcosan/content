@@ -15,6 +15,7 @@
     "@tiptap/vue-3": "^2.0.3",
     "@vueuse/core": "^10.2.1",
     "storyblok-js-client": "^5.11.0",
+    "tiptap-markdown": "^0.8.1",
     "vue": "^3.2.47",
     "vue-router": "^4.2.2"
   },

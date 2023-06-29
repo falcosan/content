@@ -42,6 +42,25 @@ export async function editStoryblokStory(story, lang) {
         .catch((error) => console.error(error));
 }
 
+export async function getStoryblokComponents(name, property) {
+    const components = [];
+    await Storyblok.management
+        .get(`spaces/${import.meta.env.STORY_ID_SPACE}/components`, {})
+        .then((response) =>
+            response.data.components.forEach((component) => {
+                const compName = component.name;
+                const compSchema = component.schema;
+                const compKeys = Object.keys(compSchema);
+                const i18nKeys = [];
+                compKeys.forEach((key) => {
+                    if (compSchema[key][property]) i18nKeys.push(key);
+                });
+                components[compName] = i18nKeys;
+            })
+        );
+    return name === true ? components : components[name];
+}
+
 export async function toggleStoryblokStory(id, state) {
     return await Storyblok.management
         .get(

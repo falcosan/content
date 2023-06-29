@@ -4,7 +4,11 @@ import { Icon } from "@iconify/vue";
 import { computed, inject } from "vue";
 import Markdown from "@/components/Markdown";
 import { reactive, toRefs, watch } from "vue";
-import { editStoryblokStory, toggleStoryblokStory } from "@/api";
+import {
+    editStoryblokStory,
+    toggleStoryblokStory,
+    getStoryblokComponents,
+} from "@/api";
 
 const props = defineProps({
     data: {
@@ -15,14 +19,15 @@ const props = defineProps({
 const locale = inject("locale");
 const state = reactive({
     post: {},
+    translatable: [],
     loading: {
         edit: false,
         toggle: false,
     },
 });
-const { post, loading } = toRefs(state);
+const { post, loading, translatable } = toRefs(state);
 const fields = computed(() =>
-    extractTranslatable(post.value.content).reduce((acc, value) => {
+    translatable.value.reduce((acc, value) => {
         const regex = new RegExp(`${enums.translatableSuffix}.*`);
         const key = value.replace(regex, "");
         const obj = enums.languages.reduce((objAcc, lang) => {
@@ -34,26 +39,21 @@ const fields = computed(() =>
     }, {})
 );
 const mapPost = (values) => {
-    const translatable = extractTranslatable(values.content).reduce(
-        (acc, value) => {
-            const regex = new RegExp(`${enums.translatableSuffix}.*`);
-            const key = value.replace(regex, "");
-            return enums.languages.reduce((objAcc, lang) => {
-                const translatedKey = `${key}${enums.translatableSuffix}${lang}`;
-                const text = lang === "en" ? key : translatedKey;
-                return {
-                    ...acc,
-                    ...objAcc,
-                    [text]: values.content[text] || "",
-                };
-            }, {});
-        },
-        {}
-    );
-    return { ...values, content: { ...values.content, ...translatable } };
+    const keys = translatable.value.reduce((acc, value) => {
+        const regex = new RegExp(`${enums.translatableSuffix}.*`);
+        const key = value.replace(regex, "");
+        return enums.languages.reduce((objAcc, lang) => {
+            const translatedKey = `${key}${enums.translatableSuffix}${lang}`;
+            const text = lang === "en" ? key : translatedKey;
+            return {
+                ...acc,
+                ...objAcc,
+                [text]: values.content[text] || "",
+            };
+        }, {});
+    }, {});
+    return { ...values, content: { ...values.content, ...keys } };
 };
-const extractTranslatable = (source) =>
-    Object.keys(source).filter((key) => key.includes(enums.translatableSuffix));
 const editPost = async () => {
     loading.value.edit = true;
     await editStoryblokStory(post.value, locale.value)
@@ -67,12 +67,29 @@ const togglePost = async () => {
         .then((res) => (post.value = mapPost(res.story)))
         .finally(() => (loading.value.toggle = false));
 };
-watch(props.data, (val) => (post.value = mapPost(val)), { immediate: true });
+watch(
+    props.data,
+    async (val) => {
+        if (!translatable.value.length) {
+            translatable.value = await getStoryblokComponents(
+                val.content.component,
+                "translatable"
+            );
+        }
+        post.value = mapPost(val);
+    },
+    { immediate: true }
+);
 </script>
 
 <template>
-    <div v-if="data.content">
-        <Markdown v-model:text="post.content[fields.long_text]" />
+    <div v-if="post.content">
+        <Markdown v-model:text="post.content[fields.title]" title="Title" />
+        <Markdown v-model:text="post.content[fields.intro]" title="Intro" />
+        <Markdown
+            v-model:text="post.content[fields.long_text]"
+            title="Content"
+        />
         <div class="flex flex-wrap justify-center xs:justify-end mt-10 -m-2.5">
             <button
                 class="w-full sm:w-32 flex justify-center m-2.5 p-2.5 px-6 rounded font-semibold active:bg-opacity-70 text-white bg-blue-500"
