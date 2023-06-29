@@ -73,9 +73,9 @@ watch(props.data, (val) => (post.value = mapPost(val)), { immediate: true });
 <template>
     <div v-if="data.content">
         <Markdown v-model:text="post.content[fields.long_text]" />
-        <div class="flex flex-wrap justify-end mt-10 -m-2.5">
+        <div class="flex flex-wrap justify-center xs:justify-end mt-10 -m-2.5">
             <button
-                class="w-32 flex justify-center m-2.5 p-2.5 px-6 rounded font-semibold active:bg-opacity-70 text-white bg-blue-500"
+                class="w-full sm:w-32 flex justify-center m-2.5 p-2.5 px-6 rounded font-semibold active:bg-opacity-70 text-white bg-blue-500"
                 @click="editPost"
             >
                 <Icon
@@ -87,7 +87,7 @@ watch(props.data, (val) => (post.value = mapPost(val)), { immediate: true });
             </button>
             <button
                 :class="[
-                    'w-32 flex justify-center m-2.5 p-2.5 px-6 rounded font-semibold active:bg-opacity-70 text-white',
+                    'w-full sm:w-32 flex justify-center m-2.5 p-2.5 px-6 rounded font-semibold active:bg-opacity-70 text-white',
                     post.published ? 'bg-red-500' : 'bg-green-600',
                 ]"
                 @click="togglePost"

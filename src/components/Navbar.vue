@@ -1,17 +1,55 @@
 <script setup>
 import enums from "@/enums";
 import { Icon } from "@iconify/vue";
-import { computed, inject } from "vue";
 import { useWindowScroll } from "@vueuse/core";
 import { useRoute, useRouter } from "vue-router";
+import {
+    computed,
+    inject,
+    reactive,
+    toRefs,
+    onBeforeMount,
+    onBeforeUnmount,
+} from "vue";
 
 const route = useRoute();
 const router = useRouter();
 const { y } = useWindowScroll();
 const locale = inject("locale");
+const state = reactive({
+    modal: false,
+    leave: false,
+});
+const { modal, leave } = toRefs(state);
 const checkDetail = computed(() => !!route.query.type);
-const goBack = () => router.replace({ query: {} });
+const toggleModal = (state) => (modal.value = state);
+const goBack = () => {
+    leave.value = true;
+    toggleModal(false);
+    router.replace({ query: {} });
+};
 const changeLanguage = (language) => (locale.value = language);
+const preventNav = (event) => {
+    if (leave.value) return;
+    event.preventDefault();
+    event.returnValue = "";
+};
+onBeforeMount(() => {
+    window.addEventListener("beforeunload", preventNav);
+    onBeforeUnmount(() =>
+        window.removeEventListener("beforeunload", preventNav)
+    );
+});
+router.beforeEach((to, from, next) => {
+    if (!leave.value) {
+        if (from.query.id != null) {
+            toggleModal(true);
+            next(false);
+            return;
+        }
+    } else if (to.query.id != null) leave.value = false;
+    next();
+});
 </script>
 
 <template>
@@ -35,9 +73,34 @@ const changeLanguage = (language) => (locale.value = language);
                 <button
                     v-if="checkDetail"
                     class="py-2 px-5 m-2 rounded text-gray-600 active:text-white bg-gray-200 active:bg-gray-600"
-                    @click="goBack"
+                    @click="toggleModal(true)"
                 >
                     <Icon class="text-xl" icon="ic:round-door-back" />
+                </button>
+            </div>
+        </div>
+    </div>
+    <div
+        v-if="checkDetail && modal"
+        class="fixed h-screen w-screen flex items-center justify-center left-0 top-0 px-2.5 md:px-5 z-20 bg-opacity-40 bg-gray-600"
+    >
+        <div class="w-full max-w-lg p-2.5 md:p-5 rounded bg-white">
+            <p
+                class="mb-5 text-center font-bold text-gray-600"
+                v-text="'Leave?'"
+            />
+            <div class="flex flex-wrap -m-2">
+                <button
+                    class="flex justify-center flex-auto py-2 px-5 m-2 rounded text-white active:bg-opacity-70 bg-red-500"
+                    @click="toggleModal(false)"
+                >
+                    <Icon class="text-xl" icon="dashicons:no" />
+                </button>
+                <button
+                    class="flex justify-center flex-auto py-2 px-5 m-2 rounded text-white active:bg-opacity-70 bg-green-500"
+                    @click="goBack"
+                >
+                    <Icon class="text-xl" icon="dashicons:yes" />
                 </button>
             </div>
         </div>

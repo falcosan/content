@@ -7,7 +7,7 @@
         />
         <div class="flex flex-col">
             <EditorContent
-                class="h-full min-w-[2rem] min-h-[16rem] py-2 px-2 border rounded focus:border-gray-200 outline-none ring-0 focus:outline-0 border-gray-300"
+                class="h-full min-w-[2rem] min-h-[16rem]"
                 :editor="editor"
             />
 
@@ -19,8 +19,10 @@
                         v-for="action in setterActions.format"
                         :key="action.tag"
                         :class="[
-                            'w-12 border m-1 shadow active:bg-gray-300 border-gray-300',
-                            action.active ? 'bg-gray-500' : 'bg-gray-200',
+                            'w-12 m-1 border rounded shadow text-sm active:bg-gray-300 border-gray-300',
+                            action.active
+                                ? 'text-gray-200 bg-gray-500'
+                                : 'text-gray-500 bg-gray-200',
                             { 'font-bold': action.type === 'bold' },
                             { italic: action.type === 'italic' },
                         ]"
@@ -33,8 +35,9 @@
                         v-for="action in setterActions.history"
                         :key="action.tag"
                         :class="[
-                            'w-12 border m-1 shadow active:bg-gray-300 border-gray-300 bg-gray-200',
+                            'w-12 m-1 border rounded shadow text-sm border-gray-300 text-gray-500 bg-gray-200 active:text-gray-200 active:bg-gray-500',
                         ]"
+                        style="font-variant: all-petite-caps"
                         v-text="action.value"
                         @click="setText(action)"
                     />
@@ -92,7 +95,7 @@ export default {
             enableCoreExtensions: true,
             editorProps: {
                 attributes: {
-                    class: "h-full min-h-[inherit] overflow-hidden",
+                    class: "h-full min-h-[inherit] py-2 px-2 rounded overflow-hidden border focus:border-gray-400 border-gray-200 focus-visible:outline-0",
                 },
             },
             onUpdate({ editor }) {
