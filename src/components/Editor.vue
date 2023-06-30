@@ -11,7 +11,7 @@
                 :editor="editor"
             />
 
-            <div v-if="tools" class="sticky bottom-0 pb-5">
+            <div v-if="tools" class="md:sticky md:bottom-0 pb-5">
                 <div class="flex flex-wrap justify-between">
                     <div class="rounded border border-gray-200 bg-white">
                         <button
@@ -52,16 +52,16 @@
                     <template #body>
                         <div class="w-full">
                             <input
-                                v-for="(input, indexInput) in extension.scheme"
+                                v-for="(input, indexInput) in node.scheme"
                                 :key="indexInput"
-                                v-model="extension.argument[input]"
+                                v-model="node.argument[input]"
                                 class="mb-5"
                                 :placeholder="input"
                             />
                             <div class="flex flex-wrap -m-2">
                                 <button
                                     class="flex justify-center flex-auto py-2 px-5 m-2 rounded active:bg-opacity-70 text-white bg-red-500"
-                                    @click="toggleExtensionAction(false)"
+                                    @click="toggleNodeAction(false)"
                                 >
                                     <Icon class="text-xl" icon="dashicons:no" />
                                 </button>
@@ -73,7 +73,7 @@
                                             : 'text-gray-500 bg-gray-200',
                                     ]"
                                     :disabled="!checkArguments"
-                                    @click="toggleExtensionAction(true)"
+                                    @click="toggleNodeAction(true)"
                                 >
                                     <Icon
                                         class="text-xl"
@@ -137,7 +137,7 @@ export default {
             Array.from({ length }, () => data);
         const state = reactive({
             modal: false,
-            extension: {
+            node: {
                 type: "",
                 scheme: [],
                 argument: {},
@@ -145,13 +145,15 @@ export default {
             current: {
                 bold: false,
                 link: false,
+                code: false,
                 italic: false,
                 strike: false,
                 paragraph: false,
+                codeBlock: false,
                 heading: arrayCreate(false),
             },
         });
-        const { modal, extension, current } = toRefs(state);
+        const { modal, node, current } = toRefs(state);
         const editor = useEditor({
             extensions,
             editable: true,
@@ -249,17 +251,29 @@ export default {
                 type: "image",
                 action: "setImage",
                 title: "Image",
-                extension: true,
                 arg: { src: "" },
+            },
+            {
+                value: "Code",
+                type: "code",
+                action: "toggleCode",
+                title: "Code",
+                active: current.value.code,
+            },
+            {
+                value: "CodeBlock",
+                type: "codeBlock",
+                action: "toggleCodeBlock",
+                title: "CodeBlock",
+                active: current.value.codeBlock,
             },
             {
                 value: "link",
                 type: "link",
                 title: "Link",
-                action: "toggleLink",
+                action: "setLink",
                 actionAlt: "unsetLink",
                 active: current.value.link,
-                extension: true,
                 arg: { href: "" },
             },
             {
@@ -299,16 +313,16 @@ export default {
             };
         });
         const checkArguments = computed(() => {
-            return !!Object.values(extension.value.argument).filter(Boolean)
+            return !!Object.values(node.value.argument).filter(Boolean)
                 .length;
         });
         const toggleModal = (state) => {
             editor.value.setOptions({ editable: !state });
             modal.value = state;
         };
-        const toggleExtensionAction = (state) => {
+        const toggleNodeAction = (state) => {
             const action = actions.value.find(
-                (action) => action.type === extension.value.type
+                (action) => action.type === node.value.type
             );
             const edit = (operation) => {
                 let trigger = editor.value.chain().focus();
@@ -318,14 +332,14 @@ export default {
                 return trigger[operation](action.arg).run();
             };
             if (state) {
-                extension.value.scheme.forEach(
-                    (key) => (action.arg[key] = extension.value.argument[key])
+                node.value.scheme.forEach(
+                    (key) => (action.arg[key] = node.value.argument[key])
                 );
                 edit(action.action);
             } else {
                 edit(action.actionAlt ?? action.action);
             }
-            extension.value.argument = {};
+            node.value.argument = {};
             toggleModal(false);
         };
         const setText = (action) => {
@@ -341,7 +355,7 @@ export default {
                     if (action.type === "paragraph") {
                         current.value.heading = arrayCreate(false);
                     }
-                    if (action.extension) {
+                    if (action.arg) {
                         const scheme = Object.keys(action.arg);
                         if (attributes) {
                             const used = importFilter(
@@ -350,11 +364,11 @@ export default {
                                 true
                             );
                             scheme.forEach((arg) => {
-                                extension.value.argument[arg] = used[arg];
+                                node.value.argument[arg] = used[arg];
                             });
                         }
-                        extension.value.scheme = scheme;
-                        extension.value.type = action.type;
+                        node.value.scheme = scheme;
+                        node.value.type = action.type;
                         toggleModal(true);
                     } else {
                         editor.value.commands[action.action]();
@@ -377,9 +391,11 @@ export default {
         const checkFormats = (editor) => {
             current.value.link = editor.isActive("link");
             current.value.bold = editor.isActive("bold");
+            current.value.code = editor.isActive("code");
             current.value.italic = editor.isActive("italic");
             current.value.strike = editor.isActive("strike");
             current.value.paragraph = editor.isActive("paragraph");
+            current.value.codeBlock = editor.isActive("codeBlock");
             current.value.heading.map(
                 (_, i) =>
                     (current.value.heading[i] = editor.isActive("heading", {
@@ -398,16 +414,16 @@ export default {
             }
         );
         return {
+            node,
             modal,
             editor,
             current,
             actions,
             setText,
-            extension,
             renderLength,
             setterActions,
             checkArguments,
-            toggleExtensionAction,
+            toggleNodeAction,
         };
     },
 };
