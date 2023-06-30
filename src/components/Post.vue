@@ -1,9 +1,8 @@
 <script setup>
 import enums from "@/enums";
 import { Icon } from "@iconify/vue";
-import { computed, inject } from "vue";
 import Editor from "@/components/Editor";
-import { reactive, toRefs, watch } from "vue";
+import { reactive, toRefs, watch, computed, inject, onMounted, onUnmounted  } from "vue";
 import {
     editStoryblokStory,
     toggleStoryblokStory,
@@ -88,6 +87,14 @@ const togglePost = async () => {
         .then((res) => (post.value = mapPost(res.story)))
         .finally(() => (loading.value.toggle = false));
 };
+const handleSave = async (event) => {
+    if (event.metaKey && event.code === 'KeyS') {
+        event.preventDefault();
+        await editPost()
+    }
+};
+onMounted(()=> window.addEventListener('keydown', handleSave))
+onUnmounted(()=> window.removeEventListener('keydown', handleSave))
 watch(
     props.data,
     async (val) => {
