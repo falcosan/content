@@ -156,6 +156,7 @@
         transition-duration: 100ms;
         transition-property: opacity;
         transition-timing-function: ease;
+        color: #fff;
     }
     .markdown .syntax-code-block:hover .code-language {
         opacity: 1;
@@ -220,8 +221,8 @@
     .markdown ul ul ul {
         list-style: square inside;
     }
-    .markdown ::marker {
-        font-weight: 700;
+    .markdown * li > p:first-child {
+        display: inline;
     }
     .markdown p {
         margin-top: 0;

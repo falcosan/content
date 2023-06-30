@@ -105,14 +105,33 @@ import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
 import StarterKit from "@tiptap/starter-kit";
 import { importFilter } from "@/utils/object.js";
-import ListItem from "@tiptap/extension-list-item";
+import CodeBlock from "@tiptap/extension-code-block";
 import { computed, reactive, toRefs, watch } from "vue";
 import { useEditor, EditorContent } from "@tiptap/vue-3";
 const extensions = [
-    ListItem.extend({ content: "text*" }),
+    CodeBlock.extend({
+        addAttributes() {
+            return {
+                ...this.parent?.(),
+                class: {
+                    parseHTML() {
+                        return "syntax-code-block";
+                    },
+                },
+            };
+        },
+        renderHTML({ node, HTMLAttributes }) {
+            return [
+                "pre",
+                HTMLAttributes,
+                ["span", { class: "code-language" }, node.attrs.language],
+                ["code", {}, 0],
+            ];
+        },
+    }),
     Link.configure({ openOnClick: false }),
     Image.configure({ inline: true, allowBase64: true }),
-    StarterKit.configure({ history: true, listItem: false }),
+    StarterKit.configure({ codeBlock: false }),
 ];
 export default {
     name: "Editor",
@@ -245,6 +264,14 @@ export default {
                 arg: { level: 5 },
             },
             {
+                value: "Image",
+                type: "image",
+                action: "setImage",
+                title: "Image",
+                extension: true,
+                arg: { src: "" },
+            },
+            {
                 value: "link",
                 type: "link",
                 title: "Link",
@@ -299,13 +326,13 @@ export default {
             const action = actions.value.find(
                 (action) => action.type === extension.value.type
             );
-            const edit = (operation) =>
-                editor.value
-                    .chain()
-                    .focus()
-                    .extendMarkRange(action.type)
-                    [operation](action.arg)
-                    .run();
+            const edit = (operation) => {
+                let trigger = editor.value.chain().focus();
+                if (action.actionAlt != null) {
+                    trigger = trigger.extendMarkRange(action.type);
+                }
+                return trigger[operation](action.arg).run();
+            };
             if (state) {
                 extension.value.scheme.forEach(
                     (key) => (action.arg[key] = extension.value.argument[key])
