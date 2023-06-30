@@ -104,6 +104,7 @@ import Modal from "@/components/Modal";
 import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
 import StarterKit from "@tiptap/starter-kit";
+import { importFilter } from "@/utils/object.js";
 import ListItem from "@tiptap/extension-list-item";
 import { computed, reactive, toRefs, watch } from "vue";
 import { useEditor, EditorContent } from "@tiptap/vue-3";
@@ -247,7 +248,8 @@ export default {
                 value: "link",
                 type: "link",
                 title: "Link",
-                action: "setLink",
+                action: "toggleLink",
+                actionAlt: "unsetLink",
                 active: current.value.link,
                 extension: true,
                 arg: { href: "" },
@@ -293,26 +295,31 @@ export default {
                 .length;
         });
         const toggleModal = (state) => (modal.value = state);
-        const toggleExtensionAction = (state, alternative) => {
-            if (state) {
-                const action = actions.value.find(
-                    (action) => action.type === extension.value.type
-                );
-                extension.value.scheme.forEach(
-                    (key) => (action.arg[key] = extension.value.argument[key])
-                );
+        const toggleExtensionAction = (state) => {
+            const action = actions.value.find(
+                (action) => action.type === extension.value.type
+            );
+            const edit = (operation) =>
                 editor.value
                     .chain()
                     .focus()
                     .extendMarkRange(action.type)
-                    [alternative ?? action.action](action.arg)
+                    [operation](action.arg)
                     .run();
+            if (state) {
+                extension.value.scheme.forEach(
+                    (key) => (action.arg[key] = extension.value.argument[key])
+                );
+                edit(action.action);
+            } else {
+                edit(action.actionAlt ?? action.action);
             }
             extension.value.argument = {};
             toggleModal(false);
         };
         const setText = (action) => {
             if (action.type) {
+                const attributes = editor.value.getAttributes(action.type);
                 if (action.type === "heading") {
                     current.value.heading = arrayCreate(false);
                     current.value.paragraph = false;
@@ -324,15 +331,20 @@ export default {
                         current.value.heading = arrayCreate(false);
                     }
                     if (action.extension) {
-                        if (editor.value.isActive(action.type)) {
-                            if (action.type === "link") {
-                                toggleExtensionAction(true, "unsetLink");
-                            }
-                        } else {
-                            extension.value.type = action.type;
-                            extension.value.scheme = Object.keys(action.arg);
-                            toggleModal(true);
+                        const scheme = Object.keys(action.arg);
+                        if (attributes) {
+                            const used = importFilter(
+                                attributes,
+                                Object.keys(action.arg),
+                                true
+                            );
+                            scheme.forEach((arg) => {
+                                extension.value.argument[arg] = used[arg];
+                            });
                         }
+                        extension.value.scheme = scheme;
+                        extension.value.type = action.type;
+                        toggleModal(true);
                     } else {
                         editor.value.commands[action.action]();
                     }
