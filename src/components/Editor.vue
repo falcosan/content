@@ -11,25 +11,26 @@
                 :editor="editor"
             />
 
-            <div v-if="tools" class="md:sticky md:bottom-0 pb-5">
-                <div class="flex flex-wrap justify-between">
-                    <div class="rounded border border-gray-200 bg-white">
+            <div v-if="tools" class="lg:sticky lg:bottom-0 pb-5">
+                <div class="flex flex-wrap justify-end lg:justify-between -m-2.5">
+                    <div class="m-2.5 rounded border border-gray-200 bg-white">
                         <button
                             v-for="action in setterActions.format"
                             :key="action.tag"
                             :class="[
-                                'w-12 m-1 border rounded shadow active:bg-gray-300 border-gray-300',
+                                'w-12 align-middle m-1 border rounded shadow active:bg-gray-300 border-gray-300',
                                 action.active
                                     ? 'text-gray-200 bg-gray-500'
                                     : 'text-gray-500 bg-gray-200',
                                 { 'font-bold': action.type === 'bold' },
                                 { italic: action.type === 'italic' },
                             ]"
-                            @click="setText(action)"
-                            v-text="action.value"
-                        />
+                            @click="setText(action)">
+                            <Icon  v-if="action.icon" class="mx-auto text-2xl" :icon="action.icon"/>
+                            <span v-else v-text="action.value" />
+                        </button>
                     </div>
-                    <div class="rounded border border-gray-200 bg-white">
+                    <div class="m-2.5 rounded border border-gray-200 bg-white">
                         <button
                             v-for="action in setterActions.history"
                             :key="action.tag"
@@ -37,9 +38,10 @@
                                 'w-12 m-1 border rounded shadow border-gray-300 text-gray-500 bg-gray-200 active:text-gray-200 active:bg-gray-500',
                             ]"
                             style="font-variant: all-petite-caps"
-                            @click="setText(action)"
-                            v-text="action.value"
-                        />
+                            @click="setText(action)">
+                            <Icon v-if="action.icon"  class="mx-auto text-2xl" :icon="action.icon"/>
+                            <span v-else v-text="action.value" />
+                        </button>
                     </div>
                 </div>
                 <Modal v-model:open="modal">
@@ -251,6 +253,7 @@ export default {
                 type: "image",
                 action: "setImage",
                 title: "Image",
+                icon: 'material-symbols:image',
                 arg: { src: "" },
             },
             {
@@ -258,6 +261,7 @@ export default {
                 type: "code",
                 action: "toggleCode",
                 title: "Code",
+                icon: "material-symbols:code",
                 active: current.value.code,
             },
             {
@@ -265,6 +269,7 @@ export default {
                 type: "codeBlock",
                 action: "toggleCodeBlock",
                 title: "CodeBlock",
+                icon: "ci:window-code-block",
                 active: current.value.codeBlock,
             },
             {
@@ -274,23 +279,24 @@ export default {
                 action: "setLink",
                 actionAlt: "unsetLink",
                 active: current.value.link,
+                icon: "material-symbols:link",
                 arg: { href: "" },
             },
             {
                 value: "clear",
-                icon: "pt-times-circle",
                 action: "clearNodes",
+                icon: "mdi:clear",
                 title: "clear",
             },
             {
                 value: "undo",
-                icon: "pt-arrow-left",
+                icon: "material-symbols:undo",
                 action: "undo",
                 title: "undo",
             },
             {
                 value: "redo",
-                icon: "pt-arrow-right",
+                icon: "material-symbols:redo",
                 action: "redo",
                 title: "redo",
             },
