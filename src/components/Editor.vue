@@ -129,8 +129,8 @@ const extensions = [
             ];
         },
     }),
+    Image.configure({ inline: true }),
     Link.configure({ openOnClick: false }),
-    Image.configure({ inline: true, allowBase64: true }),
     StarterKit.configure({ codeBlock: false }),
 ];
 export default {
@@ -321,7 +321,10 @@ export default {
             return !!Object.values(extension.value.argument).filter(Boolean)
                 .length;
         });
-        const toggleModal = (state) => (modal.value = state);
+        const toggleModal = (state) => {
+            editor.value.setOptions({ editable: !state });
+            modal.value = state;
+        };
         const toggleExtensionAction = (state) => {
             const action = actions.value.find(
                 (action) => action.type === extension.value.type
