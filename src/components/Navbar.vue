@@ -14,7 +14,7 @@ import {
 
 const route = useRoute();
 const router = useRouter();
-const { y } = useWindowScroll();
+const { y: scrollY } = useWindowScroll();
 const locale = inject("locale");
 const state = reactive({
     modal: false,
@@ -55,9 +55,17 @@ router.beforeEach((to, from, next) => {
 </script>
 
 <template>
-    <div class="relative z-10 pb-5" :style="`transform: translateY(${y}px)`">
+    <div
+        class="relative z-10 pb-5"
+        :style="`transform: translateY(${scrollY}px)`"
+    >
         <div class="flex justify-between items-start -m-2">
-            <div class="rounded pt-5 bg-white">
+            <div
+                :class="[
+                    'rounded transition-[padding] bg-white',
+                    scrollY ? 'pt-2.5' : 'pt-5',
+                ]"
+            >
                 <button
                     :class="[
                         'py-2.5 px-6 m-2 rounded text-xs font-semibold uppercase',
@@ -71,7 +79,12 @@ router.beforeEach((to, from, next) => {
                     @click="changeLanguage(language)"
                 />
             </div>
-            <div class="rounded pt-5 bg-white">
+            <div
+                :class="[
+                    'rounded transition-[padding] bg-white',
+                    scrollY ? 'pt-2.5' : 'pt-5',
+                ]"
+            >
                 <button
                     v-if="checkDetail"
                     class="py-2 px-5 m-2 rounded text-gray-600 active:text-white bg-gray-200 active:bg-gray-600"

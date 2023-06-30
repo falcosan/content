@@ -42,20 +42,31 @@ export async function editStoryblokStory(story, lang) {
         .catch((error) => console.error(error));
 }
 
-export async function getStoryblokComponents(name, property) {
+export async function getStoryblokComponents(name, properties) {
     const components = [];
     await Storyblok.management
         .get(`spaces/${import.meta.env.STORY_ID_SPACE}/components`, {})
         .then((response) =>
             response.data.components.forEach((component) => {
+                const singleKey = [];
+                const multipleKeys = {};
                 const compName = component.name;
                 const compSchema = component.schema;
-                const compKeys = Object.keys(compSchema);
-                const i18nKeys = [];
-                compKeys.forEach((key) => {
-                    if (compSchema[key][property]) i18nKeys.push(key);
+                Object.keys(compSchema).forEach((key) => {
+                    if (Array.isArray(properties)) {
+                        properties.forEach((prop) => {
+                            if (compSchema[key][prop]) {
+                                multipleKeys[prop] = multipleKeys[prop] || [];
+                                multipleKeys[prop].push(key);
+                            }
+                        });
+                    } else {
+                        if (compSchema[key][properties]) singleKey.push(key);
+                    }
                 });
-                components[compName] = i18nKeys;
+                components[compName] = Array.isArray(properties)
+                    ? multipleKeys
+                    : singleKey;
             })
         );
     return name === true ? components : components[name];
