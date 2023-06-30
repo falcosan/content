@@ -35,6 +35,7 @@ export default {
             default: false,
         },
     },
+    emits: ["update:open"],
     setup(props, { emit }) {
         const modal = ref(null);
         const checkModal = () => {

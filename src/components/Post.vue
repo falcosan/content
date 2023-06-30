@@ -110,8 +110,8 @@ watch(
         <Editor
             v-for="(editor, indexEditor) in editors"
             :key="indexEditor"
-            :title="editor.title"
             v-model:text="post.content[editor.value]"
+            :title="editor.title"
             :tools="editor.markdown"
         />
         <div class="flex flex-wrap justify-center xs:justify-end mt-10 -m-2.5">

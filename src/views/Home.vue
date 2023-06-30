@@ -68,10 +68,10 @@ watch(
             class="grid grid-cols-12 sm:grid-cols-[repeat(auto-fit,_minmax(2rem,_1fr))] lg:grid-cols-12 gap-6"
         >
             <Teaser
-                class="col-span-12 sm:col-span-5 md:col-span-4 lg:col-span-3"
                 v-for="(post, indexPost) in data"
-                :data="post"
                 :key="post.uuid"
+                class="col-span-12 sm:col-span-5 md:col-span-4 lg:col-span-3"
+                :data="post"
                 @click="setDetail(post, 'post')"
             >
                 <template #loader="{ container, icon }">
