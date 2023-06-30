@@ -68,16 +68,16 @@ router.beforeEach((to, from, next) => {
                 ]"
             >
                 <button
+                    v-for="(language, indexLanguage) in enums.languages"
+                    :key="indexLanguage"
                     :class="[
                         'py-2.5 px-6 m-2 rounded text-xs font-semibold uppercase',
                         locale === language
                             ? 'text-white bg-gray-600'
                             : 'text-gray-600 bg-gray-200',
                     ]"
-                    v-for="(language, indexLanguage) in enums.languages"
-                    :key="indexLanguage"
-                    v-text="language"
                     @click="changeLanguage(language)"
+                    v-text="language"
                 />
             </div>
             <div

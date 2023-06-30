@@ -25,8 +25,8 @@
                                 { 'font-bold': action.type === 'bold' },
                                 { italic: action.type === 'italic' },
                             ]"
-                            v-text="action.value"
                             @click="setText(action)"
+                            v-text="action.value"
                         />
                     </div>
                     <div class="rounded border border-gray-200 bg-white">
@@ -37,8 +37,8 @@
                                 'w-12 m-1 border rounded shadow border-gray-300 text-gray-500 bg-gray-200 active:text-gray-200 active:bg-gray-500',
                             ]"
                             style="font-variant: all-petite-caps"
-                            v-text="action.value"
                             @click="setText(action)"
+                            v-text="action.value"
                         />
                     </div>
                 </div>
@@ -53,10 +53,10 @@
                         <div class="w-full">
                             <input
                                 v-for="(input, indexInput) in extension.scheme"
-                                class="mb-5"
                                 :key="indexInput"
-                                :placeholder="input"
                                 v-model="extension.argument[input]"
+                                class="mb-5"
+                                :placeholder="input"
                             />
                             <div class="flex flex-wrap -m-2">
                                 <button
