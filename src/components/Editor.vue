@@ -11,40 +11,41 @@
                 :editor="editor"
             />
 
-            <div
-                v-if="tools"
-                class="flex flex-wrap mt-2.5 border rounded shadow justify-between border-gray-200"
-            >
-                <div>
-                    <button
-                        v-for="action in setterActions.format"
-                        :key="action.tag"
-                        :class="[
-                            'w-12 m-1 border rounded shadow text-sm active:bg-gray-300 border-gray-300',
-                            action.active
-                                ? 'text-gray-200 bg-gray-500'
-                                : 'text-gray-500 bg-gray-200',
-                            { 'font-bold': action.type === 'bold' },
-                            { italic: action.type === 'italic' },
-                        ]"
-                        v-text="action.value"
-                        @click="setText(action)"
-                    />
-                </div>
-                <div>
-                    <button
-                        v-for="action in setterActions.history"
-                        :key="action.tag"
-                        :class="[
-                            'w-12 m-1 border rounded shadow text-sm border-gray-300 text-gray-500 bg-gray-200 active:text-gray-200 active:bg-gray-500',
-                        ]"
-                        style="font-variant: all-petite-caps"
-                        v-text="action.value"
-                        @click="setText(action)"
-                    />
+            <div v-if="tools" class="sticky bottom-0 pb-5">
+                <div
+                    class="flex flex-wrap mt-2.5 border rounded shadow justify-between border-gray-200 bg-white"
+                >
+                    <div>
+                        <button
+                            v-for="action in setterActions.format"
+                            :key="action.tag"
+                            :class="[
+                                'w-12 m-1 border rounded shadow text-sm active:bg-gray-300 border-gray-300',
+                                action.active
+                                    ? 'text-gray-200 bg-gray-500'
+                                    : 'text-gray-500 bg-gray-200',
+                                { 'font-bold': action.type === 'bold' },
+                                { italic: action.type === 'italic' },
+                            ]"
+                            v-text="action.value"
+                            @click="setText(action)"
+                        />
+                    </div>
+                    <div>
+                        <button
+                            v-for="action in setterActions.history"
+                            :key="action.tag"
+                            :class="[
+                                'w-12 m-1 border rounded shadow text-sm border-gray-300 text-gray-500 bg-gray-200 active:text-gray-200 active:bg-gray-500',
+                            ]"
+                            style="font-variant: all-petite-caps"
+                            v-text="action.value"
+                            @click="setText(action)"
+                        />
+                    </div>
                 </div>
             </div>
-            <div class="w-full flex items-center justify-end mt-2">
+            <div class="w-full flex items-center justify-end">
                 <span
                     class="inline-block mr-2 text-xs italic text-gray-500"
                     v-text="'words:'"
@@ -58,12 +59,20 @@
     </div>
 </template>
 <script>
-import { Markdown } from "tiptap-markdown";
+import Link from "@tiptap/extension-link";
+import Image from "@tiptap/extension-image";
 import StarterKit from "@tiptap/starter-kit";
+import ListItem from "@tiptap/extension-list-item";
 import { computed, reactive, toRefs, watch } from "vue";
 import { useEditor, EditorContent } from "@tiptap/vue-3";
+const extensions = [
+    Link,
+    ListItem.extend({ content: "text*" }),
+    Image.configure({ inline: true, allowBase64: true }),
+    StarterKit.configure({ history: true, listItem: false }),
+];
 export default {
-    name: "PtMarkdown",
+    name: "Editor",
     components: { EditorContent },
     props: {
         text: {
@@ -86,6 +95,7 @@ export default {
         const state = reactive({
             current: {
                 bold: false,
+                link: false,
                 italic: false,
                 strike: false,
                 paragraph: false,
@@ -94,22 +104,22 @@ export default {
         });
         const { current } = toRefs(state);
         const editor = useEditor({
-            content: props.text,
+            extensions,
             editable: true,
+            content: props.text,
             enablePasteRules: true,
-            extensions: [StarterKit, Markdown],
             enableCoreExtensions: true,
             editorProps: {
                 attributes: {
-                    class: "h-full min-h-[inherit] py-2 px-2 rounded overflow-hidden border focus:border-gray-400 border-gray-200 focus-visible:outline-0",
+                    class: `${
+                        props.tools ? "markdown " : " "
+                    }h-full min-h-[inherit] py-2 px-2 rounded overflow-hidden border focus:border-gray-400 border-gray-200 focus-visible:outline-0`,
                 },
             },
             onUpdate({ editor }) {
                 emit(
                     "update:text",
-                    props.tools
-                        ? editor.extensionStorage.markdown.getMarkdown()
-                        : editor.getText()
+                    props.tools ? editor.getHTML() : editor.getText()
                 );
             },
             onSelectionUpdate({ editor }) {
@@ -186,6 +196,15 @@ export default {
                 arg: { level: 5 },
             },
             {
+                value: "link",
+                type: "link",
+                title: "Link",
+                action: "setLink",
+                active: current.value.link,
+                extension: true,
+                arg: { href: "" },
+            },
+            {
                 value: "clear",
                 icon: "pt-times-circle",
                 action: "clearNodes",
@@ -225,7 +244,21 @@ export default {
                     if (action.type === "paragraph") {
                         current.value.heading = arrayCreate(false);
                     }
-                    editor.value.commands[action.action]();
+                    if (action.extension) {
+                        if (action.type === "link") {
+                            const previousUrl =
+                                editor.value.getAttributes("link").href;
+                            action.arg.href = window.prompt("URL", previousUrl);
+                        }
+                        editor.value
+                            .chain()
+                            .focus()
+                            .extendMarkRange(action.type)
+                            [action.action](action.arg)
+                            .run();
+                    } else {
+                        editor.value.commands[action.action]();
+                    }
                     current.value[action.type] = editor.value.isActive(
                         action.type
                     );
@@ -265,7 +298,7 @@ export default {
             () => props.text,
             (val) => {
                 const text = props.tools
-                    ? editor.value.extensionStorage.markdown.getMarkdown()
+                    ? editor.value.getHTML()
                     : editor.value.getText();
                 if (text === val) return;
                 editor.value.commands.setContent(val);

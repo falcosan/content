@@ -2,7 +2,7 @@
 import enums from "@/enums";
 import { Icon } from "@iconify/vue";
 import { computed, inject } from "vue";
-import Markdown from "@/components/Markdown";
+import Editor from "@/components/Editor";
 import { reactive, toRefs, watch } from "vue";
 import {
     editStoryblokStory,
@@ -41,6 +41,23 @@ const translatable = computed(() =>
         return { ...acc, [key]: obj[locale.value] };
     }, {})
 );
+const editors = computed(() => [
+    {
+        title: "Title",
+        value: translatable.value.title,
+        markdown: checkProperty("markdown", "title"),
+    },
+    {
+        title: "Intro",
+        value: translatable.value.intro,
+        markdown: checkProperty("markdown", "intro"),
+    },
+    {
+        title: "Content",
+        value: translatable.value.long_text,
+        markdown: checkProperty("markdown", "long_text"),
+    },
+]);
 const mapPost = (values) => {
     const keys = properties.value.translatable.reduce((acc, value) => {
         const regex = new RegExp(`${enums.translatableSuffix}.*`);
@@ -90,21 +107,12 @@ watch(
 
 <template>
     <div v-if="post.content">
-        <Markdown
-            v-model:text="post.content[translatable.title]"
-            title="Title"
-            :tools="checkProperty('markdown', 'title')"
-        />
-        <Markdown
-            v-model:text="post.content[translatable.intro]"
-            title="Intro"
-            :tools="checkProperty('markdown', 'intro')"
-        />
-        <Markdown
-            class="markdown"
-            v-model:text="post.content[translatable.long_text]"
-            title="Content"
-            :tools="checkProperty('markdown', 'long_text')"
+        <Editor
+            v-for="(editor, indexEditor) in editors"
+            :key="indexEditor"
+            :title="editor.title"
+            v-model:text="post.content[editor.value]"
+            :tools="editor.markdown"
         />
         <div class="flex flex-wrap justify-center xs:justify-end mt-10 -m-2.5">
             <button

@@ -111,6 +111,7 @@
         object-fit: contain;
     }
     .markdown a {
+        cursor: pointer;
         text-decoration: underline;
     }
     .markdown a:hover {
