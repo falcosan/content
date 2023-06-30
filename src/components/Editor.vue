@@ -109,26 +109,7 @@ import CodeBlock from "@tiptap/extension-code-block";
 import { computed, reactive, toRefs, watch } from "vue";
 import { useEditor, EditorContent } from "@tiptap/vue-3";
 const extensions = [
-    CodeBlock.extend({
-        addAttributes() {
-            return {
-                ...this.parent?.(),
-                class: {
-                    parseHTML() {
-                        return "syntax-code-block";
-                    },
-                },
-            };
-        },
-        renderHTML({ node, HTMLAttributes }) {
-            return [
-                "pre",
-                HTMLAttributes,
-                ["span", { class: "code-language" }, node.attrs.language],
-                ["code", {}, 0],
-            ];
-        },
-    }),
+    CodeBlock,
     Image.configure({ inline: true }),
     Link.configure({ openOnClick: false }),
     StarterKit.configure({ codeBlock: false }),
