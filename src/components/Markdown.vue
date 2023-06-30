@@ -7,11 +7,12 @@
         />
         <div class="flex flex-col">
             <EditorContent
-                class="h-full min-w-[2rem] min-h-[16rem]"
+                :class="['h-full min-w-[2rem]', { 'min-h-[16rem]': tools }]"
                 :editor="editor"
             />
 
             <div
+                v-if="tools"
                 class="flex flex-wrap mt-2.5 border rounded shadow justify-between border-gray-200"
             >
                 <div>
@@ -73,6 +74,10 @@ export default {
             type: String,
             default: "",
         },
+        tools: {
+            type: Boolean,
+            default: false,
+        },
     },
     emits: ["update:text"],
     setup(props, { emit }) {
@@ -102,7 +107,9 @@ export default {
             onUpdate({ editor }) {
                 emit(
                     "update:text",
-                    editor.extensionStorage.markdown.getMarkdown()
+                    props.tools
+                        ? editor.extensionStorage.markdown.getMarkdown()
+                        : editor.getText()
                 );
             },
             onSelectionUpdate({ editor }) {
@@ -257,10 +264,10 @@ export default {
         watch(
             () => props.text,
             (val) => {
-                if (
-                    editor.value.extensionStorage.markdown.getMarkdown() === val
-                )
-                    return;
+                const text = props.tools
+                    ? editor.value.extensionStorage.markdown.getMarkdown()
+                    : editor.value.getText();
+                if (text === val) return;
                 editor.value.commands.setContent(val);
             }
         );

@@ -57,6 +57,7 @@ const mapPost = (values) => {
     }, {});
     return { ...values, content: { ...values.content, ...keys } };
 };
+const checkProperty = (prop, value) => properties.value[prop].includes(value);
 const editPost = async () => {
     loading.value.edit = true;
     await editStoryblokStory(post.value, locale.value)
@@ -92,14 +93,18 @@ watch(
         <Markdown
             v-model:text="post.content[translatable.title]"
             title="Title"
+            :tools="checkProperty('markdown', 'title')"
         />
         <Markdown
             v-model:text="post.content[translatable.intro]"
             title="Intro"
+            :tools="checkProperty('markdown', 'intro')"
         />
         <Markdown
+            class="markdown"
             v-model:text="post.content[translatable.long_text]"
             title="Content"
+            :tools="checkProperty('markdown', 'long_text')"
         />
         <div class="flex flex-wrap justify-center xs:justify-end mt-10 -m-2.5">
             <button

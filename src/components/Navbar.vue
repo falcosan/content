@@ -101,8 +101,8 @@ router.beforeEach((to, from, next) => {
     >
         <div class="w-full max-w-lg p-2.5 md:p-5 rounded bg-white">
             <p
-                class="mb-5 text-center font-bold text-gray-600"
-                v-text="'Leave?'"
+                class="mb-5 text-lg text-center font-bold text-gray-600"
+                v-text="'Are you leaving ?'"
             />
             <div class="flex flex-wrap -m-2">
                 <button

@@ -55,4 +55,204 @@
     }
 }
 @tailwind components;
+@layer components {
+    *::-webkit-scrollbar {
+        width: 0;
+        height: 0;
+        background: transparent;
+    }
+    *::-webkit-scrollbar-thumb {
+        background: transparent;
+    }
+    .markdown {
+        word-break: break-word;
+        overflow-wrap: anywhere;
+        @apply leading-7;
+    }
+    .markdown img,
+    .markdown video,
+    .markdown figure,
+    .markdown img + .caption {
+        display: grid;
+        gap: 10px;
+        text-align: center;
+        font-size: 15px;
+        font-style: italic;
+        color: #c2c2c2;
+    }
+    .markdown img,
+    .markdown video {
+        width: 100%;
+        max-width: 65ch;
+        margin: 0 auto;
+        border-radius: 0.25rem;
+        user-select: none;
+        color: #c2c2c2;
+    }
+    .markdown img {
+        cursor: pointer;
+    }
+    .markdown-modal {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 50;
+        background-color: #c2c2c2e6;
+    }
+    .markdown-modal > img {
+        height: 100%;
+        object-fit: contain;
+    }
+    .markdown a {
+        text-decoration: underline;
+    }
+    .markdown a:hover {
+        filter: opacity(0.65);
+        transition-duration: 100ms;
+        transition-property: filter;
+        transition-timing-function: ease;
+    }
+    .markdown pre {
+        position: relative;
+        border-radius: 0.25rem;
+        overflow: hidden;
+    }
+    .markdown code {
+        padding: 3px;
+        font-size: 14px;
+        border-radius: 0.25rem;
+        box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+        color: #ae3b3b;
+        background-color: #ffffff;
+    }
+    .markdown pre code {
+        display: block;
+        white-space: pre;
+        padding: 1em;
+        overflow-wrap: normal;
+        word-break: normal;
+        overflow: auto;
+        color: #abb2bf;
+        background-color: #282c34;
+    }
+    .markdown .syntax-code-block .code-language {
+        position: absolute;
+        width: 100%;
+        display: flex;
+        top: 5px;
+        left: 0;
+        justify-content: flex-end;
+        padding-right: 14px;
+        opacity: 0;
+        font-size: 10px;
+        transition-duration: 100ms;
+        transition-property: opacity;
+        transition-timing-function: ease;
+    }
+    .markdown .syntax-code-block:hover .code-language {
+        opacity: 1;
+    }
+    .markdown blockquote {
+        @apply relative pt-10 pb-5 px-6 lg:px-8 rounded bg-[#eeeeee] text-[#212121];
+        border-top: 5px solid #c2c2c2;
+    }
+    .markdown blockquote:before {
+        content: "“";
+        @apply absolute h-7 top-0 right-[calc(50%_-_20px)] pb-2.5 px-2.5 text-5xl rounded-b-full font-serif text-white bg-[#c2c2c2];
+    }
+    .markdown table {
+        border-spacing: 0;
+        display: block;
+        overflow-x: auto;
+        text-align: left;
+        width: 100%;
+    }
+    .markdown td,
+    .markdown th {
+        border-bottom: 0.1rem solid #e1e1e1;
+        padding: 1rem 1.5rem;
+    }
+    .markdown td:first-child,
+    .markdown th:first-child {
+        padding-left: 0;
+    }
+    .markdown td:last-child,
+    .markdown th:last-child {
+        padding-right: 0;
+    }
+    .markdown dl dl,
+    .markdown dl ol,
+    .markdown dl ul,
+    .markdown ol dl,
+    .markdown ol ol,
+    .markdown ol ul,
+    .markdown ul dl,
+    .markdown ul ol,
+    .markdown ul ul {
+        margin: 1rem 0 0 1rem;
+    }
+    .markdown dl dd {
+        margin-left: 1rem;
+    }
+    .markdown ol {
+        list-style: decimal inside;
+    }
+    .markdown ol ol {
+        list-style: upper-alpha inside;
+    }
+    .markdown ol ol ol {
+        list-style: lower-alpha inside;
+    }
+    .markdown ul {
+        list-style: disc inside;
+    }
+    .markdown ul ul {
+        list-style: circle inside;
+    }
+    .markdown ul ul ul {
+        list-style: square inside;
+    }
+    .markdown ::marker {
+        font-weight: 700;
+    }
+    .markdown p {
+        margin-top: 0;
+    }
+    .markdown hr {
+        border: 0;
+        margin: 2rem auto;
+        border-top: 1px solid #c2c2c2;
+        max-width: 10rem;
+    }
+    .markdown *:last-child {
+        margin: 0 auto;
+    }
+    .markdown dd:not(:last-child),
+    .markdown dt:not(:last-child),
+    .markdown li:not(:last-child) {
+        margin-bottom: 0.25rem;
+    }
+    .markdown p,
+    .markdown input,
+    .markdown select,
+    .markdown textarea,
+    .markdown fieldset,
+    .markdown blockquote,
+    .markdown dl,
+    .markdown figure,
+    .markdown form,
+    .markdown ol,
+    .markdown pre,
+    .markdown table,
+    .markdown ul {
+        margin-bottom: 1.25rem;
+    }
+}
 @tailwind utilities;
