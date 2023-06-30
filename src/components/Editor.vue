@@ -12,15 +12,13 @@
             />
 
             <div v-if="tools" class="sticky bottom-0 pb-5">
-                <div
-                    class="flex flex-wrap mt-2.5 border rounded shadow justify-between border-gray-200 bg-white"
-                >
-                    <div>
+                <div class="flex flex-wrap justify-between">
+                    <div class="rounded border border-gray-200 bg-white">
                         <button
                             v-for="action in setterActions.format"
                             :key="action.tag"
                             :class="[
-                                'w-12 m-1 border rounded shadow text-sm active:bg-gray-300 border-gray-300',
+                                'w-12 m-1 border rounded shadow active:bg-gray-300 border-gray-300',
                                 action.active
                                     ? 'text-gray-200 bg-gray-500'
                                     : 'text-gray-500 bg-gray-200',
@@ -31,12 +29,12 @@
                             @click="setText(action)"
                         />
                     </div>
-                    <div>
+                    <div class="rounded border border-gray-200 bg-white">
                         <button
                             v-for="action in setterActions.history"
                             :key="action.tag"
                             :class="[
-                                'w-12 m-1 border rounded shadow text-sm border-gray-300 text-gray-500 bg-gray-200 active:text-gray-200 active:bg-gray-500',
+                                'w-12 m-1 border rounded shadow border-gray-300 text-gray-500 bg-gray-200 active:text-gray-200 active:bg-gray-500',
                             ]"
                             style="font-variant: all-petite-caps"
                             v-text="action.value"
@@ -112,7 +110,7 @@ export default {
             editorProps: {
                 attributes: {
                     class: `${
-                        props.tools ? "markdown " : " "
+                        props.tools ? "markdown mb-5 " : " "
                     }h-full min-h-[inherit] py-2 px-2 rounded overflow-hidden border focus:border-gray-400 border-gray-200 focus-visible:outline-0`,
                 },
             },
@@ -283,6 +281,7 @@ export default {
             };
         });
         const checkFormats = (editor) => {
+            current.value.link = editor.isActive("link");
             current.value.bold = editor.isActive("bold");
             current.value.italic = editor.isActive("italic");
             current.value.strike = editor.isActive("strike");

@@ -1,6 +1,7 @@
 <script setup>
 import enums from "@/enums";
 import { Icon } from "@iconify/vue";
+import Modal from "@/components/Modal";
 import { useWindowScroll } from "@vueuse/core";
 import { useRoute, useRouter } from "vue-router";
 import {
@@ -95,29 +96,30 @@ router.beforeEach((to, from, next) => {
             </div>
         </div>
     </div>
-    <div
-        v-if="checkDetail && modal"
-        class="fixed h-screen w-screen flex items-center justify-center left-0 top-0 px-2.5 md:px-5 z-20 bg-opacity-40 bg-gray-600"
-    >
-        <div class="w-full max-w-lg p-2.5 md:p-5 rounded bg-white">
+    <Modal v-model:open="modal">
+        <template #header>
             <p
                 class="mb-5 text-lg text-center font-bold text-gray-600"
                 v-text="'Are you leaving ?'"
             />
-            <div class="flex flex-wrap -m-2">
-                <button
-                    class="flex justify-center flex-auto py-2 px-5 m-2 rounded text-white active:bg-opacity-70 bg-red-500"
-                    @click="toggleModal(false)"
-                >
-                    <Icon class="text-xl" icon="dashicons:no" />
-                </button>
-                <button
-                    class="flex justify-center flex-auto py-2 px-5 m-2 rounded text-white active:bg-opacity-70 bg-green-500"
-                    @click="goBack"
-                >
-                    <Icon class="text-xl" icon="dashicons:yes" />
-                </button>
+        </template>
+        <template #body>
+            <div class="w-full max-w-lg p-2.5 md:p-5">
+                <div class="flex flex-wrap -m-2">
+                    <button
+                        class="flex justify-center flex-auto py-2 px-5 m-2 rounded text-white active:bg-opacity-70 bg-red-500"
+                        @click="toggleModal(false)"
+                    >
+                        <Icon class="text-xl" icon="dashicons:no" />
+                    </button>
+                    <button
+                        class="flex justify-center flex-auto py-2 px-5 m-2 rounded text-white active:bg-opacity-70 bg-green-500"
+                        @click="goBack"
+                    >
+                        <Icon class="text-xl" icon="dashicons:yes" />
+                    </button>
+                </div>
             </div>
-        </div>
-    </div>
+        </template>
+    </Modal>
 </template>

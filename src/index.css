@@ -89,9 +89,6 @@
         user-select: none;
         color: #c2c2c2;
     }
-    .markdown img {
-        cursor: pointer;
-    }
     .markdown-modal {
         position: fixed;
         width: 100%;
