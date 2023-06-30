@@ -50,21 +50,34 @@ export async function getStoryblokComponents(name, properties) {
             response.data.components.forEach((component) => {
                 const singleKey = [];
                 const multipleKeys = {};
-                const compName = component.name;
-                const compSchema = component.schema;
-                Object.keys(compSchema).forEach((key) => {
+                const name = component.name;
+                const schema = component.schema;
+                const propsComposer = (prop) => {
+                    const setter =
+                        typeof prop === "object" ? Object.keys(prop)[0] : prop;
+                    const control =
+                        typeof prop === "object"
+                            ? Object.values(prop)[0]
+                            : !!prop;
+                    return { setter, control };
+                };
+                Object.keys(schema).forEach((key) => {
                     if (Array.isArray(properties)) {
                         properties.forEach((prop) => {
-                            if (compSchema[key][prop]) {
-                                multipleKeys[prop] = multipleKeys[prop] || [];
-                                multipleKeys[prop].push(key);
+                            const { setter, control } = propsComposer(prop);
+                            if (schema[key][setter] === control) {
+                                multipleKeys[setter] =
+                                    multipleKeys[setter] || [];
+                                multipleKeys[setter].push(key);
                             }
                         });
                     } else {
-                        if (compSchema[key][properties]) singleKey.push(key);
+                        const { setter, control } = propsComposer(properties);
+                        if (schema[key][setter] === control)
+                            singleKey.push(key);
                     }
                 });
-                components[compName] = Array.isArray(properties)
+                components[name] = Array.isArray(properties)
                     ? multipleKeys
                     : singleKey;
             })

@@ -19,15 +19,18 @@ const props = defineProps({
 const locale = inject("locale");
 const state = reactive({
     post: {},
-    translatable: [],
+    properties: {
+        markdown: [],
+        translatable: [],
+    },
     loading: {
         edit: false,
         toggle: false,
     },
 });
-const { post, loading, translatable } = toRefs(state);
-const fields = computed(() =>
-    translatable.value.reduce((acc, value) => {
+const { post, loading, properties } = toRefs(state);
+const translatable = computed(() =>
+    properties.value.translatable.reduce((acc, value) => {
         const regex = new RegExp(`${enums.translatableSuffix}.*`);
         const key = value.replace(regex, "");
         const obj = enums.languages.reduce((objAcc, lang) => {
@@ -39,7 +42,7 @@ const fields = computed(() =>
     }, {})
 );
 const mapPost = (values) => {
-    const keys = translatable.value.reduce((acc, value) => {
+    const keys = properties.value.translatable.reduce((acc, value) => {
         const regex = new RegExp(`${enums.translatableSuffix}.*`);
         const key = value.replace(regex, "");
         return enums.languages.reduce((objAcc, lang) => {
@@ -70,11 +73,13 @@ const togglePost = async () => {
 watch(
     props.data,
     async (val) => {
-        if (!translatable.value.length) {
-            translatable.value = await getStoryblokComponents(
-                val.content.component,
-                "translatable"
-            );
+        if (!properties.value.translatable.length) {
+            const data = await getStoryblokComponents(val.content.component, [
+                "translatable",
+                { type: "markdown" },
+            ]);
+            properties.value.markdown = data.type;
+            properties.value.translatable = data.translatable;
         }
         post.value = mapPost(val);
     },
@@ -84,10 +89,16 @@ watch(
 
 <template>
     <div v-if="post.content">
-        <Markdown v-model:text="post.content[fields.title]" title="Title" />
-        <Markdown v-model:text="post.content[fields.intro]" title="Intro" />
         <Markdown
-            v-model:text="post.content[fields.long_text]"
+            v-model:text="post.content[translatable.title]"
+            title="Title"
+        />
+        <Markdown
+            v-model:text="post.content[translatable.intro]"
+            title="Intro"
+        />
+        <Markdown
+            v-model:text="post.content[translatable.long_text]"
             title="Content"
         />
         <div class="flex flex-wrap justify-center xs:justify-end mt-10 -m-2.5">
