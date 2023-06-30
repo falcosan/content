@@ -42,6 +42,48 @@
                         />
                     </div>
                 </div>
+                <Modal v-model:open="modal">
+                    <template #header>
+                        <p
+                            class="text-lg text-center font-bold text-gray-600"
+                            v-text="'URL'"
+                        />
+                    </template>
+                    <template #body>
+                        <div class="w-full">
+                            <input
+                                v-for="(input, indexInput) in extension.scheme"
+                                class="mb-5"
+                                :key="indexInput"
+                                :placeholder="input"
+                                v-model="extension.argument[input]"
+                            />
+                            <div class="flex flex-wrap -m-2">
+                                <button
+                                    class="flex justify-center flex-auto py-2 px-5 m-2 rounded active:bg-opacity-70 text-white bg-red-500"
+                                    @click="toggleExtensionAction(false)"
+                                >
+                                    <Icon class="text-xl" icon="dashicons:no" />
+                                </button>
+                                <button
+                                    :class="[
+                                        'flex justify-center flex-auto py-2 px-5 m-2 rounded  active:bg-opacity-70',
+                                        checkArguments
+                                            ? 'text-white bg-green-500'
+                                            : 'text-gray-500 bg-gray-200',
+                                    ]"
+                                    :disabled="!checkArguments"
+                                    @click="toggleExtensionAction(true)"
+                                >
+                                    <Icon
+                                        class="text-xl"
+                                        icon="dashicons:yes"
+                                    />
+                                </button>
+                            </div>
+                        </div>
+                    </template>
+                </Modal>
             </div>
             <div class="w-full flex items-center justify-end">
                 <span
@@ -57,6 +99,8 @@
     </div>
 </template>
 <script>
+import { Icon } from "@iconify/vue";
+import Modal from "@/components/Modal";
 import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
 import StarterKit from "@tiptap/starter-kit";
@@ -64,14 +108,14 @@ import ListItem from "@tiptap/extension-list-item";
 import { computed, reactive, toRefs, watch } from "vue";
 import { useEditor, EditorContent } from "@tiptap/vue-3";
 const extensions = [
-    Link,
     ListItem.extend({ content: "text*" }),
+    Link.configure({ openOnClick: false }),
     Image.configure({ inline: true, allowBase64: true }),
     StarterKit.configure({ history: true, listItem: false }),
 ];
 export default {
     name: "Editor",
-    components: { EditorContent },
+    components: { Icon, Modal, EditorContent },
     props: {
         text: {
             type: String,
@@ -91,6 +135,12 @@ export default {
         const arrayCreate = (data, length = 5) =>
             Array.from({ length }, () => data);
         const state = reactive({
+            modal: false,
+            extension: {
+                type: "",
+                scheme: [],
+                argument: {},
+            },
             current: {
                 bold: false,
                 link: false,
@@ -100,7 +150,7 @@ export default {
                 heading: arrayCreate(false),
             },
         });
-        const { current } = toRefs(state);
+        const { modal, extension, current } = toRefs(state);
         const editor = useEditor({
             extensions,
             editable: true,
@@ -110,8 +160,8 @@ export default {
             editorProps: {
                 attributes: {
                     class: `${
-                        props.tools ? "markdown mb-5 " : " "
-                    }h-full min-h-[inherit] py-2 px-2 rounded overflow-hidden border focus:border-gray-400 border-gray-200 focus-visible:outline-0`,
+                        props.tools ? "markdown " : " "
+                    }h-full min-h-[inherit] mb-5 py-2 px-2 rounded overflow-hidden border focus:border-gray-400 border-gray-200 focus-visible:outline-0`,
                 },
             },
             onUpdate({ editor }) {
@@ -230,6 +280,37 @@ export default {
                         .match(/.*?\w+.*?(\s|$)/gi) || ""
                 ).length
         );
+        const setterActions = computed(() => {
+            return {
+                format: actions.value.filter((action) => action.type),
+                history: actions.value.filter((action) =>
+                    /clear|undo|redo/.test(action.value)
+                ),
+            };
+        });
+        const checkArguments = computed(() => {
+            return !!Object.values(extension.value.argument).filter(Boolean)
+                .length;
+        });
+        const toggleModal = (state) => (modal.value = state);
+        const toggleExtensionAction = (state, alternative) => {
+            if (state) {
+                const action = actions.value.find(
+                    (action) => action.type === extension.value.type
+                );
+                extension.value.scheme.forEach(
+                    (key) => (action.arg[key] = extension.value.argument[key])
+                );
+                editor.value
+                    .chain()
+                    .focus()
+                    .extendMarkRange(action.type)
+                    [alternative ?? action.action](action.arg)
+                    .run();
+            }
+            extension.value.argument = {};
+            toggleModal(false);
+        };
         const setText = (action) => {
             if (action.type) {
                 if (action.type === "heading") {
@@ -243,17 +324,15 @@ export default {
                         current.value.heading = arrayCreate(false);
                     }
                     if (action.extension) {
-                        if (action.type === "link") {
-                            const previousUrl =
-                                editor.value.getAttributes("link").href;
-                            action.arg.href = window.prompt("URL", previousUrl);
+                        if (editor.value.isActive(action.type)) {
+                            if (action.type === "link") {
+                                toggleExtensionAction(true, "unsetLink");
+                            }
+                        } else {
+                            extension.value.type = action.type;
+                            extension.value.scheme = Object.keys(action.arg);
+                            toggleModal(true);
                         }
-                        editor.value
-                            .chain()
-                            .focus()
-                            .extendMarkRange(action.type)
-                            [action.action](action.arg)
-                            .run();
                     } else {
                         editor.value.commands[action.action]();
                     }
@@ -272,14 +351,6 @@ export default {
             }
             editor.value.commands.focus();
         };
-        const setterActions = computed(() => {
-            return {
-                format: actions.value.filter((action) => action.type),
-                history: actions.value.filter((action) =>
-                    /clear|undo|redo/.test(action.value)
-                ),
-            };
-        });
         const checkFormats = (editor) => {
             current.value.link = editor.isActive("link");
             current.value.bold = editor.isActive("bold");
@@ -304,12 +375,16 @@ export default {
             }
         );
         return {
+            modal,
             editor,
             current,
             actions,
             setText,
+            extension,
             renderLength,
             setterActions,
+            checkArguments,
+            toggleExtensionAction,
         };
     },
 };

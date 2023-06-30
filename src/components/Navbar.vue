@@ -99,26 +99,24 @@ router.beforeEach((to, from, next) => {
     <Modal v-model:open="modal">
         <template #header>
             <p
-                class="mb-5 text-lg text-center font-bold text-gray-600"
+                class="text-lg text-center font-bold text-gray-600"
                 v-text="'Are you leaving ?'"
             />
         </template>
         <template #body>
-            <div class="w-full max-w-lg p-2.5 md:p-5">
-                <div class="flex flex-wrap -m-2">
-                    <button
-                        class="flex justify-center flex-auto py-2 px-5 m-2 rounded text-white active:bg-opacity-70 bg-red-500"
-                        @click="toggleModal(false)"
-                    >
-                        <Icon class="text-xl" icon="dashicons:no" />
-                    </button>
-                    <button
-                        class="flex justify-center flex-auto py-2 px-5 m-2 rounded text-white active:bg-opacity-70 bg-green-500"
-                        @click="goBack"
-                    >
-                        <Icon class="text-xl" icon="dashicons:yes" />
-                    </button>
-                </div>
+            <div class="flex flex-wrap -m-2">
+                <button
+                    class="flex justify-center flex-auto py-2 px-5 m-2 rounded text-white active:bg-opacity-70 bg-red-500"
+                    @click="toggleModal(false)"
+                >
+                    <Icon class="text-xl" icon="dashicons:no" />
+                </button>
+                <button
+                    class="flex justify-center flex-auto py-2 px-5 m-2 rounded text-white active:bg-opacity-70 bg-green-500"
+                    @click="goBack"
+                >
+                    <Icon class="text-xl" icon="dashicons:yes" />
+                </button>
             </div>
         </template>
     </Modal>

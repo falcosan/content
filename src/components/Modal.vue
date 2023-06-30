@@ -9,9 +9,9 @@
             @keydown.esc="closeModal"
         >
             <div class="w-full max-w-lg p-2.5 md:p-5 rounded bg-white">
-                <header v-if="hasSlot('header')" class="modal-header w-full">
-                    <slot name="header" />
-                </header>
+                <div v-if="hasSlot('header')" class="mb-5">
+                    <slot v-if="hasSlot('header')" name="header" />
+                </div>
                 <template v-if="hasSlot('body')">
                     <transition
                         enter-active-class="duration-300"
