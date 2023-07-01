@@ -1,13 +1,21 @@
 <script setup>
-import enums from "@/enums";
-import { Icon } from "@iconify/vue";
-import Editor from "@/components/Editor";
-import { reactive, toRefs, watch, computed, inject, onMounted, onUnmounted  } from "vue";
+import enums from '@/enums';
+import { Icon } from '@iconify/vue';
+import Editor from '@/components/Editor';
+import {
+    reactive,
+    toRefs,
+    watch,
+    computed,
+    inject,
+    onMounted,
+    onUnmounted,
+} from 'vue';
 import {
     editStoryblokStory,
     toggleStoryblokStory,
     getStoryblokComponents,
-} from "@/api";
+} from '@/api';
 
 const props = defineProps({
     data: {
@@ -15,7 +23,7 @@ const props = defineProps({
         default: () => ({}),
     },
 });
-const locale = inject("locale");
+const locale = inject('locale');
 const state = reactive({
     post: {},
     properties: {
@@ -31,10 +39,10 @@ const { post, loading, properties } = toRefs(state);
 const translatable = computed(() =>
     properties.value.translatable.reduce((acc, value) => {
         const regex = new RegExp(`${enums.translatableSuffix}.*`);
-        const key = value.replace(regex, "");
+        const key = value.replace(regex, '');
         const obj = enums.languages.reduce((objAcc, lang) => {
             const translatedKey = `${key}${enums.translatableSuffix}${lang}`;
-            const text = lang === "en" ? key : translatedKey;
+            const text = lang === 'en' ? key : translatedKey;
             return { ...objAcc, [lang]: text };
         }, {});
         return { ...acc, [key]: obj[locale.value] };
@@ -42,32 +50,32 @@ const translatable = computed(() =>
 );
 const editors = computed(() => [
     {
-        title: "Title",
+        title: 'Title',
         value: translatable.value.title,
-        markdown: checkProperty("markdown", "title"),
+        markdown: checkProperty('markdown', 'title'),
     },
     {
-        title: "Intro",
+        title: 'Intro',
         value: translatable.value.intro,
-        markdown: checkProperty("markdown", "intro"),
+        markdown: checkProperty('markdown', 'intro'),
     },
     {
-        title: "Content",
+        title: 'Content',
         value: translatable.value.long_text,
-        markdown: checkProperty("markdown", "long_text"),
+        markdown: checkProperty('markdown', 'long_text'),
     },
 ]);
 const mapPost = (values) => {
     const keys = properties.value.translatable.reduce((acc, value) => {
         const regex = new RegExp(`${enums.translatableSuffix}.*`);
-        const key = value.replace(regex, "");
+        const key = value.replace(regex, '');
         return enums.languages.reduce((objAcc, lang) => {
             const translatedKey = `${key}${enums.translatableSuffix}${lang}`;
-            const text = lang === "en" ? key : translatedKey;
+            const text = lang === 'en' ? key : translatedKey;
             return {
                 ...acc,
                 ...objAcc,
-                [text]: values.content[text] || "",
+                [text]: values.content[text] || '',
             };
         }, {});
     }, {});
@@ -82,7 +90,7 @@ const editPost = async () => {
 };
 const togglePost = async () => {
     loading.value.toggle = true;
-    const state = post.value.published ? "unpublish" : "publish";
+    const state = post.value.published ? 'unpublish' : 'publish';
     await toggleStoryblokStory(post.value.id, state)
         .then((res) => (post.value = mapPost(res.story)))
         .finally(() => (loading.value.toggle = false));
@@ -90,18 +98,18 @@ const togglePost = async () => {
 const handleSave = async (event) => {
     if (event.metaKey && event.code === 'KeyS') {
         event.preventDefault();
-        await editPost()
+        await editPost();
     }
 };
-onMounted(()=> window.addEventListener('keydown', handleSave))
-onUnmounted(()=> window.removeEventListener('keydown', handleSave))
+onMounted(() => window.addEventListener('keydown', handleSave));
+onUnmounted(() => window.removeEventListener('keydown', handleSave));
 watch(
     props.data,
     async (val) => {
         if (!properties.value.translatable.length) {
             const data = await getStoryblokComponents(val.content.component, [
-                "translatable",
-                { type: "markdown" },
+                'translatable',
+                { type: 'markdown' },
             ]);
             properties.value.markdown = data.type;
             properties.value.translatable = data.translatable;

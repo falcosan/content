@@ -12,7 +12,9 @@
             />
 
             <div v-if="tools" class="lg:sticky lg:bottom-0 pb-5">
-                <div class="flex flex-wrap justify-end lg:justify-between -m-2.5">
+                <div
+                    class="flex flex-wrap justify-end lg:justify-between -m-2.5"
+                >
                     <div class="m-2.5 rounded border border-gray-200 bg-white">
                         <button
                             v-for="action in setterActions.format"
@@ -25,8 +27,13 @@
                                 { 'font-bold': action.type === 'bold' },
                                 { italic: action.type === 'italic' },
                             ]"
-                            @click="setText(action)">
-                            <Icon  v-if="action.icon" class="mx-auto text-2xl" :icon="action.icon"/>
+                            @click="setText(action)"
+                        >
+                            <Icon
+                                v-if="action.icon"
+                                class="mx-auto text-2xl"
+                                :icon="action.icon"
+                            />
                             <span v-else v-text="action.value" />
                         </button>
                     </div>
@@ -38,8 +45,13 @@
                                 'w-12 m-1 border rounded shadow border-gray-300 text-gray-500 bg-gray-200 active:text-gray-200 active:bg-gray-500',
                             ]"
                             style="font-variant: all-petite-caps"
-                            @click="setText(action)">
-                            <Icon v-if="action.icon"  class="mx-auto text-2xl" :icon="action.icon"/>
+                            @click="setText(action)"
+                        >
+                            <Icon
+                                v-if="action.icon"
+                                class="mx-auto text-2xl"
+                                :icon="action.icon"
+                            />
                             <span v-else v-text="action.value" />
                         </button>
                     </div>
@@ -101,23 +113,21 @@
     </div>
 </template>
 <script>
-import { Icon } from "@iconify/vue";
-import Modal from "@/components/Modal";
-import Link from "@tiptap/extension-link";
-import Image from "@tiptap/extension-image";
-import StarterKit from "@tiptap/starter-kit";
-import { importFilter } from "@/utils/object.js";
-import CodeBlock from "@tiptap/extension-code-block";
-import { computed, reactive, toRefs, watch } from "vue";
-import { useEditor, EditorContent } from "@tiptap/vue-3";
+import { Icon } from '@iconify/vue';
+import Modal from '@/components/Modal';
+import Link from '@tiptap/extension-link';
+import Image from '@tiptap/extension-image';
+import StarterKit from '@tiptap/starter-kit';
+import { importFilter } from '@/utils/object.js';
+import { computed, reactive, toRefs, watch } from 'vue';
+import { useEditor, EditorContent } from '@tiptap/vue-3';
 const extensions = [
-    CodeBlock,
+    StarterKit,
     Image.configure({ inline: true }),
     Link.configure({ openOnClick: false }),
-    StarterKit.configure({ codeBlock: false }),
 ];
 export default {
-    name: "Editor",
+    name: 'Editor',
     components: { Icon, Modal, EditorContent },
     props: {
         text: {
@@ -126,21 +136,21 @@ export default {
         },
         title: {
             type: String,
-            default: "",
+            default: '',
         },
         tools: {
             type: Boolean,
             default: false,
         },
     },
-    emits: ["update:text"],
+    emits: ['update:text'],
     setup(props, { emit }) {
         const arrayCreate = (data, length = 5) =>
             Array.from({ length }, () => data);
         const state = reactive({
             modal: false,
             node: {
-                type: "",
+                type: '',
                 scheme: [],
                 argument: {},
             },
@@ -165,13 +175,13 @@ export default {
             editorProps: {
                 attributes: {
                     class: `${
-                        props.tools ? "markdown " : " "
+                        props.tools ? 'markdown ' : ' '
                     }h-full min-h-[inherit] mb-5 py-2 px-2 rounded overflow-hidden border focus:border-gray-400 border-gray-200 focus-visible:outline-0`,
                 },
             },
             onUpdate({ editor }) {
                 emit(
-                    "update:text",
+                    'update:text',
                     props.tools ? editor.getHTML() : editor.getText()
                 );
             },
@@ -181,124 +191,124 @@ export default {
         });
         const actions = computed(() => [
             {
-                value: "B",
-                type: "bold",
-                action: "toggleBold",
-                title: "bold",
+                value: 'B',
+                type: 'bold',
+                action: 'toggleBold',
+                title: 'bold',
                 active: current.value.bold,
             },
             {
-                value: "I",
-                type: "italic",
-                action: "toggleItalic",
-                title: "italic",
+                value: 'I',
+                type: 'italic',
+                action: 'toggleItalic',
+                title: 'italic',
                 active: current.value.italic,
             },
             {
-                value: "S̶",
-                type: "strike",
-                action: "toggleStrike",
-                title: "strike",
+                value: 'S̶',
+                type: 'strike',
+                action: 'toggleStrike',
+                title: 'strike',
                 active: current.value.strike,
             },
             {
-                value: "¶",
-                type: "paragraph",
-                action: "setParagraph",
-                title: "paragraph",
+                value: '¶',
+                type: 'paragraph',
+                action: 'setParagraph',
+                title: 'paragraph',
                 active: current.value.paragraph,
             },
             {
-                value: "H1",
-                type: "heading",
-                action: "toggleHeading",
-                title: "headingOne",
+                value: 'H1',
+                type: 'heading',
+                action: 'toggleHeading',
+                title: 'headingOne',
                 active: current.value.heading[0],
                 arg: { level: 1 },
             },
             {
-                value: "H2",
-                type: "heading",
-                action: "toggleHeading",
-                title: "headingTwo",
+                value: 'H2',
+                type: 'heading',
+                action: 'toggleHeading',
+                title: 'headingTwo',
                 active: current.value.heading[1],
                 arg: { level: 2 },
             },
             {
-                value: "H3",
-                type: "heading",
-                action: "toggleHeading",
-                title: "headingThird",
+                value: 'H3',
+                type: 'heading',
+                action: 'toggleHeading',
+                title: 'headingThird',
                 active: current.value.heading[2],
                 arg: { level: 3 },
             },
             {
-                value: "H4",
-                type: "heading",
-                action: "toggleHeading",
-                title: "headingFourth",
+                value: 'H4',
+                type: 'heading',
+                action: 'toggleHeading',
+                title: 'headingFourth',
                 active: current.value.heading[3],
                 arg: { level: 4 },
             },
             {
-                value: "H5",
-                type: "heading",
-                action: "toggleHeading",
-                title: "headingFifth",
+                value: 'H5',
+                type: 'heading',
+                action: 'toggleHeading',
+                title: 'headingFifth',
                 active: current.value.heading[4],
                 arg: { level: 5 },
             },
             {
-                value: "Image",
-                type: "image",
-                action: "setImage",
-                title: "Image",
+                value: 'Image',
+                type: 'image',
+                action: 'setImage',
+                title: 'Image',
                 icon: 'material-symbols:image',
-                arg: { src: "" },
+                arg: { src: '' },
             },
             {
-                value: "Code",
-                type: "code",
-                action: "toggleCode",
-                title: "Code",
-                icon: "material-symbols:code",
+                value: 'Code',
+                type: 'code',
+                action: 'toggleCode',
+                title: 'Code',
+                icon: 'material-symbols:code',
                 active: current.value.code,
             },
             {
-                value: "CodeBlock",
-                type: "codeBlock",
-                action: "toggleCodeBlock",
-                title: "CodeBlock",
-                icon: "ci:window-code-block",
+                value: 'CodeBlock',
+                type: 'codeBlock',
+                action: 'toggleCodeBlock',
+                title: 'CodeBlock',
+                icon: 'ci:window-code-block',
                 active: current.value.codeBlock,
             },
             {
-                value: "link",
-                type: "link",
-                title: "Link",
-                action: "setLink",
-                actionAlt: "unsetLink",
+                value: 'link',
+                type: 'link',
+                title: 'Link',
+                action: 'setLink',
+                actionAlt: 'unsetLink',
                 active: current.value.link,
-                icon: "material-symbols:link",
-                arg: { href: "" },
+                icon: 'material-symbols:link',
+                arg: { href: '' },
             },
             {
-                value: "clear",
-                action: "clearNodes",
-                icon: "mdi:clear",
-                title: "clear",
+                value: 'clear',
+                action: 'clearNodes',
+                icon: 'mdi:clear',
+                title: 'clear',
             },
             {
-                value: "undo",
-                icon: "material-symbols:undo",
-                action: "undo",
-                title: "undo",
+                value: 'undo',
+                icon: 'material-symbols:undo',
+                action: 'undo',
+                title: 'undo',
             },
             {
-                value: "redo",
-                icon: "material-symbols:redo",
-                action: "redo",
-                title: "redo",
+                value: 'redo',
+                icon: 'material-symbols:redo',
+                action: 'redo',
+                title: 'redo',
             },
         ]);
         const renderLength = computed(
@@ -306,8 +316,8 @@ export default {
                 (
                     editor.value
                         ?.getText()
-                        .replace(/(<([^>]+)>)/gi, "")
-                        .match(/.*?\w+.*?(\s|$)/gi) || ""
+                        .replace(/(<([^>]+)>)/gi, '')
+                        .match(/.*?\w+.*?(\s|$)/gi) || ''
                 ).length
         );
         const setterActions = computed(() => {
@@ -319,8 +329,7 @@ export default {
             };
         });
         const checkArguments = computed(() => {
-            return !!Object.values(node.value.argument).filter(Boolean)
-                .length;
+            return !!Object.values(node.value.argument).filter(Boolean).length;
         });
         const toggleModal = (state) => {
             editor.value.setOptions({ editable: !state });
@@ -351,14 +360,14 @@ export default {
         const setText = (action) => {
             if (action.type) {
                 const attributes = editor.value.getAttributes(action.type);
-                if (action.type === "heading") {
+                if (action.type === 'heading') {
                     current.value.heading = arrayCreate(false);
                     current.value.paragraph = false;
                     editor.value.commands.toggleHeading(action.arg);
                     current.value.heading[action.arg.level - 1] =
                         editor.value.isActive(action.type, action.arg);
                 } else {
-                    if (action.type === "paragraph") {
+                    if (action.type === 'paragraph') {
                         current.value.heading = arrayCreate(false);
                     }
                     if (action.arg) {
@@ -383,7 +392,7 @@ export default {
                         action.type
                     );
                 }
-            } else if (action.value === "clear") {
+            } else if (action.value === 'clear') {
                 editor.value.chain().focus().clearNodes().unsetAllMarks().run();
                 editor.value.commands.selectTextblockEnd();
             } else if (/undo|redo/.test(action.value)) {
@@ -395,16 +404,16 @@ export default {
             editor.value.commands.focus();
         };
         const checkFormats = (editor) => {
-            current.value.link = editor.isActive("link");
-            current.value.bold = editor.isActive("bold");
-            current.value.code = editor.isActive("code");
-            current.value.italic = editor.isActive("italic");
-            current.value.strike = editor.isActive("strike");
-            current.value.paragraph = editor.isActive("paragraph");
-            current.value.codeBlock = editor.isActive("codeBlock");
+            current.value.link = editor.isActive('link');
+            current.value.bold = editor.isActive('bold');
+            current.value.code = editor.isActive('code');
+            current.value.italic = editor.isActive('italic');
+            current.value.strike = editor.isActive('strike');
+            current.value.paragraph = editor.isActive('paragraph');
+            current.value.codeBlock = editor.isActive('codeBlock');
             current.value.heading.map(
                 (_, i) =>
-                    (current.value.heading[i] = editor.isActive("heading", {
+                    (current.value.heading[i] = editor.isActive('heading', {
                         level: i + 1,
                     }))
             );

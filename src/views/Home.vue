@@ -1,14 +1,14 @@
 <script setup>
-import { Icon } from "@iconify/vue";
-import Post from "@/components/Post.vue";
-import Teaser from "@/components/Teaser.vue";
-import { useRoute, useRouter } from "vue-router";
-import { inject, reactive, toRefs, watch } from "vue";
-import { getStoryblokStories, getStoryblokStory } from "@/api";
+import { Icon } from '@iconify/vue';
+import Post from '@/components/Post';
+import Teaser from '@/components/Teaser';
+import { useRoute, useRouter } from 'vue-router';
+import { inject, reactive, toRefs, watch } from 'vue';
+import { getStoryblokStories, getStoryblokStory } from '@/api';
 
 const route = useRoute();
 const router = useRouter();
-const locale = inject("locale");
+const locale = inject('locale');
 const state = reactive({
     data: [],
     detail: {
@@ -25,7 +25,7 @@ const setDetail = (item, type) => {
     });
 };
 const getStories = async (language) => {
-    const { stories } = await getStoryblokStories(language, "blog");
+    const { stories } = await getStoryblokStories(language, 'blog');
     data.value = stories.filter((story) => !story.is_startpage);
     detail.value.loading = Array.from(
         { length: data.value.length },

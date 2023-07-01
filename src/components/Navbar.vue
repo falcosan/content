@@ -1,9 +1,9 @@
 <script setup>
-import enums from "@/enums";
-import { Icon } from "@iconify/vue";
-import Modal from "@/components/Modal";
-import { useWindowScroll } from "@vueuse/core";
-import { useRoute, useRouter } from "vue-router";
+import enums from '@/enums';
+import { Icon } from '@iconify/vue';
+import Modal from '@/components/Modal';
+import { useWindowScroll } from '@vueuse/core';
+import { useRoute, useRouter } from 'vue-router';
 import {
     computed,
     inject,
@@ -11,12 +11,12 @@ import {
     toRefs,
     onBeforeMount,
     onBeforeUnmount,
-} from "vue";
+} from 'vue';
 
 const route = useRoute();
 const router = useRouter();
 const { y: scrollY } = useWindowScroll();
-const locale = inject("locale");
+const locale = inject('locale');
 const state = reactive({
     modal: false,
     leave: false,
@@ -34,13 +34,13 @@ const preventNav = (event) => {
     if (route.query.id) {
         if (leave.value) return;
         event.preventDefault();
-        event.returnValue = "";
+        event.returnValue = '';
     }
 };
 onBeforeMount(() => {
-    window.addEventListener("beforeunload", preventNav);
+    window.addEventListener('beforeunload', preventNav);
     onBeforeUnmount(() =>
-        window.removeEventListener("beforeunload", preventNav)
+        window.removeEventListener('beforeunload', preventNav)
     );
 });
 router.beforeEach((to, from, next) => {

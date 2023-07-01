@@ -27,7 +27,7 @@
     </div>
 </template>
 <script>
-import { ref, watch, nextTick, useSlots, onBeforeUnmount } from "vue";
+import { ref, watch, nextTick, useSlots, onBeforeUnmount } from 'vue';
 export default {
     props: {
         open: {
@@ -35,7 +35,7 @@ export default {
             default: false,
         },
     },
-    emits: ["update:open"],
+    emits: ['update:open'],
     setup(props, { emit }) {
         const modal = ref(null);
         const checkModal = () => {
@@ -45,11 +45,11 @@ export default {
             } else {
                 modal.value.parentNode.removeChild(modal.value);
                 document
-                    .querySelector(".modal.opened")
+                    .querySelector('.modal.opened')
                     .appendChild(modal.value);
             }
         };
-        const closeModal = () => emit("update:open", !props.open);
+        const closeModal = () => emit('update:open', !props.open);
         const hasSlot = (name) => {
             const slots = useSlots();
             return Boolean(slots[name]);
