@@ -415,8 +415,8 @@ export default {
                 editor.value.commands[action.action]();
                 editor.value.commands.selectTextblockEnd();
             } else if (action.value === 'reset') {
-                editor.value.commands.setContent(storage.value);
                 editor.value.chain().focus().clearNodes().unsetAllMarks().run();
+                editor.value.commands.setContent(storage.value);
                 editor.value.commands.selectTextblockEnd();
             } else {
                 editor.value.commands[action.action](action.arg);

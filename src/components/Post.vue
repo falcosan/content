@@ -110,7 +110,7 @@ const editPost = async () => {
                 modal.value.message = '';
                 modal.value.state = false;
                 modal.value.type = '';
-            }, 10000);
+            }, 5000);
         });
 };
 const togglePost = async () => {
@@ -137,7 +137,7 @@ const togglePost = async () => {
                 modal.value.message = '';
                 modal.value.state = false;
                 modal.value.type = '';
-            }, 10000);
+            }, 5000);
         });
 };
 const handleSave = async (event) => {
