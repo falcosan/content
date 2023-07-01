@@ -1,6 +1,7 @@
 <script setup>
 import enums from '@/enums';
 import { Icon } from '@iconify/vue';
+import Modal from '@/components/Modal';
 import Editor from '@/components/Editor';
 import {
     reactive,
@@ -26,6 +27,7 @@ const props = defineProps({
 const locale = inject('locale');
 const state = reactive({
     post: {},
+    modal: { state: false, message: '', type: '', timeout: 0 },
     properties: {
         markdown: [],
         translatable: [],
@@ -35,7 +37,12 @@ const state = reactive({
         toggle: false,
     },
 });
-const { post, loading, properties } = toRefs(state);
+const { post, modal, loading, properties } = toRefs(state);
+const modalType = {
+    edited: { background: 'bg-blue-500', text: 'text-white' },
+    error: { background: 'bg-red-500', text: 'text-white' },
+    published: { background: 'bg-green-500', text: 'text-white' },
+};
 const translatable = computed(() =>
     properties.value.translatable.reduce((acc, value) => {
         const regex = new RegExp(`${enums.translatableSuffix}.*`);
@@ -85,15 +92,53 @@ const checkProperty = (prop, value) => properties.value[prop].includes(value);
 const editPost = async () => {
     loading.value.edit = true;
     await editStoryblokStory(post.value, locale.value)
-        .then((res) => (post.value = mapPost(res.story)))
-        .finally(() => (loading.value.edit = false));
+        .then((res) => {
+            post.value = mapPost(res.story);
+            modal.value.message = 'Saved';
+            modal.value.state = true;
+            modal.value.type = 'edited';
+        })
+        .catch(() => {
+            modal.value.message = 'Error';
+            modal.value.state = true;
+            modal.value.type = 'error';
+        })
+        .finally(() => {
+            clearTimeout(modal.value.timeout);
+            loading.value.edit = false;
+            modal.value.timeout = setTimeout(() => {
+                modal.value.message = '';
+                modal.value.state = false;
+                modal.value.type = '';
+            }, 10000);
+        });
 };
 const togglePost = async () => {
     loading.value.toggle = true;
     const state = post.value.published ? 'unpublish' : 'publish';
     await toggleStoryblokStory(post.value.id, state)
-        .then((res) => (post.value = mapPost(res.story)))
-        .finally(() => (loading.value.toggle = false));
+        .then((res) => {
+            post.value = mapPost(res.story);
+            modal.value.message = post.value.published
+                ? 'Published'
+                : 'Unpublished';
+            modal.value.state = true;
+            modal.value.type = 'published';
+        })
+        .catch(() => {
+            modal.value.message = 'Error';
+            modal.value.state = true;
+            modal.value.type = 'error';
+        })
+        .finally(() => {
+            clearTimeout(modal.value.timeout);
+            loading.value.toggle = false;
+            modal.value.timeout = setTimeout(() => {
+                modal.value.message = '';
+                modal.value.state = false;
+                modal.value.type = '';
+            }, 10000);
+        });
 };
 const handleSave = async (event) => {
     if (event.metaKey && event.code === 'KeyS') {
@@ -159,5 +204,20 @@ watch(
                 />
             </button>
         </div>
+        <Modal v-model:open="modal.state">
+            <template v-if="modal.type" #body>
+                <div
+                    :class="[
+                        'p-2.5 md:p-5 rounded text-center text-xl font-semibold',
+                        modalType[modal.type].background,
+                    ]"
+                >
+                    <span
+                        :class="[modalType[modal.type].text]"
+                        v-text="modal.message"
+                    />
+                </div>
+            </template>
+        </Modal>
     </div>
 </template>

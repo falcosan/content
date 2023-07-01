@@ -1,29 +1,29 @@
 <template>
     <div :class="['modal', { opened: open }]">
-        <div
-            v-show="open"
-            ref="modal"
-            class="fixed h-screen w-screen flex items-center justify-center left-0 top-0 px-2.5 md:px-5 z-20 bg-opacity-40 bg-gray-600"
-            tabindex="0"
-            @click.self="closeModal"
-            @keydown.esc="closeModal"
+        <transition
+            enter-from-class="opacity-0"
+            leave-to-class="opacity-0"
+            enter-active-class="transition"
+            leave-active-class="transition"
         >
-            <div class="w-full max-w-lg p-2.5 md:p-5 rounded bg-white">
-                <div v-if="hasSlot('header')" class="mb-5">
-                    <slot v-if="hasSlot('header')" name="header" />
+            <div
+                v-show="open"
+                ref="modal"
+                class="fixed h-screen w-screen flex items-center justify-center left-0 top-0 px-2.5 md:px-5 z-20 bg-opacity-40 bg-gray-600"
+                tabindex="0"
+                @click.self="closeModal"
+                @keydown.esc="closeModal"
+            >
+                <div class="w-full max-w-lg p-2.5 md:p-5 rounded bg-white">
+                    <div v-if="hasSlot('header')" class="mb-5">
+                        <slot v-if="hasSlot('header')" name="header" />
+                    </div>
+                    <div v-if="hasSlot('body')">
+                        <slot name="body" />
+                    </div>
                 </div>
-                <template v-if="hasSlot('body')">
-                    <transition
-                        enter-active-class="duration-300"
-                        enter-class="opacity-0"
-                    >
-                        <div>
-                            <slot name="body" />
-                        </div>
-                    </transition>
-                </template>
             </div>
-        </div>
+        </transition>
     </div>
 </template>
 <script>
