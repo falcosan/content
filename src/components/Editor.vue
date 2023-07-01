@@ -151,6 +151,7 @@ export default {
             Array.from({ length }, () => data);
         const state = reactive({
             modal: false,
+            storage: null,
             node: {
                 type: '',
                 scheme: [],
@@ -169,7 +170,7 @@ export default {
                 heading: arrayCreate(false),
             },
         });
-        const { modal, node, current } = toRefs(state);
+        const { storage, modal, node, current } = toRefs(state);
         const editor = useEditor({
             extensions,
             editable: true,
@@ -182,6 +183,9 @@ export default {
                         props.tools ? 'markdown ' : ' '
                     }h-full min-h-[inherit] mb-5 py-2 px-2 rounded overflow-hidden border focus:border-gray-400 border-gray-200 focus-visible:outline-0`,
                 },
+            },
+            onCreate() {
+                storage.value = props.text;
             },
             onUpdate({ editor }) {
                 emit(
@@ -309,17 +313,21 @@ export default {
             {
                 action: 'clearNodes',
                 icon: 'mdi:clear',
-                title: 'clear',
+                value: 'clear',
             },
             {
                 icon: 'material-symbols:undo',
                 action: 'undo',
-                title: 'undo',
+                value: 'undo',
             },
             {
                 icon: 'material-symbols:redo',
                 action: 'redo',
-                title: 'redo',
+                value: 'redo',
+            },
+            {
+                icon: 'ic:baseline-restore',
+                value: 'reset',
             },
         ]);
         const renderLength = computed(
@@ -335,7 +343,7 @@ export default {
             return {
                 format: actions.value.filter((action) => action.type),
                 history: actions.value.filter((action) =>
-                    /clear|undo|redo/.test(action.value)
+                    /clear|undo|redo|reset/.test(action.value)
                 ),
             };
         });
@@ -405,6 +413,10 @@ export default {
                 editor.value.commands.selectTextblockEnd();
             } else if (/undo|redo/.test(action.value)) {
                 editor.value.commands[action.action]();
+                editor.value.commands.selectTextblockEnd();
+            } else if (action.value === 'reset') {
+                editor.value.commands.setContent(storage.value);
+                editor.value.chain().focus().clearNodes().unsetAllMarks().run();
                 editor.value.commands.selectTextblockEnd();
             } else {
                 editor.value.commands[action.action](action.arg);
