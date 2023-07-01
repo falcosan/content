@@ -165,6 +165,7 @@ export default {
                 paragraph: false,
                 codeBlock: false,
                 highlight: false,
+                blockquote: false,
                 heading: arrayCreate(false),
             },
         });
@@ -262,7 +263,6 @@ export default {
                 arg: { level: 5 },
             },
             {
-                value: 'highlight',
                 type: 'highlight',
                 title: 'Highlight',
                 action: 'toggleHighlight',
@@ -270,7 +270,13 @@ export default {
                 icon: 'ant-design:highlight-twotone',
             },
             {
-                value: 'link',
+                type: 'blockquote',
+                title: 'Blockquote',
+                action: 'toggleBlockquote',
+                active: current.value.blockquote,
+                icon: 'bi:quote',
+            },
+            {
                 type: 'link',
                 title: 'Link',
                 action: 'setLink',
@@ -280,7 +286,6 @@ export default {
                 arg: { href: '' },
             },
             {
-                value: 'Image',
                 type: 'image',
                 action: 'setImage',
                 title: 'Image',
@@ -288,7 +293,6 @@ export default {
                 arg: { src: '' },
             },
             {
-                value: 'Code',
                 type: 'code',
                 action: 'toggleCode',
                 title: 'Code',
@@ -296,7 +300,6 @@ export default {
                 active: current.value.code,
             },
             {
-                value: 'CodeBlock',
                 type: 'codeBlock',
                 action: 'toggleCodeBlock',
                 title: 'CodeBlock',
@@ -304,19 +307,16 @@ export default {
                 active: current.value.codeBlock,
             },
             {
-                value: 'clear',
                 action: 'clearNodes',
                 icon: 'mdi:clear',
                 title: 'clear',
             },
             {
-                value: 'undo',
                 icon: 'material-symbols:undo',
                 action: 'undo',
                 title: 'undo',
             },
             {
-                value: 'redo',
                 icon: 'material-symbols:redo',
                 action: 'redo',
                 title: 'redo',
@@ -420,6 +420,7 @@ export default {
             current.value.highlight = editor.isActive('highlight');
             current.value.paragraph = editor.isActive('paragraph');
             current.value.codeBlock = editor.isActive('codeBlock');
+            current.value.blockquote = editor.isActive('blockquote');
             current.value.heading.map(
                 (_, i) =>
                     (current.value.heading[i] = editor.isActive('heading', {
