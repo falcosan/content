@@ -18,7 +18,7 @@
                     <div class="m-2.5 rounded border border-gray-200 bg-white">
                         <button
                             v-for="action in setterActions.format"
-                            :key="action.tag"
+                            :key="action.type"
                             :class="[
                                 'w-12 align-middle m-1 border rounded shadow active:bg-gray-300 border-gray-300',
                                 action.active
@@ -40,7 +40,7 @@
                     <div class="m-2.5 rounded border border-gray-200 bg-white">
                         <button
                             v-for="action in setterActions.history"
-                            :key="action.tag"
+                            :key="action.type"
                             :class="[
                                 'w-12 m-1 border rounded shadow border-gray-300 text-gray-500 bg-gray-200 active:text-gray-200 active:bg-gray-500',
                             ]"
@@ -119,9 +119,11 @@ import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
 import StarterKit from '@tiptap/starter-kit';
 import { importFilter } from '@/utils/object.js';
+import Highlight from '@tiptap/extension-highlight';
 import { computed, reactive, toRefs, watch } from 'vue';
 import { useEditor, EditorContent } from '@tiptap/vue-3';
 const extensions = [
+    Highlight,
     StarterKit,
     Image.configure({ inline: true }),
     Link.configure({ openOnClick: false }),
@@ -162,6 +164,7 @@ export default {
                 strike: false,
                 paragraph: false,
                 codeBlock: false,
+                highlight: false,
                 heading: arrayCreate(false),
             },
         });
@@ -259,6 +262,24 @@ export default {
                 arg: { level: 5 },
             },
             {
+                value: 'highlight',
+                type: 'highlight',
+                title: 'Highlight',
+                action: 'toggleHighlight',
+                active: current.value.highlight,
+                icon: 'ant-design:highlight-twotone',
+            },
+            {
+                value: 'link',
+                type: 'link',
+                title: 'Link',
+                action: 'setLink',
+                actionAlt: 'unsetLink',
+                active: current.value.link,
+                icon: 'material-symbols:link',
+                arg: { href: '' },
+            },
+            {
                 value: 'Image',
                 type: 'image',
                 action: 'setImage',
@@ -281,16 +302,6 @@ export default {
                 title: 'CodeBlock',
                 icon: 'ci:window-code-block',
                 active: current.value.codeBlock,
-            },
-            {
-                value: 'link',
-                type: 'link',
-                title: 'Link',
-                action: 'setLink',
-                actionAlt: 'unsetLink',
-                active: current.value.link,
-                icon: 'material-symbols:link',
-                arg: { href: '' },
             },
             {
                 value: 'clear',
@@ -340,10 +351,7 @@ export default {
                 (action) => action.type === node.value.type
             );
             const edit = (operation) => {
-                let trigger = editor.value.chain().focus();
-                if (action.actionAlt != null) {
-                    trigger = trigger.extendMarkRange(action.type);
-                }
+                const trigger = editor.value.chain().focus();
                 return trigger[operation](action.arg).run();
             };
             if (state) {
@@ -409,6 +417,7 @@ export default {
             current.value.code = editor.isActive('code');
             current.value.italic = editor.isActive('italic');
             current.value.strike = editor.isActive('strike');
+            current.value.highlight = editor.isActive('highlight');
             current.value.paragraph = editor.isActive('paragraph');
             current.value.codeBlock = editor.isActive('codeBlock');
             current.value.heading.map(
