@@ -1,8 +1,10 @@
 <script setup>
-import Navbar from "@/components/Navbar";
+import { inject } from 'vue';
+import Navbar from '@/components/Navbar';
+const auth = inject('auth');
 </script>
 
 <template>
-    <Navbar />
+    <Navbar v-if="auth" />
     <RouterView />
 </template>

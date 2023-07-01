@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from "vue-router";
+import { createRouter, createWebHistory } from 'vue-router';
 export const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
     scrollBehavior() {
@@ -6,10 +6,16 @@ export const router = createRouter({
     },
     routes: [
         {
-            path: "/",
-            name: "home",
+            path: '/login',
+            name: 'login',
             component: () =>
-                import(/* webpackChunkName: "home" */ "@/views/Home"),
+                import(/* webpackChunkName: "login" */ '@/views/Login'),
+        },
+        {
+            path: '/',
+            name: 'home',
+            component: () =>
+                import(/* webpackChunkName: "home" */ '@/views/Home'),
         },
     ],
 });
