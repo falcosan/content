@@ -3,7 +3,7 @@ export const importFilter = (data, filters, rule) => {
         return Object.fromEntries(
             Object.entries(data).filter(([k]) =>
                 new RegExp(
-                    Array.isArray(filters) ? filters.join("|") : filters
+                    Array.isArray(filters) ? filters.join('|') : filters
                 ).test(k)
             )
         );
@@ -12,7 +12,7 @@ export const importFilter = (data, filters, rule) => {
             Object.entries(data).filter(
                 ([k]) =>
                     !new RegExp(
-                        Array.isArray(filters) ? filters.join("|") : filters
+                        Array.isArray(filters) ? filters.join('|') : filters
                     ).test(k)
             )
         );

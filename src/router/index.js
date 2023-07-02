@@ -15,6 +15,7 @@ export const router = createRouter({
         {
             path: '/',
             name: 'home',
+            meta: { requiresAuth: true },
             component: () =>
                 import(/* webpackChunkName: "home" */ '@/views/Home'),
         },

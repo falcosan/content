@@ -7,10 +7,10 @@ const router = useRouter();
 const auth = inject('auth');
 
 router.beforeEach((to, _, next) => {
-    if (to.name !== 'login' && !auth.value) {
+    if (to.meta.requiresAuth && !auth.value) {
         next({ name: 'login' });
         return;
-    } else if (to.name !== 'home' && auth.value) {
+    } else if (to.name === 'login' && auth.value) {
         next({ name: 'home' });
         return;
     }
