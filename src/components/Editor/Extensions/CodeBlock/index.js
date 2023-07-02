@@ -17,7 +17,7 @@ export const CustomCodeBlock = CodeBlock.extend({
                 preserveWhitespace: 'full',
                 getAttrs: (node) => {
                     const code = node.getElementsByTagName('code')[0];
-                    const language = code.className;
+                    const language = code?.className || '';
                     return { language };
                 },
             },

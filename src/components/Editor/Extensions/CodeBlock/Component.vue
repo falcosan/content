@@ -40,7 +40,7 @@ export default {
             return {
                 list,
                 current: list.find(({ value }) => {
-                    const syntax = getSyntax.value.split('language-')[1];
+                    const syntax = getSyntax.value.split('language-')[1] || '';
                     return value === syntax;
                 }),
             };
