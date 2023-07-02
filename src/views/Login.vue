@@ -3,7 +3,11 @@
         class="container w-full min-h-screen flex items-center max-w-md mx-auto space-y-8"
     >
         <div class="w-full">
-            <form class="mt-8 space-y-6" @submit.prevent="signIn">
+            <form
+                class="space-y-6"
+                @submit.prevent="signIn"
+                @keydown.enter="signIn"
+            >
                 <div class="rounded-md shadow-sm -space-y-px">
                     <div>
                         <label for="username" class="sr-only">Username</label>
@@ -49,23 +53,19 @@
     </div>
 </template>
 <script>
+import { inject } from 'vue';
 import { reactive, toRefs } from 'vue';
-import { setCookie } from '@/utils/cookies.js';
 export default {
     name: 'Login',
     setup() {
+        const auth = inject('auth');
         const state = reactive({ username: '', password: '' });
         const { username, password } = toRefs(state);
         const signIn = () => {
-            const dbUsername = import.meta.env.STORY_AUTH_USERNAME;
-            const dbPassword = import.meta.env.STORY_AUTH_PASSWORD;
-            if (
-                dbUsername === username.value &&
-                dbPassword === password.value
-            ) {
-                setCookie('auth', username.value);
-                window.location.reload();
-            }
+            const authorized =
+                username.value === import.meta.env.STORY_AUTH_USERNAME &&
+                password.value === import.meta.env.STORY_AUTH_PASSWORD;
+            if (authorized) auth.value = import.meta.env.STORY_AUTH_SECRET;
         };
         return {
             signIn,

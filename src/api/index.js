@@ -1,4 +1,4 @@
-import StoryblokClient from "storyblok-js-client";
+import StoryblokClient from 'storyblok-js-client';
 
 const Storyblok = {
     common: new StoryblokClient({
@@ -12,13 +12,13 @@ const Storyblok = {
 export async function getStoryblokStories(
     language,
     startsWith,
-    query = "cdn/stories/"
+    query = 'cdn/stories/'
 ) {
     return await Storyblok.common
         .get(query, {
             language,
-            version: "draft",
-            cv: "CURRENT_TIMESTAMP",
+            version: 'draft',
+            cv: 'CURRENT_TIMESTAMP',
             ...(startsWith && { starts_with: startsWith }),
         })
         .then(({ data }) => data)
@@ -54,9 +54,9 @@ export async function getStoryblokComponents(name, properties) {
                 const schema = component.schema;
                 const propsComposer = (prop) => {
                     const setter =
-                        typeof prop === "object" ? Object.keys(prop)[0] : prop;
+                        typeof prop === 'object' ? Object.keys(prop)[0] : prop;
                     const control =
-                        typeof prop === "object"
+                        typeof prop === 'object'
                             ? Object.values(prop)[0]
                             : !!prop;
                     return { setter, control };
