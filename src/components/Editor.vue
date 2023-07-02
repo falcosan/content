@@ -10,7 +10,6 @@
                 :class="['h-full min-w-[2rem]', { 'min-h-[16rem]': tools }]"
                 :editor="editor"
             />
-
             <div v-if="tools" class="lg:sticky lg:bottom-0 pb-5">
                 <div
                     class="flex flex-wrap justify-end lg:justify-between -m-2.5"
@@ -118,10 +117,10 @@ import Modal from '@/components/Modal';
 import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
 import StarterKit from '@tiptap/starter-kit';
-import { importFilter } from '@/utils/object.js';
 import Highlight from '@tiptap/extension-highlight';
 import { computed, reactive, toRefs, watch } from 'vue';
 import { useEditor, EditorContent } from '@tiptap/vue-3';
+import { importFilter, checkEqualObjects } from '@/utils/object.js';
 const extensions = [
     Highlight,
     StarterKit,
@@ -144,14 +143,19 @@ export default {
             type: Boolean,
             default: false,
         },
+        refresh: {
+            type: [Number, String],
+            default: 0,
+        },
     },
-    emits: ['update:text'],
+    emits: ['update:text', 'changed'],
     setup(props, { emit }) {
         const arrayCreate = (data, length = 5) =>
             Array.from({ length }, () => data);
         const state = reactive({
             modal: false,
             storage: null,
+            changed: false,
             node: {
                 type: '',
                 scheme: [],
@@ -170,7 +174,7 @@ export default {
                 heading: arrayCreate(false),
             },
         });
-        const { storage, modal, node, current } = toRefs(state);
+        const { storage, changed, modal, node, current } = toRefs(state);
         const editor = useEditor({
             extensions,
             editable: true,
@@ -188,10 +192,9 @@ export default {
                 storage.value = props.text;
             },
             onUpdate({ editor }) {
-                emit(
-                    'update:text',
-                    props.tools ? editor.getHTML() : editor.getText()
-                );
+                const text = props.tools ? editor.getHTML() : editor.getText();
+                changed.value = !checkEqualObjects(text, storage.value);
+                emit('update:text', text);
             },
             onSelectionUpdate({ editor }) {
                 checkFormats(editor);
@@ -325,10 +328,6 @@ export default {
                 action: 'redo',
                 value: 'redo',
             },
-            {
-                icon: 'ic:baseline-restore',
-                value: 'reset',
-            },
         ]);
         const renderLength = computed(
             () =>
@@ -343,7 +342,7 @@ export default {
             return {
                 format: actions.value.filter((action) => action.type),
                 history: actions.value.filter((action) =>
-                    /clear|undo|redo|reset/.test(action.value)
+                    /clear|undo|redo/.test(action.value)
                 ),
             };
         });
@@ -414,10 +413,6 @@ export default {
             } else if (/undo|redo/.test(action.value)) {
                 editor.value.commands[action.action]();
                 editor.value.commands.selectTextblockEnd();
-            } else if (action.value === 'reset') {
-                editor.value.chain().focus().clearNodes().unsetAllMarks().run();
-                editor.value.commands.setContent(storage.value);
-                editor.value.commands.selectTextblockEnd();
             } else {
                 editor.value.commands[action.action](action.arg);
             }
@@ -450,6 +445,14 @@ export default {
                 editor.value.commands.setContent(val);
             }
         );
+        watch(
+            () => props.refresh,
+            () => {
+                changed.value = false;
+                storage.value = props.text;
+            }
+        );
+        watch(changed, (val) => emit('changed', val));
         return {
             node,
             modal,

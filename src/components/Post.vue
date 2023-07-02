@@ -4,6 +4,7 @@ import { Icon } from '@iconify/vue';
 import Modal from '@/components/Modal';
 import Editor from '@/components/Editor';
 import {
+    ref,
     reactive,
     toRefs,
     watch,
@@ -27,7 +28,7 @@ const props = defineProps({
 const locale = inject('locale');
 const state = reactive({
     post: {},
-    modal: { state: false, message: '', type: '', timeout: 0 },
+    refresh: 0,
     properties: {
         markdown: [],
         translatable: [],
@@ -36,13 +37,15 @@ const state = reactive({
         edit: false,
         toggle: false,
     },
+    modal: { state: false, message: '', type: '', timeout: 0 },
 });
-const { post, modal, loading, properties } = toRefs(state);
+const { post, refresh, modal, loading, properties } = toRefs(state);
 const modalType = {
     edited: { background: 'bg-blue-500', text: 'text-white' },
     error: { background: 'bg-red-500', text: 'text-white' },
     published: { background: 'bg-green-500', text: 'text-white' },
 };
+const checkProperty = (prop, value) => properties.value[prop].includes(value);
 const translatable = computed(() =>
     properties.value.translatable.reduce((acc, value) => {
         const regex = new RegExp(`${enums.translatableSuffix}.*`);
@@ -72,6 +75,8 @@ const editors = computed(() => [
         markdown: checkProperty('markdown', 'long_text'),
     },
 ]);
+const changed = ref(Array.from({ length: editors.value.length }, () => false));
+const checkChanged = computed(() => changed.value.some((change) => change));
 const mapPost = (values) => {
     const keys = properties.value.translatable.reduce((acc, value) => {
         const regex = new RegExp(`${enums.translatableSuffix}.*`);
@@ -88,7 +93,6 @@ const mapPost = (values) => {
     }, {});
     return { ...values, content: { ...values.content, ...keys } };
 };
-const checkProperty = (prop, value) => properties.value[prop].includes(value);
 const editPost = async () => {
     loading.value.edit = true;
     await editStoryblokStory(post.value, locale.value)
@@ -104,6 +108,7 @@ const editPost = async () => {
             modal.value.type = 'error';
         })
         .finally(() => {
+            refresh.value++;
             clearTimeout(modal.value.timeout);
             loading.value.edit = false;
             modal.value.timeout = setTimeout(() => {
@@ -172,12 +177,20 @@ watch(
             :key="indexEditor"
             v-model:text="post.content[editor.value]"
             :title="editor.title"
+            :refresh="refresh"
             :tools="editor.markdown"
+            @changed="(c) => (changed[indexEditor] = c)"
         />
         <div class="flex flex-wrap justify-center xs:justify-end mt-10 -m-2.5">
             <button
-                class="w-full sm:w-32 flex justify-center m-2.5 p-2.5 px-6 rounded font-semibold active:bg-opacity-70 text-white bg-blue-500"
-                @click="editPost"
+                :disabled="!checkChanged"
+                :class="[
+                    'w-full sm:w-32 flex justify-center m-2.5 p-2.5 px-6 rounded font-semibold active:bg-opacity-70',
+                    checkChanged
+                        ? 'text-white bg-blue-500'
+                        : 'text-gray-500 bg-gray-200',
+                ]"
+                @click="checkChanged && editPost()"
             >
                 <Icon
                     v-if="loading.edit"
