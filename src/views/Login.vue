@@ -3,7 +3,7 @@
         class="container w-full min-h-screen flex items-center max-w-md mx-auto space-y-8"
     >
         <div class="w-full">
-            <form class="mt-8 space-y-6" @submit.prevent="login">
+            <form class="mt-8 space-y-6" @submit.prevent="signIn">
                 <div class="rounded-md shadow-sm -space-y-px">
                     <div>
                         <label for="username" class="sr-only">Username</label>
@@ -50,12 +50,25 @@
 </template>
 <script>
 import { reactive, toRefs } from 'vue';
+import { setCookie } from '@/utils/cookies.js';
 export default {
     name: 'Login',
     setup() {
         const state = reactive({ username: '', password: '' });
         const { username, password } = toRefs(state);
+        const signIn = () => {
+            const dbUsername = import.meta.env.STORY_AUTH_USERNAME;
+            const dbPassword = import.meta.env.STORY_AUTH_PASSWORD;
+            if (
+                dbUsername === username.value &&
+                dbPassword === password.value
+            ) {
+                setCookie('auth', username.value);
+                window.location.reload();
+            }
+        };
         return {
+            signIn,
             username,
             password,
         };

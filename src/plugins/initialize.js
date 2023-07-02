@@ -4,19 +4,16 @@ import { setCookie, getCookie } from '@/utils/cookies.js';
 export default {
     install: (app) => {
         const state = reactive({
+            auth: getCookie('auth'),
             locale: getCookie('locale') ?? 'en',
-            auth: null,
         });
         const { locale, auth } = toRefs(state);
-        watch(locale, () => setCookie('locale', locale.value), {
+        watch(locale, (val) => setCookie('locale', val), {
             immediate: true,
         });
         app.provide(
             'auth',
-            computed({
-                get: () => auth.value,
-                set: (val) => (auth.value = val),
-            })
+            computed(() => auth.value)
         );
         app.provide(
             'locale',
