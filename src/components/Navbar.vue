@@ -2,7 +2,6 @@
 import enums from '@/enums';
 import { Icon } from '@iconify/vue';
 import Modal from '@/components/Modal';
-import { useWindowScroll } from '@vueuse/core';
 import { useRoute, useRouter } from 'vue-router';
 import {
     computed,
@@ -15,7 +14,6 @@ import {
 
 const route = useRoute();
 const router = useRouter();
-const { y: scrollY } = useWindowScroll();
 const locale = inject('locale');
 const state = reactive({
     modal: false,
@@ -56,10 +54,7 @@ router.beforeEach((to, from, next) => {
 </script>
 
 <template>
-    <div
-        class="relative z-10 pb-5"
-        :style="`transform: translateY(${scrollY}px)`"
-    >
+    <div class="sticky z-10 top-0 pb-5">
         <div class="flex justify-between items-start -m-2">
             <div class="m-2 shadow rounded-b transition-[padding] bg-white">
                 <button

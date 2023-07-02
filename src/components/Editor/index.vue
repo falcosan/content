@@ -114,6 +114,7 @@
 <script>
 import { Icon } from '@iconify/vue';
 import Modal from '@/components/Modal';
+import { CodeBlock } from './Extensions';
 import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
 import StarterKit from '@tiptap/starter-kit';
@@ -123,9 +124,10 @@ import { computed, reactive, toRefs, watch } from 'vue';
 import { useEditor, EditorContent } from '@tiptap/vue-3';
 const extensions = [
     Highlight,
-    StarterKit,
+    CodeBlock,
     Image.configure({ inline: true }),
     Link.configure({ openOnClick: false }),
+    StarterKit.configure({ codeBlock: false }),
 ];
 export default {
     name: 'Editor',
