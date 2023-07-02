@@ -64,10 +64,8 @@ export default {
         const { username, password } = toRefs(state);
         const signIn = () => {
             const authorized =
-                String(username.value) ===
-                    String(import.meta.env.STORY_AUTH_USERNAME) &&
-                String(password.value) ===
-                    String(import.meta.env.STORY_AUTH_PASSWORD);
+                username.value === import.meta.env.STORY_AUTH_USERNAME &&
+                password.value === import.meta.env.STORY_AUTH_PASSWORD;
             if (authorized) auth.value = import.meta.env.STORY_AUTH_SECRET;
         };
         return {

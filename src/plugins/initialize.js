@@ -13,7 +13,7 @@ export default {
         });
         watch(auth, (val) => {
             if (val) {
-                setCookie('auth', val);
+                setCookie('auth', val, 30);
                 window.location.reload();
             }
         });
