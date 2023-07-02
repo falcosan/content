@@ -3,7 +3,10 @@
         class="container w-full min-h-screen flex justify-center items-center max-w-md mx-auto space-y-8"
     >
         <div class="w-full text-center">
-            <h1>Aprograma editor</h1>
+            <span
+                class="block mb-5 text-3xl font-bold text-gray-700"
+                v-text="name"
+            />
             <form
                 class="space-y-6"
                 @submit.prevent="signIn"
@@ -54,6 +57,7 @@
     </div>
 </template>
 <script>
+import enums from '@/enums';
 import { inject } from 'vue';
 import { reactive, toRefs } from 'vue';
 export default {
@@ -72,6 +76,7 @@ export default {
             signIn,
             username,
             password,
+            name: enums.webTitle,
         };
     },
 };

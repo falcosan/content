@@ -1,9 +1,9 @@
-import { defineConfig } from "vite";
-import { fileURLToPath } from "url";
-import vue from "@vitejs/plugin-vue";
-import enums from "./src/enums";
-import { VitePWA } from "vite-plugin-pwa";
-import { htmlPlugin } from "./src/plugins/html.js";
+import { defineConfig } from 'vite';
+import { fileURLToPath } from 'url';
+import vue from '@vitejs/plugin-vue';
+import enums from './src/enums';
+import { VitePWA } from 'vite-plugin-pwa';
+import { htmlPlugin } from './src/plugins/html.js';
 
 export default defineConfig({
     plugins: [
@@ -11,14 +11,14 @@ export default defineConfig({
         htmlPlugin(),
         VitePWA({
             manifest: enums.manifest,
-            registerType: "autoUpdate",
+            registerType: 'autoUpdate',
         }),
     ],
-    envPrefix: "STORY_",
+    envPrefix: 'STORY_',
     resolve: {
-        extensions: [".js", ".vue", ".json"],
+        extensions: ['.js', '.vue', '.json'],
         alias: {
-            "@": fileURLToPath(new URL("./src", import.meta.url)),
+            '@': fileURLToPath(new URL('./src', import.meta.url)),
         },
     },
 });
