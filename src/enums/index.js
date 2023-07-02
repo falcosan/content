@@ -1,4 +1,4 @@
-const webTitle = 'Aprograma editor';
+const webTitle = 'Aprograma Editor';
 
 export default {
     webTitle,

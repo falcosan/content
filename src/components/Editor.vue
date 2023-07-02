@@ -117,10 +117,10 @@ import Modal from '@/components/Modal';
 import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
 import StarterKit from '@tiptap/starter-kit';
+import { importFilter } from '@/utils/object.js';
 import Highlight from '@tiptap/extension-highlight';
 import { computed, reactive, toRefs, watch } from 'vue';
 import { useEditor, EditorContent } from '@tiptap/vue-3';
-import { importFilter, checkEqualObjects } from '@/utils/object.js';
 const extensions = [
     Highlight,
     StarterKit,
@@ -148,14 +148,12 @@ export default {
             default: 0,
         },
     },
-    emits: ['update:text', 'changed'],
+    emits: ['update:text'],
     setup(props, { emit }) {
         const arrayCreate = (data, length = 5) =>
             Array.from({ length }, () => data);
         const state = reactive({
             modal: false,
-            storage: null,
-            changed: false,
             node: {
                 type: '',
                 scheme: [],
@@ -174,7 +172,7 @@ export default {
                 heading: arrayCreate(false),
             },
         });
-        const { storage, changed, modal, node, current } = toRefs(state);
+        const { modal, node, current } = toRefs(state);
         const editor = useEditor({
             extensions,
             editable: true,
@@ -188,12 +186,8 @@ export default {
                     }h-full min-h-[inherit] mb-5 py-2 px-2 rounded overflow-hidden border focus:border-gray-400 border-gray-200 focus-visible:outline-0`,
                 },
             },
-            onCreate() {
-                storage.value = props.text;
-            },
             onUpdate({ editor }) {
                 const text = props.tools ? editor.getHTML() : editor.getText();
-                changed.value = !checkEqualObjects(text, storage.value);
                 emit('update:text', text);
             },
             onSelectionUpdate({ editor }) {
@@ -416,7 +410,6 @@ export default {
             } else {
                 editor.value.commands[action.action](action.arg);
             }
-            editor.value.commands.focus();
         };
         const checkFormats = (editor) => {
             current.value.link = editor.isActive('link');
@@ -445,14 +438,6 @@ export default {
                 editor.value.commands.setContent(val);
             }
         );
-        watch(
-            () => props.refresh,
-            () => {
-                changed.value = false;
-                storage.value = props.text;
-            }
-        );
-        watch(changed, (val) => emit('changed', val));
         return {
             node,
             modal,
