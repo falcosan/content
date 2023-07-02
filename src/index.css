@@ -134,6 +134,7 @@
         background-color: #ffffff;
     }
     .markdown pre code {
+        width: 100%;
         display: block;
         white-space: pre;
         padding: 1em;

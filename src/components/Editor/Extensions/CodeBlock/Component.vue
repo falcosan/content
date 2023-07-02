@@ -13,7 +13,7 @@
                 {{ language.label }}
             </option>
         </select>
-        <pre>
+        <pre class="flex flex-col pt-7">
             <NodeViewContent as="code" :class="getSyntax" />
         </pre>
     </NodeViewWrapper>
