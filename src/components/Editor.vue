@@ -59,7 +59,7 @@
                     <template #header>
                         <p
                             class="text-lg text-center font-bold text-gray-600"
-                            v-text="'URL'"
+                            v-text="'Change de fields'"
                         />
                     </template>
                     <template #body>
