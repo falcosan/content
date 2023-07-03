@@ -14,7 +14,7 @@
             </option>
         </select>
         <pre class="flex flex-col pt-7">
-            <NodeViewContent as="code" :class="getSyntax" />
+            <NodeViewContent as="code" :class="getSyntax" style="white-space: pre;" />
         </pre>
     </NodeViewWrapper>
 </template>

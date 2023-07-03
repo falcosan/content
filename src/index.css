@@ -53,8 +53,9 @@
         margin-right: 0;
         font-weight: bold;
     }
-    input {
-        @apply focus:outline-none border border-gray-300 rounded-lg py-2 px-4 block w-full appearance-none leading-normal bg-white;
+    input,
+    .ProseMirror {
+        @apply focus:outline-none border border-gray-300 rounded-lg py-2 px-3 block w-full appearance-none leading-normal bg-white;
     }
 }
 @tailwind components;

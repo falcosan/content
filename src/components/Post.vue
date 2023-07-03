@@ -166,7 +166,7 @@ watch(
 </script>
 
 <template>
-    <div v-if="post.content">
+    <div v-if="post.content" class="pt-8">
         <Editor
             v-for="(editor, indexEditor) in editors"
             :key="`${indexEditor}_${locale}`"
