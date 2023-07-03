@@ -54,31 +54,33 @@ router.beforeEach((to, from, next) => {
 </script>
 
 <template>
-    <div class="sticky z-10 top-0 pb-5">
-        <div class="flex justify-between items-start -m-2">
-            <div class="m-2 shadow rounded-b transition-[padding] bg-white">
-                <button
-                    v-for="(language, indexLanguage) in enums.languages"
-                    :key="indexLanguage"
-                    :class="[
-                        'py-1.5 xx:py-2.5 px-3 xx:px-6 m-1 xx:m-2 rounded text-xs font-semibold uppercase',
-                        locale === language
-                            ? 'text-white bg-gray-600'
-                            : 'text-gray-600 bg-gray-200',
-                    ]"
-                    @click="changeLanguage(language)"
-                    v-text="language"
-                />
-            </div>
-            <div class="m-2 shadow rounded-b transition-[padding] bg-white">
-                <button
-                    v-if="checkDetail"
-                    class="py-1 xx:py-2 px-3 xx:px-5 m-1 xx:m-2 rounded text-gray-600 active:text-white bg-gray-200 active:bg-gray-600"
-                    @click="toggleModal(true)"
-                >
-                    <Icon class="text-xl" icon="ic:round-door-back" />
-                </button>
-            </div>
+    <div class="sticky flex z-10 top-0 pb-5 -m-2 pointer-events-none">
+        <div
+            class="m-2 shadow rounded-b transition-[padding] pointer-events-auto bg-white"
+        >
+            <button
+                v-for="(language, indexLanguage) in enums.languages"
+                :key="indexLanguage"
+                :class="[
+                    'py-1.5 xx:py-2.5 px-3 xx:px-6 m-1 xx:m-2 rounded text-xs font-semibold uppercase',
+                    locale === language
+                        ? 'text-white bg-gray-600'
+                        : 'text-gray-600 bg-gray-200',
+                ]"
+                @click="changeLanguage(language)"
+                v-text="language"
+            />
+        </div>
+        <div
+            class="absolute right-0 m-2 shadow rounded-b transition-[padding] pointer-events-auto bg-white"
+        >
+            <button
+                v-if="checkDetail"
+                class="py-1 xx:py-2 px-3 xx:px-5 m-1 xx:m-2 rounded text-gray-600 active:text-white bg-gray-200 active:bg-gray-600"
+                @click="toggleModal(true)"
+            >
+                <Icon class="text-xl" icon="ic:round-door-back" />
+            </button>
         </div>
     </div>
     <Modal v-model:open="modal">

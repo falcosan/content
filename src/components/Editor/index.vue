@@ -193,7 +193,7 @@ export default {
                 attributes: {
                     class: `${
                         props.tools ? 'markdown ' : ' '
-                    }h-full min-h-[inherit] mb-5 py-2 px-2 rounded overflow-hidden border focus:border-gray-400 border-gray-200 focus-visible:outline-0`,
+                    }h-full min-h-[inherit] mb-5 py-2 px-2 z-0 rounded overflow-hidden border focus:border-gray-400 border-gray-200 focus-visible:outline-0`,
                 },
             },
             onUpdate({ editor }) {

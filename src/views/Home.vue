@@ -74,33 +74,38 @@ watch(
 </script>
 
 <template>
-    <component :is="view" v-if="detail.state" :data="detail.item" />
-    <div
-        v-else
-        class="grid grid-cols-12 sm:grid-cols-[repeat(auto-fit,_minmax(2rem,_1fr))] lg:grid-cols-12 gap-6"
-    >
-        <Teaser
-            v-for="(post, indexPost) in data"
-            :key="post.uuid"
-            class="col-span-12 sm:col-span-5 md:col-span-4 lg:col-span-3"
-            :data="post"
-            @click="setDetail(post)"
+    <div class="pb-5">
+        <component :is="view" v-if="detail.state" :data="detail.item" />
+        <div
+            v-else
+            class="grid grid-cols-12 sm:grid-cols-[repeat(auto-fit,_minmax(2rem,_1fr))] lg:grid-cols-12 gap-6"
         >
-            <template #loader="{ container, icon }">
-                <transition
-                    enter-from-class="opacity-0"
-                    leave-to-class="opacity-0"
-                    enter-active-class="transition"
-                    leave-active-class="transition"
-                >
-                    <div v-if="detail.loading[indexPost]" :class="container">
-                        <Icon
-                            :class="icon"
-                            icon="eos-icons:three-dots-loading"
-                        />
-                    </div>
-                </transition>
-            </template>
-        </Teaser>
+            <Teaser
+                v-for="(post, indexPost) in data"
+                :key="post.uuid"
+                class="col-span-12 sm:col-span-5 md:col-span-4 lg:col-span-3"
+                :data="post"
+                @click="setDetail(post)"
+            >
+                <template #loader="{ container, icon }">
+                    <transition
+                        enter-from-class="opacity-0"
+                        leave-to-class="opacity-0"
+                        enter-active-class="transition"
+                        leave-active-class="transition"
+                    >
+                        <div
+                            v-if="detail.loading[indexPost]"
+                            :class="container"
+                        >
+                            <Icon
+                                :class="icon"
+                                icon="eos-icons:three-dots-loading"
+                            />
+                        </div>
+                    </transition>
+                </template>
+            </Teaser>
+        </div>
     </div>
 </template>

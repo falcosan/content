@@ -2,7 +2,7 @@
     <NodeViewWrapper as="div" class="relative">
         <select
             @change="setSyntax"
-            class="absolute w-44 right-0 z-10 text-xs border rounded focus:outline-none focus:ring-2 border-gray-300 focus:ring-blue-500 focus:border-blue-500 text-gray-700 bg-white"
+            class="absolute w-44 right-0 z-20 text-xs border rounded cursor-pointer focus:outline-none focus:ring-2 border-gray-300 focus:ring-blue-500 focus:border-blue-500 text-gray-700 bg-white"
         >
             <option
                 v-for="(language, indexLanguage) in renderSyntax.list"

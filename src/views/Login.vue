@@ -1,6 +1,6 @@
 <template>
     <div
-        class="container w-full min-h-screen flex justify-center items-center max-w-md mx-auto space-y-8"
+        class="w-full min-h-screen flex justify-center items-center max-w-md mx-auto space-y-8"
     >
         <div class="w-full text-center">
             <span
