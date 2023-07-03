@@ -129,7 +129,16 @@ const extensions = [
     HardBreak.extend({
         addKeyboardShortcuts() {
             return {
-                Enter: () => this.editor.commands.setHardBreak(),
+                Enter: () => {
+                    if (
+                        this.editor.isActive('codeBlock') ||
+                        this.editor.isActive('bulletList') ||
+                        this.editor.isActive('orderedList')
+                    ) {
+                        return this.editor.chain().createParagraphNear().run();
+                    }
+                    return this.editor.commands.setHardBreak();
+                },
             };
         },
     }),

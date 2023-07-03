@@ -74,7 +74,7 @@ watch(
 </script>
 
 <template>
-    <div class="pb-5">
+    <div class="pb-5 pt-8">
         <component :is="view" v-if="detail.state" :data="detail.item" />
         <div
             v-else
