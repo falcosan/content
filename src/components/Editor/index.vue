@@ -134,14 +134,17 @@ const extensions = [
             return {
                 ...this.parent?.(),
                 Enter: () => {
-                    if (this.editor.isActive('codeBlock')) {
-                        return this.editor.chain().createParagraphNear().run();
+                    if (
+                        !this.editor.isActive('codeBlock') &&
+                        !this.editor.isActive('bulletList') &&
+                        !this.editor.isActive('orderedList')
+                    ) {
+                        return this.editor.commands.setHardBreak();
                     }
-                    return this.editor.commands.setHardBreak();
-                },
+                }
             };
-        },
-    }),
+        }
+    })
 ];
 export default {
     name: 'Editor',
