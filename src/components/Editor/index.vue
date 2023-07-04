@@ -134,9 +134,9 @@ const extensions = [
             return {
                 ...(!this.editor.isActive('codeBlock') &&
                 !this.editor.isActive('bulletList') &&
-                !this.editor.isActive('orderedList') && {
+                !this.editor.isActive('orderedList') ? {
                     Enter: () => this.editor.commands.setHardBreak()
-                })
+                } : { ...this.parent?.() })
             };
         }
     })
