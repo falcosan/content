@@ -189,8 +189,7 @@ export default {
                 },
             },
             onUpdate({ editor }) {
-                const text = props.tools ? editor.getHTML() : editor.getText();
-                emit('update:text', text);
+                emit('update:text', setContent(editor));
             },
             onSelectionUpdate({ editor }) {
                 checkFormats(editor);
@@ -345,6 +344,11 @@ export default {
         const checkArguments = computed(() => {
             return !!Object.values(node.value.argument).filter(Boolean).length;
         });
+        const setContent = (editor) => {
+            return props.tools
+                ? editor.getHTML().replace(/<p><\/p>/g, "<br>")
+                : editor.getText();
+        }
         const toggleModal = (state) => {
             editor.value.setOptions({ editable: !state });
             modal.value = state;
@@ -433,9 +437,7 @@ export default {
         watch(
             () => props.text,
             (val) => {
-                const text = props.tools
-                    ? editor.value.getHTML()
-                    : editor.value.getText();
+                const text = setContent(editor.value)
                 if (text === val) return;
                 editor.value.commands.setContent(val);
             }
