@@ -132,6 +132,7 @@ const extensions = [
     HardBreak.extend({
         addKeyboardShortcuts() {
             return {
+                ...this.parent?.(),
                 Enter: () => {
                     if (
                         this.editor.isActive('codeBlock') ||
