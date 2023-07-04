@@ -240,5 +240,9 @@
     .markdown ul {
         margin-bottom: 1.25rem;
     }
+    .markdown .ProseMirror p:empty::before {
+        content: '';
+        display: inline-block;
+    }
 }
 @tailwind utilities;

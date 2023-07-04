@@ -127,7 +127,14 @@ const extensions = [
     CodeBlock,
     Image.configure({ inline: true }),
     Link.configure({ openOnClick: false }),
-    StarterKit.configure({ codeBlock: false }),
+    StarterKit.configure({ 
+        codeBlock: false, 
+        paragraph: {
+            HTMLAttributes: {
+                class: 'min-h-[1rem]'
+            }
+        }
+    })
 ];
 export default {
     name: 'Editor',
