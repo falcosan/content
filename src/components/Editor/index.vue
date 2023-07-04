@@ -119,32 +119,15 @@ import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
 import StarterKit from '@tiptap/starter-kit';
 import { importFilter } from '@/utils/object.js';
-import HardBreak from '@tiptap/extension-hard-break';
 import Highlight from '@tiptap/extension-highlight';
 import { computed, reactive, toRefs, watch } from 'vue';
 import { useEditor, EditorContent } from '@tiptap/vue-3';
 const extensions = [
     Highlight,
     CodeBlock,
-    HardBreak.extend({
-        addKeyboardShortcuts() {
-            return {
-                Enter: () => {
-                    if (
-                        this.editor.isActive('codeBlock') ||
-                        this.editor.isActive('bulletList') ||
-                        this.editor.isActive('orderedList')
-                    ) {
-                        return this.editor.chain().createParagraphNear().run();
-                    }
-                    return this.editor.commands.setHardBreak();
-                },
-            };
-        },
-    }),
     Image.configure({ inline: true }),
     Link.configure({ openOnClick: false }),
-    StarterKit.configure({ codeBlock: false, hardBreak: false }),
+    StarterKit.configure({ codeBlock: false }),
 ];
 export default {
     name: 'Editor',
