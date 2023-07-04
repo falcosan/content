@@ -240,5 +240,8 @@
     .markdown ul {
         margin-bottom: 1.25rem;
     }
+    .markdown .ProseMirror-trailingBreak {
+        display: none;
+    }
 }
 @tailwind utilities;
