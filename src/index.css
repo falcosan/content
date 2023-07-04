@@ -220,5 +220,25 @@
     .markdown *:last-child {
         margin: 0 auto;
     }
+    .markdown dd:not(:last-child),
+    .markdown dt:not(:last-child),
+    .markdown li:not(:last-child) {
+        margin-bottom: 0.25rem;
+    }
+    .markdown p,
+    .markdown input,
+    .markdown select,
+    .markdown textarea,
+    .markdown fieldset,
+    .markdown blockquote,
+    .markdown dl,
+    .markdown figure,
+    .markdown form,
+    .markdown ol,
+    .markdown pre,
+    .markdown table,
+    .markdown ul {
+        margin-bottom: 1.25rem;
+    }
 }
 @tailwind utilities;
