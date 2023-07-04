@@ -134,11 +134,7 @@ const extensions = [
             return {
                 ...this.parent?.(),
                 Enter: () => {
-                    if (
-                        this.editor.isActive('codeBlock') ||
-                        this.editor.isActive('bulletList') ||
-                        this.editor.isActive('orderedList')
-                    ) {
+                    if (this.editor.isActive('codeBlock')) {
                         return this.editor.chain().createParagraphNear().run();
                     }
                     return this.editor.commands.setHardBreak();
