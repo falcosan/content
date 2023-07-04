@@ -185,7 +185,7 @@
         padding: 1rem 0 0 1rem;
     }
     .markdown dl dd {
-        margin-left: 1rem;
+        padding-left: 1rem;
     }
     .markdown ol {
         list-style: decimal inside;
