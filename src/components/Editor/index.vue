@@ -189,10 +189,8 @@ export default {
                 },
             },
             onUpdate({ editor }) {
-                emit('update:text', setContent(editor));
-            },
-            onTransaction({ editor }) {
                 checkFormats(editor);
+                emit('update:text', setContent(editor));
             },
             onSelectionUpdate({ editor }) {
                 checkFormats(editor);
