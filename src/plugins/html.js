@@ -1,9 +1,9 @@
-import enums from "../enums";
+import enums from '../enums';
 
 export const htmlPlugin = () => ({
-    name: "html-transform",
+    name: 'html-transform',
     transformIndexHtml: {
-        enforce: "pre",
+        enforce: 'pre',
         transform(html) {
             return html.replace(/.*/g, (match) => {
                 if (new RegExp(enums.metaHtml.title.variable).test(match)) {
