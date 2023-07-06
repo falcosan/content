@@ -123,9 +123,9 @@ import Highlight from '@tiptap/extension-highlight';
 import { computed, reactive, toRefs, watch } from 'vue';
 import { useEditor, EditorContent } from '@tiptap/vue-3';
 const extensions = [
+    Image,
     Highlight,
     CodeBlock,
-    Image.configure({ inline: true }),
     Link.configure({ openOnClick: false }),
     StarterKit.configure({ codeBlock: false }),
 ];
