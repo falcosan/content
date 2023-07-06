@@ -140,7 +140,7 @@
         width: 100%;
         display: block;
         white-space: pre;
-        padding: 1em;
+        padding: 2.5rem 1rem 1rem;
         overflow-wrap: normal;
         word-break: normal;
         overflow: auto;
