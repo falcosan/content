@@ -239,6 +239,7 @@
     .markdown ol,
     .markdown pre,
     .markdown div,
+    .markdown img,
     .markdown table,
     .markdown ul {
         margin-bottom: 1.25rem;
