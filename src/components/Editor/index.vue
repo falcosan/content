@@ -191,6 +191,9 @@ export default {
             onUpdate({ editor }) {
                 emit('update:text', setContent(editor));
             },
+            onTransaction({ editor }) {
+                checkFormats(editor);
+            },
             onSelectionUpdate({ editor }) {
                 checkFormats(editor);
             },
