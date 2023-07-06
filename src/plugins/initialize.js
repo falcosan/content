@@ -8,9 +8,14 @@ export default {
             auth: getCookie('auth') === import.meta.env.STORY_AUTH_SECRET,
         });
         const { locale, auth } = toRefs(state);
-        watch(locale, (val) => setCookie('locale', val), {
-            immediate: true,
-        });
+        watch(
+            locale,
+            (val) => {
+                setCookie('locale', val);
+                document.documentElement.setAttribute('lang', val);
+            },
+            { immediate: true }
+        );
         watch(auth, (val) => {
             if (val) {
                 setCookie('auth', val);
