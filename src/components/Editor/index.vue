@@ -347,7 +347,7 @@ export default {
         });
         const setContent = (editor) => {
             return props.tools
-                ? editor.getHTML().replace(/<p><\/p>/g, "<br>")
+                ? editor.getHTML()
                 : editor.getText();
         }
         const toggleModal = (state) => {
