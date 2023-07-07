@@ -96,6 +96,9 @@
         user-select: none;
         color: #c2c2c2;
     }
+    .markdown img {
+        cursor: pointer;
+    }
     .markdown-modal {
         position: fixed;
         width: 100%;
@@ -114,9 +117,13 @@
         height: 100%;
         object-fit: contain;
     }
-    .markdown a {
-        cursor: pointer;
+    .markdown a,
+    .markdown u {
         text-decoration: underline;
+    }
+    .markdown a:has(mark),
+    .markdown u:has(mark) {
+        text-decoration-color: #212121;
     }
     .markdown a:hover {
         filter: opacity(0.65);
@@ -213,6 +220,10 @@
     }
     .markdown p {
         margin-top: 0;
+    }
+    .markdown p:empty:before {
+        content: ' ';
+        white-space: pre;
     }
     .markdown hr {
         border: 0;

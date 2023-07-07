@@ -166,6 +166,7 @@ export default {
                 bold: false,
                 link: false,
                 code: false,
+                image: false,
                 italic: false,
                 strike: false,
                 underline: false,
@@ -303,6 +304,7 @@ export default {
                 title: 'Image',
                 icon: 'material-symbols:image',
                 arg: { src: '', caption: '', alt: '', title: '' },
+                active: current.value.image,
             },
             {
                 type: 'code',
@@ -377,8 +379,8 @@ export default {
             } else {
                 edit(action.actionAlt ?? action.action);
             }
-            node.value.argument = {};
             toggleModal(false);
+            node.value.argument = {};
         };
         const setText = (action) => {
             if (action.type) {
@@ -429,6 +431,7 @@ export default {
             current.value.link = editor.isActive('link');
             current.value.bold = editor.isActive('bold');
             current.value.code = editor.isActive('code');
+            current.value.image = editor.isActive('image');
             current.value.italic = editor.isActive('italic');
             current.value.strike = editor.isActive('strike');
             current.value.underline = editor.isActive('underline');
