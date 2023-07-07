@@ -119,11 +119,13 @@ import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
 import StarterKit from '@tiptap/starter-kit';
 import { importFilter } from '@/utils/object.js';
+import Underline from '@tiptap/extension-underline';
 import Highlight from '@tiptap/extension-highlight';
 import { computed, reactive, toRefs, watch } from 'vue';
 import { useEditor, EditorContent } from '@tiptap/vue-3';
 const extensions = [
     Image,
+    Underline,
     Highlight,
     CodeBlock,
     Link.configure({ openOnClick: false }),
@@ -167,6 +169,7 @@ export default {
                 code: false,
                 italic: false,
                 strike: false,
+                underline: false,
                 paragraph: false,
                 codeBlock: false,
                 highlight: false,
@@ -210,6 +213,13 @@ export default {
                 action: 'toggleItalic',
                 title: 'italic',
                 active: current.value.italic,
+            },
+            {
+                value: 'U',
+                type: 'underline',
+                action: 'toggleUnderline',
+                title: 'underline',
+                active: current.value.underline,
             },
             {
                 value: 'S̶',
@@ -422,6 +432,7 @@ export default {
             current.value.code = editor.isActive('code');
             current.value.italic = editor.isActive('italic');
             current.value.strike = editor.isActive('strike');
+            current.value.underline = editor.isActive('underline');
             current.value.highlight = editor.isActive('highlight');
             current.value.paragraph = editor.isActive('paragraph');
             current.value.codeBlock = editor.isActive('codeBlock');
