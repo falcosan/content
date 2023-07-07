@@ -1,5 +1,4 @@
 import Component from './Component.vue';
-import { mergeAttributes } from '@tiptap/core';
 import { VueNodeViewRenderer } from '@tiptap/vue-3';
 import CodeBlock from '@tiptap/extension-code-block';
 
@@ -21,11 +20,11 @@ export const CustomCodeBlock = CodeBlock.extend({
             },
         ];
     },
-    renderHTML({ HTMLAttributes }) {
+    renderHTML({ node }) {
         return [
             'pre',
             this.options.HTMLAttributes,
-            ['code', { class: HTMLAttributes.language }, 0],
+            ['code', { class: node.attrs.language }, 0],
         ];
     },
     addNodeView() {

@@ -41,12 +41,12 @@ export const CustomImage = Node.create({
             },
         ];
     },
-    renderHTML({ HTMLAttributes }) {
+    renderHTML({ HTMLAttributes, node }) {
         return [
             'figure',
             this.options.HTMLAttributes,
-            ['img', mergeAttributes(HTMLAttributes, { caption: undefined })],
-            ['figcaption', HTMLAttributes.caption],
+            ['img', mergeAttributes(HTMLAttributes)],
+            ['figcaption', node.attrs.caption],
         ];
     },
     addCommands() {
