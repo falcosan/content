@@ -88,13 +88,13 @@
         color: #c2c2c2;
     }
     .markdown img,
-    .markdown video {
+    .markdown video,
+    .markdown figure {
         width: 100%;
         max-width: 65ch;
         margin: 0 auto;
         border-radius: 0.25rem;
         user-select: none;
-        color: #c2c2c2;
     }
     .markdown img {
         cursor: pointer;
