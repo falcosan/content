@@ -3,58 +3,58 @@
     html {
         font: normal 16px/1.9em;
         height: 100%;
-      }
-      body {
+    }
+    body {
         height: 100%;
         overflow-y: scroll;
         touch-action: manipulation;
         background-color: #fff;
-      }
-      h1,
-      h2,
-      h3,
-      h4,
-      h5,
-      h6 {
+    }
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
         margin-bottom: 1.25rem;
         margin-top: 0;
-      }
-      li h1,
-      li h2,
-      li h3,
-      li h4,
-      li h5,
-      li h6 {
+    }
+    li h1,
+    li h2,
+    li h3,
+    li h4,
+    li h5,
+    li h6 {
         margin: 0;
-      }
-      h1 {
+    }
+    h1 {
         font-size: clamp(2.16rem, 1.47rem + 1.73vw, 4.24rem);
         line-height: 1.25;
-      }
-      h2 {
+    }
+    h2 {
         font-size: clamp(1.8rem, 1.4rem + 1vw, 3rem);
         line-height: 1.375;
-      }
-      h3 {
+    }
+    h3 {
         font-size: clamp(1.5rem, 1.29rem + 0.52vw, 2.12rem);
         line-height: 1.5;
-      }
-      h4 {
+    }
+    h4 {
         font-size: clamp(1.25rem, 1.17rem + 0.21vw, 1.6rem);
         line-height: 1.625;
-      }
-      h5 {
+    }
+    h5 {
         font-size: clamp(1.04rem, 1.04rem + 0.02vw, 1.05rem);
         line-height: 1.7;
         font-weight: 600;
-      }
-      h6 {
+    }
+    h6 {
         line-height: 1.775;
         font-weight: 600;
-      }
-      *::placeholder {
+    }
+    *::placeholder {
         font-size: 14px;
-      }
+    }
     input,
     .ProseMirror {
         @apply focus:outline-none border border-gray-300 rounded-lg py-2 px-3 block w-full appearance-none leading-normal bg-white;
@@ -221,6 +221,11 @@
     }
     .markdown *:last-child {
         margin: 0 auto;
+    }
+    .markdown p:empty:not(:has(*)):not(:only-child),
+    .markdown p:only-child:has(br),
+    .markdown p:not(:empty):has(br) {
+        margin-bottom: 0;
     }
     .markdown dd:not(:last-child),
     .markdown dt:not(:last-child),
