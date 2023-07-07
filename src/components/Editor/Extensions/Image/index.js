@@ -36,12 +36,7 @@ export const CustomImage = Node.create({
         };
     },
     parseHTML() {
-        return [
-            {
-                tag: 'figure',
-                contentElement: 'figcaption',
-            },
-        ];
+        return [{ tag: 'figure', preserveWhitespace: 'full' }];
     },
     renderHTML({ HTMLAttributes, node }) {
         return [

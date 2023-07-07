@@ -15,12 +15,7 @@ export const CustomCodeBlock = CodeBlock.extend({
         };
     },
     parseHTML() {
-        return [
-            {
-                tag: 'pre',
-                preserveWhitespace: 'full',
-            },
-        ];
+        return [{ tag: 'pre', preserveWhitespace: 'full' }];
     },
     renderHTML({ node }) {
         return [
