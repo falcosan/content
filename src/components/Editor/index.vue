@@ -59,7 +59,7 @@
                     <template #header>
                         <p
                             class="text-lg text-center font-bold text-gray-600"
-                            v-text="'Change de fields'"
+                            v-text="'Complete the fields'"
                         />
                     </template>
                     <template #body>
@@ -114,10 +114,9 @@
 <script>
 import { Icon } from '@iconify/vue';
 import Modal from '@/components/Modal';
-import { CodeBlock } from './Extensions';
 import Link from '@tiptap/extension-link';
-import Image from '@tiptap/extension-image';
 import StarterKit from '@tiptap/starter-kit';
+import { CodeBlock, Image } from './Extensions';
 import { importFilter } from '@/utils/object.js';
 import Underline from '@tiptap/extension-underline';
 import Highlight from '@tiptap/extension-highlight';
@@ -303,7 +302,7 @@ export default {
                 action: 'setImage',
                 title: 'Image',
                 icon: 'material-symbols:image',
-                arg: { src: '' },
+                arg: { src: '', caption: '', alt: '', title: '' },
             },
             {
                 type: 'code',

@@ -54,6 +54,7 @@
     }
     *::placeholder {
         font-size: 14px;
+        text-transform: capitalize;
     }
     input,
     .ProseMirror {
@@ -222,9 +223,10 @@
     .markdown *:last-child {
         margin: 0 auto;
     }
-    .markdown p:empty:not(:has(*)):not(:only-child),
+    .markdown figure img,
     .markdown p:only-child:has(br),
-    .markdown p:not(:empty):has(br) {
+    .markdown p:not(:empty):has(br),
+    .markdown p:empty:not(:has(*)):not(:only-child) {
         margin-bottom: 0;
     }
     .markdown dd:not(:last-child),
