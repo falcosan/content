@@ -346,10 +346,8 @@ export default {
             return !!Object.values(node.value.argument).filter(Boolean).length;
         });
         const setContent = (editor) => {
-            return props.tools
-                ? editor.getHTML();
-                : editor.getText();
-        }
+            return props.tools ? editor.getHTML() : editor.getText();
+        };
         const toggleModal = (state) => {
             editor.value.setOptions({ editable: !state });
             modal.value = state;
@@ -438,7 +436,7 @@ export default {
         watch(
             () => props.text,
             (val) => {
-                const text = setContent(editor.value)
+                const text = setContent(editor.value);
                 if (text === val) return;
                 editor.value.commands.setContent(val);
             }
