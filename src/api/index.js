@@ -37,6 +37,7 @@ export async function editStoryblokStory(story, lang) {
         .put(`spaces/${import.meta.env.STORY_ID_SPACE}/stories/${story.id}`, {
             lang,
             story,
+            ...(story.published && { publish: '1' }),
         })
         .then(({ data }) => data)
         .catch((error) => console.error(error));
