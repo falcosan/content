@@ -11,7 +11,6 @@
   },
   "dependencies": {
     "@tiptap/extension-highlight": "^2.0.3",
-    "@tiptap/extension-image": "^2.0.3",
     "@tiptap/extension-link": "^2.0.3",
     "@tiptap/extension-underline": "^2.0.3",
     "@tiptap/pm": "^2.0.3",

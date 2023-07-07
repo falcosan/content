@@ -80,8 +80,8 @@
     .markdown video,
     .markdown figure,
     .markdown img + figcaption {
-        display: block;
-        padding-top: 10px;
+        display: grid;
+        gap: 10px;
         text-align: center;
         font-size: 14px;
         font-style: italic;

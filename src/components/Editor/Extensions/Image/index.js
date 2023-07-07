@@ -2,19 +2,21 @@ import { Node, mergeAttributes, findChildrenInRange } from '@tiptap/core';
 
 export const CustomImage = Node.create({
     name: 'image',
+    group: 'block',
+    content: 'inline*',
     addOptions() {
         return {
             HTMLAttributes: {},
         };
     },
-    group: 'block',
-    content: 'inline*',
     addAttributes() {
         return {
             caption: {
                 default: '',
-                parseHTML: (element) =>
-                    element.querySelector('img')?.getAttribute('caption'),
+                parseHTML: (element) => {
+                    const figcaption = element.querySelector('figcaption');
+                    return figcaption.textContent;
+                },
             },
             src: {
                 default: '',
@@ -45,7 +47,7 @@ export const CustomImage = Node.create({
         return [
             'figure',
             this.options.HTMLAttributes,
-            ['img', mergeAttributes(HTMLAttributes)],
+            ['img', mergeAttributes(HTMLAttributes, { caption: undefined })],
             ['figcaption', node.attrs.caption],
         ];
     },

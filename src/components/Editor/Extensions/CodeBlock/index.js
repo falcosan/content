@@ -7,8 +7,10 @@ export const CustomCodeBlock = CodeBlock.extend({
         return {
             language: {
                 default: '',
-                parseHTML: (element) =>
-                    element.querySelector('code')?.getAttribute('language'),
+                parseHTML: (element) => {
+                    const code = element.querySelector('code');
+                    return code?.className || '';
+                },
             },
         };
     },
