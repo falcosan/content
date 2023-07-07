@@ -25,7 +25,7 @@ export const CustomCodeBlock = CodeBlock.extend({
         return [
             'pre',
             this.options.HTMLAttributes,
-            ['code', mergeAttributes(HTMLAttributes), 0],
+            ['code', { class: HTMLAttributes.language }, 0],
         ];
     },
     addNodeView() {

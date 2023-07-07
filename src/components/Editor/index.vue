@@ -368,7 +368,7 @@ export default {
                 (action) => action.type === node.value.type
             );
             const edit = (operation) => {
-                const trigger = editor.value.chain().focus();
+                const trigger = editor.value.chain();
                 return trigger[operation](action.arg).run();
             };
             if (state) {
@@ -418,7 +418,7 @@ export default {
                     );
                 }
             } else if (action.value === 'clear') {
-                editor.value.chain().focus().clearNodes().unsetAllMarks().run();
+                editor.value.chain().clearNodes().unsetAllMarks().run();
                 editor.value.commands.selectTextblockEnd();
             } else if (/undo|redo/.test(action.value)) {
                 editor.value.commands[action.action]();

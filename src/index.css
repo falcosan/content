@@ -79,11 +79,11 @@
     .markdown img,
     .markdown video,
     .markdown figure,
-    .markdown img + .caption {
-        display: grid;
-        gap: 10px;
+    .markdown img + figcaption {
+        display: block;
+        padding-top: 10px;
         text-align: center;
-        font-size: 15px;
+        font-size: 14px;
         font-style: italic;
         color: #c2c2c2;
     }

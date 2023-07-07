@@ -1,4 +1,4 @@
-import { Node, mergeAttributes } from '@tiptap/core';
+import { Node, mergeAttributes, findChildrenInRange } from '@tiptap/core';
 
 export const CustomImage = Node.create({
     name: 'image',
@@ -9,9 +9,13 @@ export const CustomImage = Node.create({
     },
     group: 'block',
     content: 'inline*',
-    isolating: true,
     addAttributes() {
         return {
+            caption: {
+                default: '',
+                parseHTML: (element) =>
+                    element.querySelector('img')?.getAttribute('caption'),
+            },
             src: {
                 default: '',
                 parseHTML: (element) =>
@@ -41,31 +45,38 @@ export const CustomImage = Node.create({
         return [
             'figure',
             this.options.HTMLAttributes,
-            ['img', mergeAttributes(HTMLAttributes)],
-            ['figcaption', 0],
+            ['img', mergeAttributes(HTMLAttributes, { caption: undefined })],
+            ['figcaption', HTMLAttributes.caption],
         ];
     },
     addCommands() {
         return {
             setImage:
-                ({ caption, ...attrs }) =>
-                ({ chain }) => {
-                    return chain()
-                        .insertContent({
-                            type: this.name,
-                            attrs,
-                            content: caption
-                                ? [{ type: 'text', text: caption }]
-                                : [],
-                        })
-                        .command(({ tr, commands }) => {
-                            const { doc, selection } = tr;
-                            const position = doc
-                                .resolve(selection.to - 2)
-                                .end();
-                            return commands.setTextSelection(position);
-                        })
-                        .run();
+                ({ ...attrs }) =>
+                ({ tr, commands, chain }) => {
+                    const { doc, selection } = tr;
+                    const { from, to } = selection;
+                    const images = findChildrenInRange(
+                        doc,
+                        { from, to },
+                        (node) => node.type.name === 'image'
+                    );
+                    if (images.length) {
+                        commands.forEach(images, () =>
+                            commands.updateAttributes('image', attrs)
+                        );
+                    } else {
+                        return chain()
+                            .insertContent({ type: this.name, attrs })
+                            .command(({ tr, commands }) => {
+                                const { doc, selection } = tr;
+                                const position = doc
+                                    .resolve(selection.to - 2)
+                                    .end();
+                                return commands.setTextSelection(position);
+                            })
+                            .run();
+                    }
                 },
         };
     },
