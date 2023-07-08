@@ -8,12 +8,3 @@
     [headers.values]
     Access-Control-Allow-Origin = "*"
   
-[[plugins]]
-  package = "netlify-plugin-js-obfuscator"
-    [plugins.inputs]
-      compact = false
-      numbersToExpressions = true
-      simplify = true
-      shuffleStringArray = true
-      splitStrings = true
-  

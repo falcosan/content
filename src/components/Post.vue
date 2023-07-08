@@ -150,7 +150,10 @@ const editPost = async () => {
                 modal.value.state = true;
                 modal.value.type = 'error';
             })
-            .finally(resetModal);
+            .finally(() => {
+                resetModal();
+                loading.value.edit = false;
+            });
     } catch {
         loading.value.edit = false;
     }
@@ -174,7 +177,10 @@ const togglePost = async () => {
                 modal.value.state = true;
                 modal.value.type = 'error';
             })
-            .finally(resetModal);
+            .finally(() => {
+                resetModal();
+                loading.value.toggle = false;
+            });
     } catch {
         loading.value.toggle = false;
     }
