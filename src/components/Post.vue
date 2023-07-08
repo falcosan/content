@@ -80,18 +80,40 @@ const mapPost = (values) => {
         return enums.languages.reduce((objAcc, lang) => {
             const translatedKey = `${key}${enums.translatableSuffix}${lang}`;
             const text = lang === 'en' ? key : translatedKey;
+            const value = values.content[text] || '';
             return {
                 ...acc,
                 ...objAcc,
-                [text]: values.content[text] || '',
+                [text]: value,
             };
         }, {});
     }, {});
     return { ...values, content: { ...values.content, ...keys } };
 };
+const cleanPost = (values) => {
+    const html = /^<([a-z]+)([^>]+)*(?:>(?:\s*|\n*)<\/\1>|[^/]*\/>)$/;
+    const keys = properties.value.translatable.reduce((acc, curr) => {
+        const transformed = enums.languages
+            .filter((lang) => lang !== 'en')
+            .map((lang) => `${curr}${enums.translatableSuffix}${lang}`);
+        return [...acc, ...transformed];
+    }, []);
+    const content = Object.keys(values.content).reduce((fields, key) => {
+        const value = values.content[key];
+        if (!value) return fields;
+        if (
+            (keys.includes(key) && !html.test(value)) ||
+            (!keys.includes(key) && !html.test(value))
+        ) {
+            return { ...fields, [key]: value };
+        }
+        return fields;
+    }, {});
+    return { ...values, content };
+};
 const editPost = async () => {
     loading.value.edit = true;
-    await editStoryblokStory(post.value, locale.value)
+    await editStoryblokStory(cleanPost(post.value), locale.value)
         .then((res) => {
             post.value = mapPost(res.story);
             modal.value.message = 'Saved';
