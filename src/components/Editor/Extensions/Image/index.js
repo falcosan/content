@@ -5,7 +5,7 @@ import { Node, mergeAttributes, findChildrenInRange } from '@tiptap/core';
 export const CustomImage = Node.create({
     name: 'image',
     group: 'block',
-    content: 'inline*',
+    atom: true,
     addOptions() {
         return {
             HTMLAttributes: {},

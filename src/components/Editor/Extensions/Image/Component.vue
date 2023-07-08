@@ -7,17 +7,15 @@
             @click="setAttributes"
         />
         <figcaption v-if="attrs.caption" v-text="attrs.caption" />
-        <NodeViewContent class="hidden pointer-events-none select-none" />
     </NodeViewWrapper>
 </template>
 
 <script>
 import { computed, inject } from 'vue';
-import { nodeViewProps, NodeViewWrapper, NodeViewContent } from '@tiptap/vue-3';
+import { nodeViewProps, NodeViewWrapper } from '@tiptap/vue-3';
 export default {
     components: {
         NodeViewWrapper,
-        NodeViewContent,
     },
     props: nodeViewProps,
     setup(props) {
