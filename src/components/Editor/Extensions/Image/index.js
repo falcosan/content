@@ -1,3 +1,5 @@
+import Component from './Component.vue';
+import { VueNodeViewRenderer } from '@tiptap/vue-3';
 import { Node, mergeAttributes, findChildrenInRange } from '@tiptap/core';
 
 export const CustomImage = Node.create({
@@ -15,7 +17,7 @@ export const CustomImage = Node.create({
                 default: '',
                 parseHTML: (element) => {
                     const figcaption = element.querySelector('figcaption');
-                    return figcaption.textContent;
+                    return figcaption?.textContent;
                 },
             },
             src: {
@@ -76,5 +78,8 @@ export const CustomImage = Node.create({
                     }
                 },
         };
+    },
+    addNodeView() {
+        return VueNodeViewRenderer(Component);
     },
 });

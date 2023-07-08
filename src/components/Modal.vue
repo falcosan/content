@@ -2,9 +2,7 @@
     <div :class="['modal', { opened: open }]">
         <transition
             enter-from-class="opacity-0"
-            leave-to-class="opacity-0"
             enter-active-class="transition"
-            leave-active-class="transition"
         >
             <div
                 v-show="open"

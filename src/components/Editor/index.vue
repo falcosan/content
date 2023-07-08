@@ -152,6 +152,11 @@ export default {
         },
     },
     emits: ['update:text'],
+    provide() {
+        return {
+            setText: (action) => this.setText(action),
+        };
+    },
     setup(props, { emit }) {
         const arrayCreate = (data, length = 5) =>
             Array.from({ length }, () => data);
@@ -194,6 +199,9 @@ export default {
             onUpdate({ editor }) {
                 checkFormats(editor);
                 emit('update:text', setContent(editor));
+            },
+            onTransaction({ editor }) {
+                checkFormats(editor);
             },
             onSelectionUpdate({ editor }) {
                 checkFormats(editor);
@@ -359,11 +367,17 @@ export default {
         const setContent = (editor) => {
             return props.tools ? editor.getHTML() : editor.getText();
         };
+        const getAction = (type) => {
+            if (typeof type === 'string') {
+                return actions.value.find((action) => action.type === type);
+            } else return type;
+        };
+        const resetNode = () => {
+            node.value = { type: '', scheme: [], argument: {} };
+        };
         const toggleModal = (state) => (modal.value = state);
         const toggleNodeAction = (state) => {
-            const action = actions.value.find(
-                (action) => action.type === node.value.type
-            );
+            const action = getAction(node.value.type);
             const edit = (operation) => {
                 const trigger = editor.value.chain();
                 return trigger[operation](action.arg).run();
@@ -377,9 +391,9 @@ export default {
                 edit(action.actionAlt ?? action.action);
             }
             toggleModal(false);
-            node.value.argument = {};
         };
-        const setText = (action) => {
+        const setText = (type) => {
+            const action = getAction(type);
             if (action.type) {
                 const attributes = editor.value.getAttributes(action.type);
                 if (action.type === 'heading') {
@@ -451,8 +465,9 @@ export default {
                 editor.value.commands.setContent(val);
             }
         );
-        watch(modal, () => {
-            editor.value.setOptions({ editable: !editor.value.isEditable });
+        watch(modal, (val) => {
+            if (!val) resetNode();
+            editor.value.setOptions({ editable: !val });
         });
         return {
             node,

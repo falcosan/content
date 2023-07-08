@@ -85,7 +85,7 @@
         text-align: center;
         font-size: 14px;
         font-style: italic;
-        color: #c2c2c2;
+        color: #212121;
     }
     .markdown img,
     .markdown video,
@@ -157,7 +157,7 @@
     }
     .markdown blockquote {
         @apply relative pt-10 pb-5 px-6 lg:px-8 rounded bg-[#eeeeee] text-[#212121];
-        border-top: 5px solid #c2c2c2;
+        border-top: 5px solid #212121;
     }
     .markdown blockquote:before {
         content: '“';
@@ -228,7 +228,7 @@
     .markdown hr {
         border: 0;
         margin: 2rem auto;
-        border-top: 1px solid #c2c2c2;
+        border-top: 1px solid #212121;
         max-width: 10rem;
     }
     .markdown *:last-child {
