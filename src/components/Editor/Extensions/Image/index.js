@@ -70,7 +70,7 @@ export const CustomImage = Node.create({
                             .command(({ tr, commands }) => {
                                 const { doc, selection } = tr;
                                 const position = doc
-                                    .resolve(selection.to - 2)
+                                    .resolve(selection.to - 1)
                                     .end();
                                 return commands.setTextSelection(position);
                             })
