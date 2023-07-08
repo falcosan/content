@@ -29,6 +29,7 @@ const state = reactive({
     post: {},
     properties: {
         markdown: [],
+        required: [],
         translatable: [],
     },
     loading: {
@@ -43,6 +44,7 @@ const modalType = {
     error: { background: 'bg-red-500', text: 'text-white' },
     published: { background: 'bg-green-500', text: 'text-white' },
 };
+const html = /^<([a-z]+)([^>]+)*(?:>(?:\s*|\n*)<\/\1>|[^/]*\/>)$/;
 const translatable = computed(() =>
     properties.value.translatable.reduce((acc, value) => {
         const regex = new RegExp(`${enums.translatableSuffix}.*`);
@@ -72,6 +74,14 @@ const editors = computed(() => [
         markdown: checkProperty('markdown', 'long_text'),
     },
 ]);
+const resetModal = () => {
+    clearTimeout(modal.value.timeout);
+    modal.value.timeout = setTimeout(() => {
+        modal.value.message = '';
+        modal.value.state = false;
+        modal.value.type = '';
+    }, 5000);
+};
 const checkProperty = (prop, value) => properties.value[prop].includes(value);
 const mapPost = (values) => {
     const keys = properties.value.translatable.reduce((acc, value) => {
@@ -91,7 +101,6 @@ const mapPost = (values) => {
     return { ...values, content: { ...values.content, ...keys } };
 };
 const cleanPost = (values) => {
-    const html = /^<([a-z]+)([^>]+)*(?:>(?:\s*|\n*)<\/\1>|[^/]*\/>)$/;
     const keys = properties.value.translatable.reduce((acc, curr) => {
         const transformed = enums.languages
             .filter((lang) => lang !== 'en')
@@ -111,56 +120,64 @@ const cleanPost = (values) => {
     }, {});
     return { ...values, content };
 };
+const checkPost = () => {
+    const check = properties.value.required.every((prop) => {
+        return post.value.content[prop] && !html.test(post.value.content[prop]);
+    });
+    if (!check) {
+        const message = 'Complete required fields';
+        clearTimeout(modal.value.timeout);
+        modal.value.message = message;
+        modal.value.state = true;
+        modal.value.type = 'error';
+        resetModal();
+        throw new Error(message);
+    }
+};
 const editPost = async () => {
     loading.value.edit = true;
-    await editStoryblokStory(cleanPost(post.value), locale.value)
-        .then((res) => {
-            post.value = mapPost(res.story);
-            modal.value.message = 'Saved';
-            modal.value.state = true;
-            modal.value.type = 'edited';
-        })
-        .catch(() => {
-            modal.value.message = 'Error';
-            modal.value.state = true;
-            modal.value.type = 'error';
-        })
-        .finally(() => {
-            clearTimeout(modal.value.timeout);
-            loading.value.edit = false;
-            modal.value.timeout = setTimeout(() => {
-                modal.value.message = '';
-                modal.value.state = false;
-                modal.value.type = '';
-            }, 5000);
-        });
+    try {
+        checkPost();
+        await editStoryblokStory(cleanPost(post.value), locale.value)
+            .then((res) => {
+                post.value = mapPost(res.story);
+                modal.value.message = 'Saved';
+                modal.value.state = true;
+                modal.value.type = 'edited';
+            })
+            .catch(() => {
+                modal.value.message = 'Error';
+                modal.value.state = true;
+                modal.value.type = 'error';
+            })
+            .finally(resetModal);
+    } catch {
+        loading.value.edit = false;
+    }
 };
 const togglePost = async () => {
     loading.value.toggle = true;
     const state = post.value.published ? 'unpublish' : 'publish';
-    await toggleStoryblokStory(post.value.id, state)
-        .then((res) => {
-            post.value = mapPost(res.story);
-            modal.value.message = post.value.published
-                ? 'Published'
-                : 'Unpublished';
-            modal.value.state = true;
-            modal.value.type = 'published';
-        })
-        .catch(() => {
-            modal.value.message = 'Error';
-            modal.value.state = true;
-            modal.value.type = 'error';
-        })
-        .finally(() => {
-            clearTimeout(modal.value.timeout);
-            loading.value.toggle = false;
-            modal.value.timeout = setTimeout(() => {
-                modal.value.message = '';
-                modal.value.state = false;
-                modal.value.type = '';
-            }, 5000);
-        });
+    try {
+        checkPost();
+        await toggleStoryblokStory(post.value.id, state)
+            .then((res) => {
+                post.value = mapPost(res.story);
+                modal.value.message = post.value.published
+                    ? 'Published'
+                    : 'Unpublished';
+                modal.value.state = true;
+                modal.value.type = 'published';
+            })
+            .catch(() => {
+                modal.value.message = 'Error';
+                modal.value.state = true;
+                modal.value.type = 'error';
+            })
+            .finally(resetModal);
+    } catch {
+        loading.value.toggle = false;
+    }
 };
 const handleSave = async (event) => {
     if (event.metaKey && event.code === 'KeyS') {
@@ -175,10 +192,12 @@ watch(
     async (val) => {
         if (!properties.value.translatable.length) {
             const data = await getStoryblokComponents(val.content.component, [
+                'required',
                 'translatable',
                 { type: 'markdown' },
             ]);
             properties.value.markdown = data.type;
+            properties.value.required = data.required;
             properties.value.translatable = data.translatable;
         }
         post.value = mapPost(val);
