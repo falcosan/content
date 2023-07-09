@@ -53,29 +53,48 @@ export async function getStoryblokComponents(name, properties) {
                 const multipleKeys = {};
                 const name = component.name;
                 const schema = component.schema;
-                const propsComposer = (prop) => {
-                    const setter =
-                        typeof prop === 'object' ? Object.keys(prop)[0] : prop;
-                    const control =
-                        typeof prop === 'object'
-                            ? Object.values(prop)[0]
-                            : !!prop;
-                    return { setter, control };
+                const propsComposer = (prop, obj) => {
+                    let name = prop;
+                    let value = !!prop;
+                    let control = obj[name] === value;
+                    if (typeof prop === 'object') {
+                        const key = Object.keys(prop)[0];
+                        const val = Object.values(prop)[0];
+                        name = key;
+                        value = val;
+                        if (
+                            obj[name] &&
+                            typeof val === 'function' &&
+                            val.prototype
+                        ) {
+                            const constructor = val.prototype.constructor;
+                            if (constructor === String) value = 'string';
+                            if (constructor === Number) value = 'number';
+                            control = typeof obj[name] === value;
+                        } else {
+                            control = obj[name] === value;
+                        }
+                    }
+                    return { name, value, control };
                 };
                 Object.keys(schema).forEach((key) => {
                     if (Array.isArray(properties)) {
                         properties.forEach((prop) => {
-                            const { setter, control } = propsComposer(prop);
-                            if (schema[key][setter] === control) {
-                                multipleKeys[setter] =
-                                    multipleKeys[setter] || [];
-                                multipleKeys[setter].push(key);
+                            const { name, control } = propsComposer(
+                                prop,
+                                schema[key]
+                            );
+                            if (control) {
+                                multipleKeys[name] = multipleKeys[name] || [];
+                                multipleKeys[name].push(key);
                             }
                         });
                     } else {
-                        const { setter, control } = propsComposer(properties);
-                        if (schema[key][setter] === control)
-                            singleKey.push(key);
+                        const { control } = propsComposer(
+                            properties,
+                            schema[key]
+                        );
+                        if (control) singleKey.push(key);
                     }
                 });
                 components[name] = Array.isArray(properties)

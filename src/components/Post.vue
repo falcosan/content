@@ -30,6 +30,7 @@ const state = reactive({
     properties: {
         markdown: [],
         required: [],
+        maxLength: [],
         translatable: [],
     },
     loading: {
@@ -199,11 +200,14 @@ watch(
         if (!properties.value.translatable.length) {
             const data = await getStoryblokComponents(val.content.component, [
                 'required',
+                'max_length',
                 'translatable',
                 { type: 'markdown' },
+                { max_length: String },
             ]);
             properties.value.markdown = data.type;
             properties.value.required = data.required;
+            properties.value.maxLength = data.max_length;
             properties.value.translatable = data.translatable;
         }
         post.value = mapPost(val);
