@@ -57,7 +57,6 @@ export async function getStoryblokComponents(name, properties) {
                     let name = prop;
                     let value = !!prop;
                     let control = obj[name] === value;
-
                     if (typeof prop === 'object') {
                         const key = Object.keys(prop)[0];
                         const val = Object.values(prop)[0];
