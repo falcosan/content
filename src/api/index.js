@@ -92,7 +92,6 @@ export async function getStoryblokComponents(name, properties) {
                             }
                         }
                     }
-                    console.log(value);
                     return { name, value, control };
                 };
                 Object.keys(schema).forEach((key) => {
