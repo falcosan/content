@@ -57,24 +57,42 @@ export async function getStoryblokComponents(name, properties) {
                     let name = prop;
                     let value = !!prop;
                     let control = obj[name] === value;
+
                     if (typeof prop === 'object') {
                         const key = Object.keys(prop)[0];
                         const val = Object.values(prop)[0];
                         name = key;
                         value = val;
-                        if (
-                            obj[name] &&
-                            typeof val === 'function' &&
-                            val.prototype
-                        ) {
-                            const constructor = val.prototype.constructor;
-                            if (constructor === String) value = 'string';
-                            if (constructor === Number) value = 'number';
-                            control = typeof obj[name] === value;
-                        } else {
-                            control = obj[name] === value;
+                        if (obj[name]) {
+                            if (
+                                Array.isArray(val) &&
+                                val.every(
+                                    (constr) =>
+                                        typeof constr === 'function' &&
+                                        constr.prototype
+                                )
+                            ) {
+                                value = [];
+                                control = val.forEach((type) => {
+                                    const constr = type.prototype.constructor;
+                                    if (constr === String) value.push('string');
+                                    if (constr === Number) value.push('number');
+                                });
+                                control = typeof value.includes(obj[name]);
+                            } else if (
+                                typeof val === 'function' &&
+                                val.prototype
+                            ) {
+                                const constr = val.prototype.constructor;
+                                if (constr === String) value = 'string';
+                                if (constr === Number) value = 'number';
+                                control = typeof obj[name] === value;
+                            } else {
+                                control = obj[name] === value;
+                            }
                         }
                     }
+                    console.log(value);
                     return { name, value, control };
                 };
                 Object.keys(schema).forEach((key) => {

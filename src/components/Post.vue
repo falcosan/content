@@ -203,7 +203,7 @@ watch(
                 'max_length',
                 'translatable',
                 { type: 'markdown' },
-                { max_length: String },
+                { max_length: [String, Number] },
             ]);
             properties.value.markdown = data.type;
             properties.value.required = data.required;
