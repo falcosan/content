@@ -98,15 +98,27 @@
                     </template>
                 </Modal>
             </div>
-            <div class="w-full flex items-center justify-end">
-                <span
-                    class="inline-block mr-2 text-xs italic text-gray-500"
-                    v-text="'words:'"
-                />
-                <span
-                    class="inline-block font-bold text-xs italic text-gray-500"
-                    v-text="renderLength"
-                />
+            <div class="w-full flex flex-wrap items-center justify-end">
+                <div class="m-1">
+                    <span
+                        class="inline-block mr-1 text-xs italic text-gray-500"
+                        v-text="'characters:'"
+                    />
+                    <span
+                        class="inline-block font-bold text-xs italic text-gray-500"
+                        v-text="renderLength.characters"
+                    />
+                </div>
+                <div class="m-1">
+                    <span
+                        class="inline-block mr-1 text-xs italic text-gray-500"
+                        v-text="'words:'"
+                    />
+                    <span
+                        class="inline-block font-bold text-xs italic text-gray-500"
+                        v-text="renderLength.words"
+                    />
+                </div>
             </div>
         </div>
     </div>
@@ -345,15 +357,17 @@ export default {
                 value: 'redo',
             },
         ]);
-        const renderLength = computed(
-            () =>
-                (
-                    editor.value
-                        ?.getText()
+        const renderLength = computed(() => {
+            const text = editor.value?.getText() ?? '';
+            return {
+                words: (
+                    text
                         .replace(/(<([^>]+)>)/gi, '')
                         .match(/.*?\w+.*?(\s|$)/gi) || ''
-                ).length
-        );
+                ).length,
+                characters: text.replace(/(<([^>]+)>)/gi, '').length,
+            };
+        });
         const setterActions = computed(() => {
             return {
                 format: actions.value.filter((action) => action.type),

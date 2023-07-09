@@ -78,7 +78,7 @@ watch(
         <component :is="view" v-if="detail.state" :data="detail.item" />
         <div
             v-else
-            class="grid grid-cols-12 sm:grid-cols-[repeat(auto-fit,_minmax(2rem,_1fr))] lg:grid-cols-12 gap-6"
+            class="grid grid-cols-12 sm:grid-cols-[repeat(auto-fit,_minmax(2rem,_1fr))] lg:grid-cols-12 auto-rows-fr gap-6"
         >
             <Teaser
                 v-for="(post, indexPost) in data"
