@@ -50,7 +50,7 @@ export const CustomImage = Node.create({
     },
     addCommands() {
         return {
-            setImage:
+            addImage:
                 ({ ...attrs }) =>
                 ({ tr, commands, chain }) => {
                     const { doc, selection } = tr;
@@ -76,6 +76,19 @@ export const CustomImage = Node.create({
                             })
                             .run();
                     }
+                },
+            removeImage:
+                () =>
+                ({ tr, commands }) => {
+                    const { doc, selection } = tr;
+                    const { from, to } = selection;
+                    const images = findChildrenInRange(
+                        doc,
+                        { from, to },
+                        (node) => node.type.name === 'image'
+                    );
+                    if (!images.length) return;
+                    else return commands.deleteSelection();
                 },
         };
     },

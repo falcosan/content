@@ -308,7 +308,8 @@ export default {
             },
             {
                 type: 'image',
-                action: 'setImage',
+                action: 'addImage',
+                actionAlt: 'removeImage',
                 title: 'Image',
                 icon: 'material-symbols:image',
                 arg: { src: '', caption: '', alt: '', title: '' },
