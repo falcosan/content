@@ -62,17 +62,20 @@ const editors = computed(() => [
     {
         title: 'Title',
         value: translatable.value.title,
-        markdown: checkProperty('markdown', 'title'),
+        max: checkProperties('maxLength', 'title'),
+        markdown: checkProperties('markdown', 'title'),
     },
     {
         title: 'Intro',
         value: translatable.value.intro,
-        markdown: checkProperty('markdown', 'intro'),
+        max: checkProperties('maxLength', 'intro'),
+        markdown: checkProperties('markdown', 'intro'),
     },
     {
         title: 'Content',
         value: translatable.value.long_text,
-        markdown: checkProperty('markdown', 'long_text'),
+        max: checkProperties('maxLength', 'long_text'),
+        markdown: checkProperties('markdown', 'long_text'),
     },
 ]);
 const resetModal = () => {
@@ -83,7 +86,6 @@ const resetModal = () => {
         modal.value.type = '';
     }, 5000);
 };
-const checkProperty = (prop, value) => properties.value[prop].includes(value);
 const mapPost = (values) => {
     const keys = properties.value.translatable.reduce((acc, value) => {
         const regex = new RegExp(`${enums.translatableSuffix}.*`);
@@ -120,6 +122,16 @@ const cleanPost = (values) => {
         return fields;
     }, {});
     return { ...values, content };
+};
+const checkProperties = (prop, value) => {
+    const property = properties.value[prop];
+    if (property.every((item) => typeof item === 'object')) {
+        const found = property.find((item) => item[value]);
+        if (found) return found[value];
+        else return false;
+    } else {
+        return property.includes(value);
+    }
 };
 const checkPost = () => {
     const check = properties.value.required.every((prop) => {
@@ -205,10 +217,12 @@ watch(
                 { type: 'markdown' },
                 { max_length: [String, Number] },
             ]);
-            properties.value.markdown = data.type;
-            properties.value.required = data.required;
-            properties.value.maxLength = data.max_length;
-            properties.value.translatable = data.translatable;
+            const getKeys = (list) => list.map((val) => val[0]);
+            const getObj = (list) => list.map((val) => ({ [val[0]]: val[1] }));
+            properties.value.markdown = getKeys(data.type);
+            properties.value.required = getKeys(data.required);
+            properties.value.maxLength = getObj(data.max_length);
+            properties.value.translatable = getKeys(data.translatable);
         }
         post.value = mapPost(val);
     },
@@ -224,6 +238,7 @@ watch(
             v-model:text="post.content[editor.value]"
             :title="editor.title"
             :tools="editor.markdown"
+            :max="editor.max"
         />
         <div class="flex flex-wrap justify-center xs:justify-end mt-10 -m-2.5">
             <button

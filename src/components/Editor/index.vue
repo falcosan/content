@@ -158,9 +158,9 @@ export default {
             type: Boolean,
             default: false,
         },
-        refresh: {
-            type: [Number, String],
-            default: 0,
+        max: {
+            type: [Number, String, Boolean],
+            default: false,
         },
     },
     emits: ['update:text'],

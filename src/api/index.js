@@ -102,7 +102,10 @@ export async function getStoryblokComponents(name, properties) {
                             );
                             if (control) {
                                 multipleKeys[name] = multipleKeys[name] || [];
-                                multipleKeys[name].push(key);
+                                multipleKeys[name].push([
+                                    key,
+                                    schema[key][name],
+                                ]);
                             }
                         });
                     } else {
@@ -110,7 +113,7 @@ export async function getStoryblokComponents(name, properties) {
                             properties,
                             schema[key]
                         );
-                        if (control) singleKey.push(key);
+                        if (control) singleKey.push([key, schema[key][name]]);
                     }
                 });
                 components[name] = Array.isArray(properties)
