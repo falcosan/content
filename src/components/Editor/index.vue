@@ -128,12 +128,12 @@ import { Icon } from '@iconify/vue';
 import Modal from '@/components/Modal';
 import Link from '@tiptap/extension-link';
 import StarterKit from '@tiptap/starter-kit';
-import { CodeBlock, Image } from './Extensions';
 import { importFilter } from '@/utils/object.js';
 import Underline from '@tiptap/extension-underline';
 import Highlight from '@tiptap/extension-highlight';
 import { computed, reactive, toRefs, watch } from 'vue';
 import { useEditor, EditorContent } from '@tiptap/vue-3';
+import { CodeBlock, Image, CharacterCount } from './Extensions';
 const extensions = [
     Image,
     Underline,
@@ -159,8 +159,8 @@ export default {
             default: false,
         },
         max: {
-            type: [Number, String, Boolean],
-            default: false,
+            type: [Number, String, null],
+            default: null,
         },
     },
     emits: ['update:text'],
@@ -196,7 +196,12 @@ export default {
         });
         const { modal, node, current } = toRefs(state);
         const editor = useEditor({
-            extensions,
+            extensions: [
+                ...extensions,
+                CharacterCount.configure({
+                    ...(!isNaN(+props.max) && { limit: props.max }),
+                }),
+            ],
             editable: true,
             content: props.text,
             enablePasteRules: true,

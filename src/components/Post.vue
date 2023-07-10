@@ -128,7 +128,7 @@ const checkProperties = (prop, value) => {
     if (property.every((item) => typeof item === 'object')) {
         const found = property.find((item) => item[value]);
         if (found) return found[value];
-        else return false;
+        else return null;
     } else {
         return property.includes(value);
     }
