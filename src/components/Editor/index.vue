@@ -109,14 +109,13 @@
 <script>
 import { Icon } from '@iconify/vue'
 import Modal from '@/components/Modal'
-import Link from '@tiptap/extension-link'
 import StarterKit from '@tiptap/starter-kit'
 import { importFilter } from '@/utils/object.js'
 import Underline from '@tiptap/extension-underline'
 import Highlight from '@tiptap/extension-highlight'
 import { computed, reactive, toRefs, watch } from 'vue'
 import { useEditor, EditorContent } from '@tiptap/vue-3'
-import { CodeBlock, Image, CharacterCount } from './Extensions'
+import { CodeBlock, Image, CharacterCount, Link } from './Extensions'
 const extensions = [
     Image,
     Underline,
