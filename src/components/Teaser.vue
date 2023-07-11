@@ -13,7 +13,7 @@ defineProps({
         class="relative h-full flex flex-col rounded-md overflow-hidden cursor-pointer"
     >
         <div
-            class="w-full flex flex-col flex-auto space-y-2.5 lg:space-y-px 2xl:space-y-0 p-5"
+            class="w-full h-36 flex flex-col flex-auto space-y-2.5 p-5"
             :style="`background-color: ${
                 data.content.background_color.color
                     ? data.content.background_color.color
