@@ -71,6 +71,9 @@
     *::-webkit-scrollbar-thumb {
         background: transparent;
     }
+    .plain * {
+        @apply whitespace-normal;
+    }
     .markdown {
         word-break: break-word;
         overflow-wrap: anywhere;

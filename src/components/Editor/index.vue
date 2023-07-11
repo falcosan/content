@@ -122,7 +122,6 @@ const extensions = [
     Underline,
     Highlight,
     CodeBlock,
-    Link.configure({ openOnClick: false }),
     StarterKit.configure({ codeBlock: false }),
 ]
 export default {
@@ -177,25 +176,33 @@ export default {
             },
         })
         const { modal, node, current } = toRefs(state)
+        const dynamicExtensions = computed(() => [
+            Link.configure({
+                openOnClick: false,
+                autolink: props.tools,
+                linkOnPaste: props.tools,
+            }),
+            CharacterCount.configure({
+                ...(!isNaN(+props.max) && { limit: props.max }),
+            }),
+        ])
         const editor = useEditor({
-            extensions: [
-                ...extensions,
-                CharacterCount.configure({
-                    ...(!isNaN(+props.max) && { limit: props.max }),
-                }),
-            ],
+            extensions: [...extensions, ...dynamicExtensions.value],
             editable: true,
             content: props.text,
             enablePasteRules: true,
             enableCoreExtensions: true,
             editorProps: {
                 ...(!props.tools && {
+                    transformPastedText(text) {
+                        return text.replace(/(<([^>]+)>)|\r|\n/gim, '')
+                    },
                     transformPastedHTML(html) {
-                        return html.replace(/<[^>]*>/gim, '')
+                        return html.replace(/(<([^>]+)>)|\r|\n/gim, '')
                     },
                 }),
                 attributes: {
-                    class: `${props.tools ? 'markdown ' : ' '}h-full min-h-[inherit] mb-2.5`,
+                    class: `${props.tools ? 'markdown' : 'plain'} h-full min-h-[inherit] mb-2.5`,
                 },
             },
             onUpdate({ editor }) {
@@ -350,8 +357,9 @@ export default {
         const renderLength = computed(() => {
             const text = editor.value?.getText() ?? ''
             return {
-                words: (text.replace(/(<([^>]+)>)/gi, '').match(/.*?\w+.*?(\s|$)/gi) || '').length,
-                characters: text.replace(/(<([^>]+)>)/gi, '').length,
+                words: (text.replace(/(<([^>]+)>)/gim, '').match(/.*?\w+.*?(\s|$)/gim) || '')
+                    .length,
+                characters: text.replace(/(<([^>]+)>)/gim, '').length,
             }
         })
         const setterActions = computed(() => {
