@@ -4,7 +4,7 @@ defineProps({
         type: Object,
         default: () => ({}),
     },
-});
+})
 </script>
 
 <template>
@@ -21,14 +21,10 @@ defineProps({
             }; color: ${data.content.text_color.color};`"
         >
             <div>
-                <span
-                    class="teaser-title mb-1 overflow-hidden text-lg sm:text-xl"
-                >
+                <span class="teaser-title mb-1 overflow-hidden text-lg sm:text-xl">
                     {{ data.content.title }}
                 </span>
-                <span
-                    class="teaser-intro h-12 mb-1.5 overflow-hidden leading-relaxed text-sm"
-                >
+                <span class="teaser-intro h-12 mb-1.5 overflow-hidden leading-relaxed text-sm">
                     {{ data.content.intro }}
                 </span>
             </div>

@@ -1,19 +1,13 @@
 <template>
     <div class="w-full flex flex-col">
-        <span
-            v-if="title"
-            class="block mb-5 text-lg font-semibold text-gray-800"
-            v-text="title"
-        />
+        <span v-if="title" class="block mb-5 text-lg font-semibold text-gray-800" v-text="title" />
         <div class="flex flex-col">
             <EditorContent
                 :class="['h-full min-w-[2rem]', { 'min-h-[16rem]': tools }]"
                 :editor="editor"
             />
             <div v-if="tools" class="lg:sticky lg:bottom-0 pb-5">
-                <div
-                    class="flex flex-wrap justify-end lg:justify-between -m-2.5"
-                >
+                <div class="flex flex-wrap justify-end lg:justify-between -m-2.5">
                     <div class="m-2.5 rounded border border-gray-200 bg-white">
                         <button
                             v-for="action in setterActions.format"
@@ -28,11 +22,7 @@
                             ]"
                             @click="setText(action)"
                         >
-                            <Icon
-                                v-if="action.icon"
-                                class="mx-auto text-2xl"
-                                :icon="action.icon"
-                            />
+                            <Icon v-if="action.icon" class="mx-auto text-2xl" :icon="action.icon" />
                             <span v-else v-text="action.value" />
                         </button>
                     </div>
@@ -46,11 +36,7 @@
                             style="font-variant: all-petite-caps"
                             @click="setText(action)"
                         >
-                            <Icon
-                                v-if="action.icon"
-                                class="mx-auto text-2xl"
-                                :icon="action.icon"
-                            />
+                            <Icon v-if="action.icon" class="mx-auto text-2xl" :icon="action.icon" />
                             <span v-else v-text="action.value" />
                         </button>
                     </div>
@@ -88,10 +74,7 @@
                                     :disabled="!checkArguments"
                                     @click="toggleNodeAction(true)"
                                 >
-                                    <Icon
-                                        class="text-xl"
-                                        icon="dashicons:yes"
-                                    />
+                                    <Icon class="text-xl" icon="dashicons:yes" />
                                 </button>
                             </div>
                         </div>
@@ -124,16 +107,16 @@
     </div>
 </template>
 <script>
-import { Icon } from '@iconify/vue';
-import Modal from '@/components/Modal';
-import Link from '@tiptap/extension-link';
-import StarterKit from '@tiptap/starter-kit';
-import { importFilter } from '@/utils/object.js';
-import Underline from '@tiptap/extension-underline';
-import Highlight from '@tiptap/extension-highlight';
-import { computed, reactive, toRefs, watch } from 'vue';
-import { useEditor, EditorContent } from '@tiptap/vue-3';
-import { CodeBlock, Image, CharacterCount } from './Extensions';
+import { Icon } from '@iconify/vue'
+import Modal from '@/components/Modal'
+import Link from '@tiptap/extension-link'
+import StarterKit from '@tiptap/starter-kit'
+import { importFilter } from '@/utils/object.js'
+import Underline from '@tiptap/extension-underline'
+import Highlight from '@tiptap/extension-highlight'
+import { computed, reactive, toRefs, watch } from 'vue'
+import { useEditor, EditorContent } from '@tiptap/vue-3'
+import { CodeBlock, Image, CharacterCount } from './Extensions'
 const extensions = [
     Image,
     Underline,
@@ -141,10 +124,15 @@ const extensions = [
     CodeBlock,
     Link.configure({ openOnClick: false }),
     StarterKit.configure({ codeBlock: false }),
-];
+]
 export default {
     name: 'Editor',
     components: { Icon, Modal, EditorContent },
+    provide() {
+        return {
+            setText: (action) => this.setText(action),
+        }
+    },
     props: {
         text: {
             type: String,
@@ -164,14 +152,8 @@ export default {
         },
     },
     emits: ['update:text'],
-    provide() {
-        return {
-            setText: (action) => this.setText(action),
-        };
-    },
     setup(props, { emit }) {
-        const arrayCreate = (data, length = 5) =>
-            Array.from({ length }, () => data);
+        const arrayCreate = (data, length = 5) => Array.from({ length }, () => data)
         const state = reactive({
             modal: false,
             node: {
@@ -193,8 +175,8 @@ export default {
                 blockquote: false,
                 heading: arrayCreate(false),
             },
-        });
-        const { modal, node, current } = toRefs(state);
+        })
+        const { modal, node, current } = toRefs(state)
         const editor = useEditor({
             extensions: [
                 ...extensions,
@@ -208,22 +190,20 @@ export default {
             enableCoreExtensions: true,
             editorProps: {
                 attributes: {
-                    class: `${
-                        props.tools ? 'markdown ' : ' '
-                    }h-full min-h-[inherit] mb-2.5`,
+                    class: `${props.tools ? 'markdown ' : ' '}h-full min-h-[inherit] mb-2.5`,
                 },
             },
             onUpdate({ editor }) {
-                checkFormats(editor);
-                emit('update:text', setContent(editor));
+                checkFormats(editor)
+                emit('update:text', setContent(editor))
             },
             onTransaction({ editor }) {
-                checkFormats(editor);
+                checkFormats(editor)
             },
             onSelectionUpdate({ editor }) {
-                checkFormats(editor);
+                checkFormats(editor)
             },
-        });
+        })
         const actions = computed(() => [
             {
                 value: 'B',
@@ -361,134 +341,122 @@ export default {
                 action: 'redo',
                 value: 'redo',
             },
-        ]);
+        ])
         const renderLength = computed(() => {
-            const text = editor.value?.getText() ?? '';
+            const text = editor.value?.getText() ?? ''
             return {
-                words: (
-                    text
-                        .replace(/(<([^>]+)>)/gi, '')
-                        .match(/.*?\w+.*?(\s|$)/gi) || ''
-                ).length,
+                words: (text.replace(/(<([^>]+)>)/gi, '').match(/.*?\w+.*?(\s|$)/gi) || '').length,
                 characters: text.replace(/(<([^>]+)>)/gi, '').length,
-            };
-        });
+            }
+        })
         const setterActions = computed(() => {
             return {
                 format: actions.value.filter((action) => action.type),
-                history: actions.value.filter((action) =>
-                    /clear|undo|redo/.test(action.value)
-                ),
-            };
-        });
+                history: actions.value.filter((action) => /clear|undo|redo/.test(action.value)),
+            }
+        })
         const checkArguments = computed(() => {
-            return !!Object.values(node.value.argument).filter(Boolean).length;
-        });
+            return !!Object.values(node.value.argument).filter(Boolean).length
+        })
         const setContent = (editor) => {
-            return props.tools ? editor.getHTML() : editor.getText();
-        };
+            return props.tools ? editor.getHTML() : editor.getText()
+        }
         const getAction = (type) => {
             if (typeof type === 'string') {
-                return actions.value.find((action) => action.type === type);
-            } else return type;
-        };
+                return actions.value.find((action) => action.type === type)
+            } else return type
+        }
         const resetNode = () => {
-            node.value = { type: '', scheme: [], argument: {} };
-        };
-        const toggleModal = (state) => (modal.value = state);
+            node.value = { type: '', scheme: [], argument: {} }
+        }
+        const toggleModal = (state) => (modal.value = state)
         const toggleNodeAction = (state) => {
-            const action = getAction(node.value.type);
+            const action = getAction(node.value.type)
             const edit = (operation) => {
-                const trigger = editor.value.chain();
-                return trigger[operation](action.arg).run();
-            };
-            if (state) {
-                node.value.scheme.forEach(
-                    (key) => (action.arg[key] = node.value.argument[key])
-                );
-                edit(action.action);
-            } else {
-                edit(action.actionAlt ?? action.action);
+                const trigger = editor.value.chain()
+                return trigger[operation](action.arg).run()
             }
-            toggleModal(false);
-        };
+            if (state) {
+                node.value.scheme.forEach((key) => (action.arg[key] = node.value.argument[key]))
+                edit(action.action)
+            } else {
+                edit(action.actionAlt ?? action.action)
+            }
+            toggleModal(false)
+        }
         const setText = (type) => {
-            const action = getAction(type);
+            const action = getAction(type)
             if (action.type) {
-                const attributes = editor.value.getAttributes(action.type);
+                const attributes = editor.value.getAttributes(action.type)
                 if (action.type === 'heading') {
-                    current.value.heading = arrayCreate(false);
-                    current.value.paragraph = false;
-                    editor.value.commands.toggleHeading(action.arg);
-                    current.value.heading[action.arg.level - 1] =
-                        editor.value.isActive(action.type, action.arg);
+                    current.value.heading = arrayCreate(false)
+                    current.value.paragraph = false
+                    editor.value.commands.toggleHeading(action.arg)
+                    current.value.heading[action.arg.level - 1] = editor.value.isActive(
+                        action.type,
+                        action.arg
+                    )
                 } else {
                     if (action.type === 'paragraph') {
-                        current.value.heading = arrayCreate(false);
+                        current.value.heading = arrayCreate(false)
                     }
                     if (action.arg) {
-                        const scheme = Object.keys(action.arg);
+                        const scheme = Object.keys(action.arg)
                         if (attributes) {
-                            const used = importFilter(
-                                attributes,
-                                Object.keys(action.arg),
-                                true
-                            );
+                            const used = importFilter(attributes, Object.keys(action.arg), true)
                             scheme.forEach((arg) => {
-                                node.value.argument[arg] = used[arg];
-                            });
+                                node.value.argument[arg] = used[arg]
+                            })
                         }
-                        node.value.scheme = scheme;
-                        node.value.type = action.type;
-                        toggleModal(true);
+                        node.value.scheme = scheme
+                        node.value.type = action.type
+                        toggleModal(true)
                     } else {
-                        editor.value.commands[action.action]();
+                        editor.value.commands[action.action]()
                     }
-                    current.value[action.type] = editor.value.isActive(
-                        action.type
-                    );
+                    current.value[action.type] = editor.value.isActive(action.type)
                 }
             } else if (action.value === 'clear') {
-                editor.value.chain().clearNodes().unsetAllMarks().run();
-                editor.value.commands.selectTextblockEnd();
+                editor.value.chain().clearNodes().unsetAllMarks().run()
+                editor.value.commands.selectTextblockEnd()
             } else if (/undo|redo/.test(action.value)) {
-                editor.value.commands[action.action]();
-                editor.value.commands.selectTextblockEnd();
+                editor.value.commands[action.action]()
+                editor.value.commands.selectTextblockEnd()
             } else {
-                editor.value.commands[action.action](action.arg);
+                editor.value.commands[action.action](action.arg)
             }
-        };
+        }
         const checkFormats = (editor) => {
-            current.value.link = editor.isActive('link');
-            current.value.bold = editor.isActive('bold');
-            current.value.code = editor.isActive('code');
-            current.value.image = editor.isActive('image');
-            current.value.italic = editor.isActive('italic');
-            current.value.strike = editor.isActive('strike');
-            current.value.underline = editor.isActive('underline');
-            current.value.highlight = editor.isActive('highlight');
-            current.value.paragraph = editor.isActive('paragraph');
-            current.value.codeBlock = editor.isActive('codeBlock');
-            current.value.blockquote = editor.isActive('blockquote');
+            current.value.link = editor.isActive('link')
+            current.value.bold = editor.isActive('bold')
+            current.value.code = editor.isActive('code')
+            current.value.image = editor.isActive('image')
+            current.value.italic = editor.isActive('italic')
+            current.value.strike = editor.isActive('strike')
+            current.value.underline = editor.isActive('underline')
+            current.value.highlight = editor.isActive('highlight')
+            current.value.paragraph = editor.isActive('paragraph')
+            current.value.codeBlock = editor.isActive('codeBlock')
+            current.value.blockquote = editor.isActive('blockquote')
             current.value.heading.map(
                 (_, i) =>
                     (current.value.heading[i] = editor.isActive('heading', {
                         level: i + 1,
                     }))
-            );
-        };
+            )
+        }
         watch(
             () => props.text,
             (val) => {
-                const text = setContent(editor.value);
-                if (text === val) return;
-                editor.value.commands.setContent(val);
+                const text = setContent(editor.value)
+                if (text === val) return
+                editor.value.commands.setContent(val)
             }
-        );
+        )
         watch(modal, (val) => {
-            if (!val) resetNode();
-            editor.value.setOptions({ editable: !val });
-        });
+            if (!val) resetNode()
+            editor.value.setOptions({ editable: !val })
+        })
         return {
             node,
             modal,
@@ -500,7 +468,7 @@ export default {
             setterActions,
             checkArguments,
             toggleNodeAction,
-        };
+        }
     },
-};
+}
 </script>

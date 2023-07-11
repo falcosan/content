@@ -1,30 +1,18 @@
 <script setup>
-import enums from '@/enums';
-import { Icon } from '@iconify/vue';
-import Modal from '@/components/Modal';
-import Editor from '@/components/Editor';
-import {
-    watch,
-    toRefs,
-    inject,
-    reactive,
-    computed,
-    onMounted,
-    onUnmounted,
-} from 'vue';
-import {
-    editStoryblokStory,
-    toggleStoryblokStory,
-    getStoryblokComponents,
-} from '@/api';
+import enums from '@/enums'
+import { Icon } from '@iconify/vue'
+import Modal from '@/components/Modal'
+import Editor from '@/components/Editor'
+import { watch, toRefs, inject, reactive, computed, onMounted, onUnmounted } from 'vue'
+import { editStoryblokStory, toggleStoryblokStory, getStoryblokComponents } from '@/api'
 
 const props = defineProps({
     data: {
         type: Object,
         default: () => ({}),
     },
-});
-const locale = inject('locale');
+})
+const locale = inject('locale')
 const state = reactive({
     post: {},
     properties: {
@@ -38,26 +26,26 @@ const state = reactive({
         toggle: false,
     },
     modal: { state: false, message: '', type: '', timeout: 0 },
-});
-const { post, modal, loading, properties } = toRefs(state);
+})
+const { post, modal, loading, properties } = toRefs(state)
 const modalType = {
     edited: { background: 'bg-blue-500', text: 'text-white' },
     error: { background: 'bg-red-500', text: 'text-white' },
     published: { background: 'bg-green-500', text: 'text-white' },
-};
-const html = /^<([a-z]+)([^>]+)*(?:>(?:\s*|\n*)<\/\1>|[^/]*\/>)$/;
+}
+const html = /^<([a-z]+)([^>]+)*(?:>(?:\s*|\n*)<\/\1>|[^/]*\/>)$/
 const translatable = computed(() =>
     properties.value.translatable.reduce((acc, value) => {
-        const regex = new RegExp(`${enums.translatableSuffix}.*`);
-        const key = value.replace(regex, '');
+        const regex = new RegExp(`${enums.translatableSuffix}.*`)
+        const key = value.replace(regex, '')
         const obj = enums.languages.reduce((objAcc, lang) => {
-            const translatedKey = `${key}${enums.translatableSuffix}${lang}`;
-            const text = lang === 'en' ? key : translatedKey;
-            return { ...objAcc, [lang]: text };
-        }, {});
-        return { ...acc, [key]: obj[locale.value] };
+            const translatedKey = `${key}${enums.translatableSuffix}${lang}`
+            const text = lang === 'en' ? key : translatedKey
+            return { ...objAcc, [lang]: text }
+        }, {})
+        return { ...acc, [key]: obj[locale.value] }
     }, {})
-);
+)
 const editors = computed(() => [
     {
         title: 'Title',
@@ -77,135 +65,133 @@ const editors = computed(() => [
         max: checkProperties('maxLength', 'long_text'),
         markdown: checkProperties('markdown', 'long_text'),
     },
-]);
+])
 const resetModal = () => {
-    clearTimeout(modal.value.timeout);
+    clearTimeout(modal.value.timeout)
     modal.value.timeout = setTimeout(() => {
-        modal.value.message = '';
-        modal.value.state = false;
-        modal.value.type = '';
-    }, 5000);
-};
+        modal.value.message = ''
+        modal.value.state = false
+        modal.value.type = ''
+    }, 5000)
+}
 const mapPost = (values) => {
     const keys = properties.value.translatable.reduce((acc, value) => {
-        const regex = new RegExp(`${enums.translatableSuffix}.*`);
-        const key = value.replace(regex, '');
+        const regex = new RegExp(`${enums.translatableSuffix}.*`)
+        const key = value.replace(regex, '')
         return enums.languages.reduce((objAcc, lang) => {
-            const translatedKey = `${key}${enums.translatableSuffix}${lang}`;
-            const text = lang === 'en' ? key : translatedKey;
-            const value = values.content[text] || '';
+            const translatedKey = `${key}${enums.translatableSuffix}${lang}`
+            const text = lang === 'en' ? key : translatedKey
+            const value = values.content[text] || ''
             return {
                 ...acc,
                 ...objAcc,
                 [text]: value,
-            };
-        }, {});
-    }, {});
-    return { ...values, content: { ...values.content, ...keys } };
-};
+            }
+        }, {})
+    }, {})
+    return { ...values, content: { ...values.content, ...keys } }
+}
 const cleanPost = (values) => {
     const keys = properties.value.translatable.reduce((acc, curr) => {
         const transformed = enums.languages
             .filter((lang) => lang !== 'en')
-            .map((lang) => `${curr}${enums.translatableSuffix}${lang}`);
-        return [...acc, ...transformed];
-    }, []);
+            .map((lang) => `${curr}${enums.translatableSuffix}${lang}`)
+        return [...acc, ...transformed]
+    }, [])
     const content = Object.keys(values.content).reduce((fields, key) => {
-        const value = values.content[key];
-        if (!value) return fields;
+        const value = values.content[key]
+        if (!value) return fields
         if (
             (keys.includes(key) && !html.test(value)) ||
             (!keys.includes(key) && !html.test(value))
         ) {
-            return { ...fields, [key]: value };
+            return { ...fields, [key]: value }
         }
-        return fields;
-    }, {});
-    return { ...values, content };
-};
+        return fields
+    }, {})
+    return { ...values, content }
+}
 const checkProperties = (prop, value) => {
-    const property = properties.value[prop];
+    const property = properties.value[prop]
     if (property.every((item) => typeof item === 'object')) {
-        const found = property.find((item) => item[value]);
-        if (found) return found[value];
-        else return null;
+        const found = property.find((item) => item[value])
+        if (found) return found[value]
+        else return null
     } else {
-        return property.includes(value);
+        return property.includes(value)
     }
-};
+}
 const checkPost = () => {
     const check = properties.value.required.every((prop) => {
-        return post.value.content[prop] && !html.test(post.value.content[prop]);
-    });
+        return post.value.content[prop] && !html.test(post.value.content[prop])
+    })
     if (!check) {
-        const message = 'Complete required fields';
-        clearTimeout(modal.value.timeout);
-        modal.value.message = message;
-        modal.value.state = true;
-        modal.value.type = 'error';
-        resetModal();
-        throw new Error(message);
+        const message = 'Complete required fields'
+        clearTimeout(modal.value.timeout)
+        modal.value.message = message
+        modal.value.state = true
+        modal.value.type = 'error'
+        resetModal()
+        throw new Error(message)
     }
-};
+}
 const editPost = async () => {
-    loading.value.edit = true;
+    loading.value.edit = true
     try {
-        checkPost();
+        checkPost()
         await editStoryblokStory(cleanPost(post.value), locale.value)
             .then((res) => {
-                post.value = mapPost(res.story);
-                modal.value.message = 'Saved';
-                modal.value.state = true;
-                modal.value.type = 'edited';
+                post.value = mapPost(res.story)
+                modal.value.message = 'Saved'
+                modal.value.state = true
+                modal.value.type = 'edited'
             })
             .catch(() => {
-                modal.value.message = 'Error';
-                modal.value.state = true;
-                modal.value.type = 'error';
+                modal.value.message = 'Error'
+                modal.value.state = true
+                modal.value.type = 'error'
             })
             .finally(() => {
-                resetModal();
-                loading.value.edit = false;
-            });
+                resetModal()
+                loading.value.edit = false
+            })
     } catch {
-        loading.value.edit = false;
+        loading.value.edit = false
     }
-};
+}
 const togglePost = async () => {
-    loading.value.toggle = true;
-    const state = post.value.published ? 'unpublish' : 'publish';
+    loading.value.toggle = true
+    const state = post.value.published ? 'unpublish' : 'publish'
     try {
-        checkPost();
+        checkPost()
         await toggleStoryblokStory(post.value.id, state)
             .then((res) => {
-                post.value = mapPost(res.story);
-                modal.value.message = post.value.published
-                    ? 'Published'
-                    : 'Unpublished';
-                modal.value.state = true;
-                modal.value.type = 'published';
+                post.value = mapPost(res.story)
+                modal.value.message = post.value.published ? 'Published' : 'Unpublished'
+                modal.value.state = true
+                modal.value.type = 'published'
             })
             .catch(() => {
-                modal.value.message = 'Error';
-                modal.value.state = true;
-                modal.value.type = 'error';
+                modal.value.message = 'Error'
+                modal.value.state = true
+                modal.value.type = 'error'
             })
             .finally(() => {
-                resetModal();
-                loading.value.toggle = false;
-            });
+                resetModal()
+                loading.value.toggle = false
+            })
     } catch {
-        loading.value.toggle = false;
+        loading.value.toggle = false
     }
-};
+}
 const handleSave = async (event) => {
     if (event.metaKey && event.code === 'KeyS') {
-        event.preventDefault();
-        await editPost();
+        event.preventDefault()
+        await editPost()
     }
-};
-onMounted(() => window.addEventListener('keydown', handleSave));
-onUnmounted(() => window.removeEventListener('keydown', handleSave));
+}
+onMounted(() => window.addEventListener('keydown', handleSave))
+onUnmounted(() => window.removeEventListener('keydown', handleSave))
 watch(
     props.data,
     async (val) => {
@@ -216,18 +202,18 @@ watch(
                 'translatable',
                 { type: 'markdown' },
                 { max_length: [String, Number] },
-            ]);
-            const getKeys = (list) => list.map((val) => val[0]);
-            const getObj = (list) => list.map((val) => ({ [val[0]]: val[1] }));
-            properties.value.markdown = getKeys(data.type);
-            properties.value.required = getKeys(data.required);
-            properties.value.maxLength = getObj(data.max_length);
-            properties.value.translatable = getKeys(data.translatable);
+            ])
+            const getKeys = (list) => list.map((val) => val[0])
+            const getObj = (list) => list.map((val) => ({ [val[0]]: val[1] }))
+            properties.value.markdown = getKeys(data.type)
+            properties.value.required = getKeys(data.required)
+            properties.value.maxLength = getObj(data.max_length)
+            properties.value.translatable = getKeys(data.translatable)
         }
-        post.value = mapPost(val);
+        post.value = mapPost(val)
     },
     { immediate: true }
-);
+)
 </script>
 
 <template>
@@ -245,11 +231,7 @@ watch(
                 class="w-full sm:w-32 flex justify-center m-2.5 p-2.5 px-6 rounded font-semibold active:bg-opacity-70 text-white bg-blue-500"
                 @click="editPost"
             >
-                <Icon
-                    v-if="loading.edit"
-                    class="text-2xl"
-                    icon="eos-icons:three-dots-loading"
-                />
+                <Icon v-if="loading.edit" class="text-2xl" icon="eos-icons:three-dots-loading" />
                 <span v-else v-text="'Save'" />
             </button>
             <button
@@ -259,15 +241,8 @@ watch(
                 ]"
                 @click="togglePost"
             >
-                <Icon
-                    v-if="loading.toggle"
-                    class="text-2xl"
-                    icon="eos-icons:three-dots-loading"
-                />
-                <span
-                    v-else
-                    v-text="post.published ? 'Unpublish' : 'Publish'"
-                />
+                <Icon v-if="loading.toggle" class="text-2xl" icon="eos-icons:three-dots-loading" />
+                <span v-else v-text="post.published ? 'Unpublish' : 'Publish'" />
             </button>
         </div>
         <Modal v-model:open="modal.state">
@@ -278,10 +253,7 @@ watch(
                         modalType[modal.type].background,
                     ]"
                 >
-                    <span
-                        :class="[modalType[modal.type].text]"
-                        v-text="modal.message"
-                    />
+                    <span :class="[modalType[modal.type].text]" v-text="modal.message" />
                 </div>
             </template>
         </Modal>

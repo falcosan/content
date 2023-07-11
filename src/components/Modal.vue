@@ -1,9 +1,6 @@
 <template>
     <div :class="['modal', { opened: open }]">
-        <transition
-            enter-from-class="opacity-0"
-            enter-active-class="transition"
-        >
+        <transition enter-from-class="opacity-0" enter-active-class="transition">
             <div
                 v-show="open"
                 ref="modal"
@@ -25,7 +22,7 @@
     </div>
 </template>
 <script>
-import { ref, watch, nextTick, useSlots, onBeforeUnmount } from 'vue';
+import { ref, watch, nextTick, useSlots, onBeforeUnmount } from 'vue'
 export default {
     props: {
         open: {
@@ -35,34 +32,32 @@ export default {
     },
     emits: ['update:open'],
     setup(props, { emit }) {
-        const modal = ref(null);
+        const modal = ref(null)
         const checkModal = () => {
             if (props.open) {
-                document.body.appendChild(modal.value);
-                nextTick(() => modal.value.focus({ preventScroll: true }));
+                document.body.appendChild(modal.value)
+                nextTick(() => modal.value.focus({ preventScroll: true }))
             } else {
-                modal.value.parentNode.removeChild(modal.value);
-                document
-                    .querySelector('.modal.opened')
-                    .appendChild(modal.value);
+                modal.value.parentNode.removeChild(modal.value)
+                document.querySelector('.modal.opened').appendChild(modal.value)
             }
-        };
-        const closeModal = () => emit('update:open', !props.open);
+        }
+        const closeModal = () => emit('update:open', !props.open)
         const hasSlot = (name) => {
-            const slots = useSlots();
-            return Boolean(slots[name]);
-        };
+            const slots = useSlots()
+            return Boolean(slots[name])
+        }
         onBeforeUnmount(() => {
-            if (props.open) modal.value.parentNode.removeChild(modal.value);
-        });
-        watch(() => props.open, checkModal);
+            if (props.open) modal.value.parentNode.removeChild(modal.value)
+        })
+        watch(() => props.open, checkModal)
         return {
             modal,
             hasSlot,
             closeModal,
-        };
+        }
     },
-};
+}
 </script>
 <style>
 .body-container > * {

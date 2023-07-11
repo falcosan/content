@@ -1,6 +1,6 @@
-import Component from './Component.vue';
-import { VueNodeViewRenderer } from '@tiptap/vue-3';
-import CodeBlock from '@tiptap/extension-code-block';
+import Component from './Component.vue'
+import { VueNodeViewRenderer } from '@tiptap/vue-3'
+import CodeBlock from '@tiptap/extension-code-block'
 
 export const CustomCodeBlock = CodeBlock.extend({
     addAttributes() {
@@ -8,23 +8,19 @@ export const CustomCodeBlock = CodeBlock.extend({
             language: {
                 default: '',
                 parseHTML: (element) => {
-                    const code = element.querySelector('code');
-                    return code?.className || '';
+                    const code = element.querySelector('code')
+                    return code?.className || ''
                 },
             },
-        };
+        }
     },
     parseHTML() {
-        return [{ tag: 'pre', preserveWhitespace: 'full' }];
+        return [{ tag: 'pre', preserveWhitespace: 'full' }]
     },
     renderHTML({ node }) {
-        return [
-            'pre',
-            this.options.HTMLAttributes,
-            ['code', { class: node.attrs.language }, 0],
-        ];
+        return ['pre', this.options.HTMLAttributes, ['code', { class: node.attrs.language }, 0]]
     },
     addNodeView() {
-        return VueNodeViewRenderer(Component);
+        return VueNodeViewRenderer(Component)
     },
-});
+})

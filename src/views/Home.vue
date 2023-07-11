@@ -1,14 +1,14 @@
 <script setup>
-import { Icon } from '@iconify/vue';
-import Post from '@/components/Post';
-import Teaser from '@/components/Teaser';
-import { useRoute, useRouter } from 'vue-router';
-import { computed, inject, reactive, toRefs, watch } from 'vue';
-import { getStoryblokStories, getStoryblokStory } from '@/api';
+import { Icon } from '@iconify/vue'
+import Post from '@/components/Post'
+import Teaser from '@/components/Teaser'
+import { useRoute, useRouter } from 'vue-router'
+import { computed, inject, reactive, toRefs, watch } from 'vue'
+import { getStoryblokStories, getStoryblokStory } from '@/api'
 
-const route = useRoute();
-const router = useRouter();
-const locale = inject('locale');
+const route = useRoute()
+const router = useRouter()
+const locale = inject('locale')
 const state = reactive({
     data: [],
     detail: {
@@ -16,61 +16,56 @@ const state = reactive({
         loading: [],
         state: false,
     },
-});
-const { data, detail } = toRefs(state);
+})
+const { data, detail } = toRefs(state)
 const view = computed(() => {
     switch (route.query.type) {
         case 'post':
-            return Post;
+            return Post
         default:
-            return Post;
+            return Post
     }
-});
+})
 const setDetail = (item) => {
-    const type = item.content.component.toLowerCase();
-    detail.value.item = item;
+    const type = item.content.component.toLowerCase()
+    detail.value.item = item
     router.push({
         query: {
             ...route.query,
             type,
             id: item.id,
         },
-    });
-};
+    })
+}
 const getStories = async (language) => {
-    const { stories } = await getStoryblokStories(language, 'blog');
-    data.value = stories.filter((story) => !story.is_startpage);
-    detail.value.loading = Array.from(
-        { length: data.value.length },
-        () => false
-    );
-};
+    const { stories } = await getStoryblokStories(language, 'blog')
+    data.value = stories.filter((story) => !story.is_startpage)
+    detail.value.loading = Array.from({ length: data.value.length }, () => false)
+}
 const getStory = async () => {
-    const index = data.value.findIndex(
-        (item) => String(item.id) === String(route.query.id)
-    );
-    detail.value.loading[index] = true;
-    const { story } = await getStoryblokStory(route.query.id);
-    setDetail(story);
-    detail.value.loading[index] = false;
-};
+    const index = data.value.findIndex((item) => String(item.id) === String(route.query.id))
+    detail.value.loading[index] = true
+    const { story } = await getStoryblokStory(route.query.id)
+    setDetail(story)
+    detail.value.loading[index] = false
+}
 watch(locale, async (val) => {
-    if (!route.query.id) await getStories(val);
-});
+    if (!route.query.id) await getStories(val)
+})
 watch(
     () => route.query,
     async (val) => {
         if (val.id) {
-            await getStory(locale.value);
-            if (!detail.value.state) detail.value.state = true;
+            await getStory(locale.value)
+            if (!detail.value.state) detail.value.state = true
         } else {
-            if (val.type) router.replace({ query: undefined });
-            if (detail.value.state) detail.value.state = false;
+            if (val.type) router.replace({ query: undefined })
+            if (detail.value.state) detail.value.state = false
         }
-        if (!data.value.length) await getStories(locale.value);
+        if (!data.value.length) await getStories(locale.value)
     },
     { immediate: true }
-);
+)
 </script>
 
 <template>
@@ -94,14 +89,8 @@ watch(
                         enter-active-class="transition"
                         leave-active-class="transition"
                     >
-                        <div
-                            v-if="detail.loading[indexPost]"
-                            :class="container"
-                        >
-                            <Icon
-                                :class="icon"
-                                icon="eos-icons:three-dots-loading"
-                            />
+                        <div v-if="detail.loading[indexPost]" :class="container">
+                            <Icon :class="icon" icon="eos-icons:three-dots-loading" />
                         </div>
                     </transition>
                 </template>

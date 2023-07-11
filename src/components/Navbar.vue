@@ -1,71 +1,58 @@
 <script setup>
-import enums from '@/enums';
-import { Icon } from '@iconify/vue';
-import Modal from '@/components/Modal';
-import { useRoute, useRouter } from 'vue-router';
-import {
-    computed,
-    inject,
-    reactive,
-    toRefs,
-    onBeforeMount,
-    onBeforeUnmount,
-} from 'vue';
+import enums from '@/enums'
+import { Icon } from '@iconify/vue'
+import Modal from '@/components/Modal'
+import { useRoute, useRouter } from 'vue-router'
+import { computed, inject, reactive, toRefs, onBeforeMount, onBeforeUnmount } from 'vue'
 
-const route = useRoute();
-const router = useRouter();
-const locale = inject('locale');
+const route = useRoute()
+const router = useRouter()
+const locale = inject('locale')
 const state = reactive({
     modal: false,
     leave: false,
-});
-const { modal, leave } = toRefs(state);
-const checkDetail = computed(() => !!route.query.type);
-const toggleModal = (state) => (modal.value = state);
+})
+const { modal, leave } = toRefs(state)
+const checkDetail = computed(() => !!route.query.type)
+const toggleModal = (state) => (modal.value = state)
 const goBack = () => {
-    leave.value = true;
-    toggleModal(false);
-    router.replace({ query: {} });
-};
-const changeLanguage = (language) => (locale.value = language);
+    leave.value = true
+    toggleModal(false)
+    router.replace({ query: {} })
+}
+const changeLanguage = (language) => (locale.value = language)
 const preventNav = (event) => {
     if (route.query.id) {
-        if (leave.value) return;
-        event.preventDefault();
-        event.returnValue = '';
+        if (leave.value) return
+        event.preventDefault()
+        event.returnValue = ''
     }
-};
+}
 onBeforeMount(() => {
-    window.addEventListener('beforeunload', preventNav);
-    onBeforeUnmount(() =>
-        window.removeEventListener('beforeunload', preventNav)
-    );
-});
+    window.addEventListener('beforeunload', preventNav)
+    onBeforeUnmount(() => window.removeEventListener('beforeunload', preventNav))
+})
 router.beforeEach((to, from, next) => {
     if (!leave.value) {
         if (from.query.id != null) {
-            toggleModal(true);
-            next(false);
-            return;
+            toggleModal(true)
+            next(false)
+            return
         }
-    } else if (to.query.id != null) leave.value = false;
-    next();
-});
+    } else if (to.query.id != null) leave.value = false
+    next()
+})
 </script>
 
 <template>
     <div class="sticky flex z-10 top-0 pb-5 -m-2 pointer-events-none">
-        <div
-            class="mx-2 shadow rounded-b transition-[padding] pointer-events-auto bg-white"
-        >
+        <div class="mx-2 shadow rounded-b transition-[padding] pointer-events-auto bg-white">
             <button
                 v-for="(language, indexLanguage) in enums.languages"
                 :key="indexLanguage"
                 :class="[
                     'py-1.5 xx:py-2.5 px-3 xx:px-6 m-1 xx:m-2 rounded text-xs font-semibold uppercase',
-                    locale === language
-                        ? 'text-white bg-gray-600'
-                        : 'text-gray-600 bg-gray-200',
+                    locale === language ? 'text-white bg-gray-600' : 'text-gray-600 bg-gray-200',
                 ]"
                 @click="changeLanguage(language)"
                 v-text="language"
@@ -85,10 +72,7 @@ router.beforeEach((to, from, next) => {
     </div>
     <Modal v-model:open="modal">
         <template #header>
-            <p
-                class="text-lg text-center font-bold text-gray-600"
-                v-text="'Are you leaving ?'"
-            />
+            <p class="text-lg text-center font-bold text-gray-600" v-text="'Are you leaving ?'" />
         </template>
         <template #body>
             <div class="flex flex-wrap -m-2">

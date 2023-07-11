@@ -1,21 +1,21 @@
 <script setup>
-import { inject } from 'vue';
-import { useRouter } from 'vue-router';
-import Navbar from '@/components/Navbar';
+import { inject } from 'vue'
+import { useRouter } from 'vue-router'
+import Navbar from '@/components/Navbar'
 
-const router = useRouter();
-const auth = inject('auth');
+const router = useRouter()
+const auth = inject('auth')
 
 router.beforeEach((to, _, next) => {
     if (to.meta.requiresAuth && !auth.value) {
-        next({ name: 'login' });
-        return;
+        next({ name: 'login' })
+        return
     } else if (to.name === 'login' && auth.value) {
-        next({ name: 'home' });
-        return;
+        next({ name: 'home' })
+        return
     }
-    next();
-});
+    next()
+})
 </script>
 
 <template>

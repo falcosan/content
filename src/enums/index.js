@@ -1,4 +1,4 @@
-const webTitle = 'Aprograma Editor';
+const webTitle = 'Aprograma Editor'
 
 export default {
     webTitle,
@@ -85,4 +85,4 @@ export default {
         { label: 'Vue.js', value: 'vue' },
         { label: 'XML', value: 'xml' },
     ],
-};
+}

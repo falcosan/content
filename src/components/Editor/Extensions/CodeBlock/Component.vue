@@ -1,8 +1,8 @@
 <template>
     <NodeViewWrapper as="div" class="relative z-0">
         <select
-            @change="setSyntax"
             class="absolute w-44 right-2.5 top-2.5 z-10 text-sm border rounded cursor-pointer focus:outline-none focus:ring-2 border-gray-300 focus:ring-blue-500 focus:border-blue-500 text-gray-700 bg-white"
+            @change="setSyntax"
         >
             <option
                 v-for="(language, indexLanguage) in renderSyntax.list"
@@ -20,9 +20,9 @@
 </template>
 
 <script>
-import enums from '@/enums';
-import { computed, reactive, toRefs } from 'vue';
-import { nodeViewProps, NodeViewWrapper, NodeViewContent } from '@tiptap/vue-3';
+import enums from '@/enums'
+import { computed, reactive, toRefs } from 'vue'
+import { nodeViewProps, NodeViewWrapper, NodeViewContent } from '@tiptap/vue-3'
 export default {
     components: {
         NodeViewContent,
@@ -32,25 +32,25 @@ export default {
     setup(props) {
         const state = reactive({
             showList: false,
-        });
-        const { showList } = toRefs(state);
-        const getSyntax = computed(() => props.node.attrs.language);
+        })
+        const { showList } = toRefs(state)
+        const getSyntax = computed(() => props.node.attrs.language)
         const renderSyntax = computed(() => {
-            const list = enums.syntaxes;
+            const list = enums.syntaxes
             return {
                 list,
                 current: list.find(({ value }) => {
-                    const syntax = getSyntax.value.split('language-')[1] || '';
-                    return value === syntax;
+                    const syntax = getSyntax.value.split('language-')[1] || ''
+                    return value === syntax
                 }),
-            };
-        });
+            }
+        })
         const setSyntax = (event) => {
-            const language = event.target.value;
-            props.updateAttributes({ language: `language-${language}` });
-        };
-        const toggleList = () => showList.value != showList.value;
-        return { getSyntax, setSyntax, renderSyntax, toggleList, showList };
+            const language = event.target.value
+            props.updateAttributes({ language: `language-${language}` })
+        }
+        const toggleList = () => showList.value != showList.value
+        return { getSyntax, setSyntax, renderSyntax, toggleList, showList }
     },
-};
+}
 </script>
