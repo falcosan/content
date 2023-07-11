@@ -189,6 +189,11 @@ export default {
             enablePasteRules: true,
             enableCoreExtensions: true,
             editorProps: {
+                ...(!props.tools && {
+                    transformPastedHTML(html) {
+                        return html.replace(/<[^>]*>/gim, '')
+                    },
+                }),
                 attributes: {
                     class: `${props.tools ? 'markdown ' : ' '}h-full min-h-[inherit] mb-2.5`,
                 },
