@@ -385,7 +385,7 @@ export default {
         const toggleNodeAction = (state) => {
             const action = getAction(node.value.type)
             const edit = (operation) => {
-                const trigger = editor.value.chain()
+                const trigger = editor.value.chain().focus()
                 return trigger[operation](action.arg).run()
             }
             if (state) {
@@ -424,12 +424,13 @@ export default {
                         node.value.type = action.type
                         toggleModal(true)
                     } else {
+                        editor.value.commands.focus()
                         editor.value.commands[action.action]()
                     }
                     current.value[action.type] = editor.value.isActive(action.type)
                 }
             } else if (action.value === 'clear') {
-                editor.value.chain().clearNodes().unsetAllMarks().run()
+                editor.value.chain().focus().clearNodes().unsetAllMarks().run()
                 editor.value.commands.selectTextblockEnd()
             } else if (/undo|redo/.test(action.value)) {
                 editor.value.commands[action.action]()
