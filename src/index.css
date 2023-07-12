@@ -237,10 +237,7 @@
     .markdown *:last-child {
         margin: 0 auto;
     }
-    .markdown figure img,
-    .markdown p:only-child:has(br),
-    .markdown p:not(:empty):has(br),
-    .markdown p:empty:not(:has(*)):not(:only-child) {
+    .markdown figure img {
         margin-bottom: 0;
     }
     .markdown dd:not(:last-child),
@@ -263,7 +260,7 @@
     .markdown img,
     .markdown table,
     .markdown ul {
-        margin-bottom: 1.25rem;
+        margin-bottom: 1rem;
     }
 }
 @tailwind utilities;
