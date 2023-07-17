@@ -195,21 +195,19 @@ onUnmounted(() => window.removeEventListener('keydown', handleSave))
 watch(
     props.data,
     async (val) => {
-        if (!properties.value.translatable.length) {
-            const data = await getStoryblokComponents(val.content.component, [
-                'required',
-                'max_length',
-                'translatable',
-                { type: 'markdown' },
-                { max_length: [String, Number] },
-            ])
-            const getKeys = (list) => list.map((val) => val[0])
-            const getObj = (list) => list.map((val) => ({ [val[0]]: val[1] }))
-            properties.value.markdown = getKeys(data.type)
-            properties.value.required = getKeys(data.required)
-            properties.value.maxLength = getObj(data.max_length)
-            properties.value.translatable = getKeys(data.translatable)
-        }
+        const data = await getStoryblokComponents(val.content.component, [
+            'required',
+            'max_length',
+            'translatable',
+            { type: 'markdown' },
+            { max_length: [String, Number] },
+        ])
+        const getKeys = (list) => list.map((val) => val[0])
+        const getObj = (list) => list.map((val) => ({ [val[0]]: val[1] }))
+        properties.value.markdown = getKeys(data.type)
+        properties.value.required = getKeys(data.required)
+        properties.value.maxLength = getObj(data.max_length)
+        properties.value.translatable = getKeys(data.translatable)
         post.value = mapPost(val)
     },
     { immediate: true }
