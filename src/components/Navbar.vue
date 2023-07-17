@@ -22,7 +22,7 @@ const goBack = () => {
 }
 const changeLanguage = (language) => (locale.value = language)
 const preventNav = (event) => {
-    if (route.query.id) {
+    if (route.query.type) {
         if (leave.value) return
         event.preventDefault()
         event.returnValue = ''
@@ -34,12 +34,12 @@ onBeforeMount(() => {
 })
 router.beforeEach((to, from, next) => {
     if (!leave.value) {
-        if (from.query.id != null) {
+        if (from.query.type != null) {
             toggleModal(true)
             next(false)
             return
         }
-    } else if (to.query.id != null) leave.value = false
+    } else if (to.query.type != null) leave.value = false
     next()
 })
 </script>
