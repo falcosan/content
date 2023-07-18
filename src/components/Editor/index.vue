@@ -410,7 +410,7 @@ export default {
             });
             td.addRule('br', {
                 filter: (node) => node.nodeName.toLowerCase() === 'br',
-                replacement: () => '<p></p>'
+                replacement: () => '<br>'
             });
             navigator.clipboard.writeText(td.turndown(props.text))
         }
