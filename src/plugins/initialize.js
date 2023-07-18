@@ -1,5 +1,5 @@
 import { computed, reactive, toRefs, watch } from 'vue'
-import { setCookie, getCookie, deleteCookie } from '@/utils/cookies.js'
+import { setCookie, getCookie, deleteCookie } from '@/utils/cookies'
 
 export default {
     install: (app) => {

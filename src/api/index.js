@@ -59,19 +59,22 @@ export async function getStoryblokComponents(name, properties) {
                         name = key
                         value = val
                         if (obj[name]) {
-                            if (
-                                Array.isArray(val) &&
-                                val.every(
-                                    (constr) => typeof constr === 'function' && constr.prototype
-                                )
-                            ) {
-                                value = []
-                                control = val.forEach((type) => {
-                                    const constr = type.prototype.constructor
-                                    if (constr === String) value.push('string')
-                                    if (constr === Number) value.push('number')
-                                })
-                                control = typeof value.includes(obj[name])
+                            if (Array.isArray(val)) {
+                                if (
+                                    val.every(
+                                        (constr) => typeof constr === 'function' && constr.prototype
+                                    )
+                                ) {
+                                    value = []
+                                    val.forEach((type) => {
+                                        const constr = type.prototype.constructor
+                                        if (constr === String) value.push('string')
+                                        if (constr === Number) value.push('number')
+                                    })
+                                    control = typeof value.includes(obj[name])
+                                } else if (val.every((type) => typeof type === 'string')) {
+                                    control = val.includes(obj[name])
+                                }
                             } else if (typeof val === 'function' && val.prototype) {
                                 const constr = val.prototype.constructor
                                 if (constr === String) value = 'string'

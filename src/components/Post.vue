@@ -3,6 +3,7 @@ import enums from '@/enums'
 import { Icon } from '@iconify/vue'
 import Modal from '@/components/Modal'
 import Editor from '@/components/Editor'
+import { formatString } from '@/utils/string'
 import { watch, toRefs, inject, reactive, computed, onMounted, onUnmounted } from 'vue'
 import { editStoryblokStory, toggleStoryblokStory, getStoryblokComponents } from '@/api'
 
@@ -16,6 +17,7 @@ const locale = inject('locale')
 const state = reactive({
     post: {},
     properties: {
+        datetime: [],
         markdown: [],
         required: [],
         maxLength: [],
@@ -47,27 +49,27 @@ const translatable = computed(() =>
     }, {})
 )
 const inputs = computed(() => [
-    {
-        title: 'Date',
+    ...properties.value.datetime.map((key) => ({
+        title: formatString(key),
+        value: key,
         type: 'date',
-        value: 'date',
-    },
+    })),
 ])
 const editors = computed(() => [
     {
-        title: 'Title',
+        title: formatString(properties.value.translatable.find((val) => val === 'title')),
         value: translatable.value.title,
         max: checkProperties('maxLength', 'title'),
         markdown: checkProperties('markdown', 'title'),
     },
     {
-        title: 'Intro',
+        title: formatString(properties.value.translatable.find((val) => val === 'intro')),
         value: translatable.value.intro,
         max: checkProperties('maxLength', 'intro'),
         markdown: checkProperties('markdown', 'intro'),
     },
     {
-        title: 'Content',
+        title: formatString(properties.value.translatable.find((val) => val === 'long_text')),
         value: translatable.value.long_text,
         max: checkProperties('maxLength', 'long_text'),
         markdown: checkProperties('markdown', 'long_text'),
@@ -211,14 +213,23 @@ watch(
             'required',
             'max_length',
             'translatable',
-            { type: 'markdown' },
+            { type: ['markdown', 'datetime'] },
             { max_length: [String, Number] },
         ])
-        const getKeys = (list) => list.map((val) => val[0])
-        const getObj = (list) => list.map((val) => ({ [val[0]]: val[1] }))
-        properties.value.markdown = getKeys(data.type)
+        const getKeys = (list, type) => {
+            const mapper = (arr) => arr.map((val) => val[0])
+            if (type) return mapper(list.filter((value) => value.includes(type)))
+            else return mapper(list)
+        }
+        const getObj = (list, type) => {
+            const mapper = (arr) => arr.map((val) => ({ [val[0]]: val[1] }))
+            if (type) return mapper(list.filter((value) => value.includes(type)))
+            else return mapper(list)
+        }
         properties.value.required = getKeys(data.required)
         properties.value.maxLength = getObj(data.max_length)
+        properties.value.markdown = getKeys(data.type, 'markdown')
+        properties.value.datetime = getKeys(data.type, 'datetime')
         properties.value.translatable = getKeys(data.translatable)
         post.value = mapPost(val)
     },

@@ -82,7 +82,14 @@
                 </Modal>
             </div>
             <div class="w-full flex flex-wrap items-center justify-end">
-                <div class="m-1">
+                <div v-if="renderLength.max" class="m-1">
+                    <span class="inline-block mr-1 text-xs italic text-gray-500" v-text="'max:'" />
+                    <span
+                        class="inline-block font-bold text-xs italic text-gray-500"
+                        v-text="renderLength.max"
+                    />
+                </div>
+                <div v-if="renderLength.characters" class="m-1">
                     <span
                         class="inline-block mr-1 text-xs italic text-gray-500"
                         v-text="'characters:'"
@@ -92,7 +99,7 @@
                         v-text="renderLength.characters"
                     />
                 </div>
-                <div class="m-1">
+                <div v-if="renderLength.words" class="m-1">
                     <span
                         class="inline-block mr-1 text-xs italic text-gray-500"
                         v-text="'words:'"
@@ -110,7 +117,7 @@
 import { Icon } from '@iconify/vue'
 import Modal from '@/components/Modal'
 import StarterKit from '@tiptap/starter-kit'
-import { importFilter } from '@/utils/object.js'
+import { importFilter } from '@/utils/object'
 import Underline from '@tiptap/extension-underline'
 import Highlight from '@tiptap/extension-highlight'
 import { computed, reactive, toRefs, watch } from 'vue'
@@ -175,15 +182,10 @@ export default {
             },
         })
         const { modal, node, current } = toRefs(state)
+        const checkMax = computed(() => props.max && !isNaN(+props.max))
         const dynamicExtensions = computed(() => [
-            Link.configure({
-                openOnClick: false,
-                autolink: props.tools,
-                linkOnPaste: props.tools,
-            }),
-            CharacterCount.configure({
-                ...(!isNaN(+props.max) && { limit: props.max }),
-            }),
+            CharacterCount.configure({ ...(checkMax.value && { limit: props.max }) }),
+            Link.configure({ openOnClick: false, autolink: props.tools, linkOnPaste: props.tools }),
         ])
         const editor = useEditor({
             extensions: [...extensions, ...dynamicExtensions.value],
@@ -356,9 +358,12 @@ export default {
         const renderLength = computed(() => {
             const text = editor.value?.getText() ?? ''
             return {
-                words: (text.replace(/(<([^>]+)>)/gim, '').match(/.*?\w+.*?(\s|$)/gim) || '')
-                    .length,
-                characters: text.replace(/(<([^>]+)>)/gim, '').length,
+                ...(checkMax.value && { max: props.max }),
+                ...(text && {
+                    words: (text.replace(/(<([^>]+)>)/gim, '').match(/.*?\w+.*?(\s|$)/gim) || '')
+                        .length,
+                    characters: text.replace(/(<([^>]+)>)/gim, '').length,
+                }),
             }
         })
         const setterActions = computed(() => {
