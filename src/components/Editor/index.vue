@@ -400,11 +400,14 @@ export default {
         }
         const toggleMarkdown = () => {
             const turndownService = new TurndownService({
-                hr: '___',
-                fence: '~~~',
+                hr: '---',
                 headingStyle: 'atx',
                 codeBlockStyle: 'fenced',
             })
+            td.addRule('mark', {
+                filter: 'mark',
+                replacement: (content) => `<mark>${content}</mark>`
+            });
             navigator.clipboard.writeText(turndownService.turndown(props.text))
         }
         const toggleModal = (state) => (modal.value = state)
