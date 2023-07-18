@@ -12,6 +12,7 @@
                         <button
                             v-for="action in setterActions.format"
                             :key="action.type"
+                            :title="action.title"
                             :class="[
                                 'w-12 align-middle m-1 border rounded shadow active:bg-gray-300 border-gray-300',
                                 action.active
@@ -30,6 +31,7 @@
                         <button
                             v-for="action in setterActions.history"
                             :key="action.type"
+                            :title="action.title"
                             :class="[
                                 'w-12 m-1 border rounded shadow border-gray-300 text-gray-500 bg-gray-200 active:text-gray-200 active:bg-gray-500',
                             ]"
@@ -116,6 +118,7 @@
 <script>
 import { Icon } from '@iconify/vue'
 import Modal from '@/components/Modal'
+import TurndownService from 'turndown'
 import StarterKit from '@tiptap/starter-kit'
 import { importFilter } from '@/utils/object'
 import Underline from '@tiptap/extension-underline'
@@ -222,42 +225,42 @@ export default {
                 value: 'B',
                 type: 'bold',
                 action: 'toggleBold',
-                title: 'bold',
+                title: 'Bold',
                 active: current.value.bold,
             },
             {
                 value: 'I',
                 type: 'italic',
                 action: 'toggleItalic',
-                title: 'italic',
+                title: 'Italic',
                 active: current.value.italic,
             },
             {
                 value: 'U',
                 type: 'underline',
                 action: 'toggleUnderline',
-                title: 'underline',
+                title: 'Underline',
                 active: current.value.underline,
             },
             {
                 value: 'S̶',
                 type: 'strike',
                 action: 'toggleStrike',
-                title: 'strike',
+                title: 'Strike',
                 active: current.value.strike,
             },
             {
                 value: '¶',
                 type: 'paragraph',
                 action: 'setParagraph',
-                title: 'paragraph',
+                title: 'Paragraph',
                 active: current.value.paragraph,
             },
             {
                 value: 'H1',
                 type: 'heading',
                 action: 'toggleHeading',
-                title: 'headingOne',
+                title: 'H1',
                 active: current.value.heading[0],
                 arg: { level: 1 },
             },
@@ -265,7 +268,7 @@ export default {
                 value: 'H2',
                 type: 'heading',
                 action: 'toggleHeading',
-                title: 'headingTwo',
+                title: 'H2',
                 active: current.value.heading[1],
                 arg: { level: 2 },
             },
@@ -273,7 +276,7 @@ export default {
                 value: 'H3',
                 type: 'heading',
                 action: 'toggleHeading',
-                title: 'headingThird',
+                title: 'H3',
                 active: current.value.heading[2],
                 arg: { level: 3 },
             },
@@ -281,7 +284,7 @@ export default {
                 value: 'H4',
                 type: 'heading',
                 action: 'toggleHeading',
-                title: 'headingFourth',
+                title: 'H4',
                 active: current.value.heading[3],
                 arg: { level: 4 },
             },
@@ -289,7 +292,7 @@ export default {
                 value: 'H5',
                 type: 'heading',
                 action: 'toggleHeading',
-                title: 'headingFifth',
+                title: 'H5',
                 active: current.value.heading[4],
                 arg: { level: 5 },
             },
@@ -341,18 +344,27 @@ export default {
             },
             {
                 action: 'clearNodes',
+                title: 'Clear',
                 icon: 'mdi:clear',
                 value: 'clear',
             },
             {
                 icon: 'material-symbols:undo',
+                title: 'Undo',
                 action: 'undo',
                 value: 'undo',
             },
             {
                 icon: 'material-symbols:redo',
+                title: 'Redo',
                 action: 'redo',
                 value: 'redo',
+            },
+            {
+                action: toggleMarkdown,
+                title: 'Copy Markdown',
+                icon: 'simple-icons:markdown',
+                value: 'markdown',
             },
         ])
         const renderLength = computed(() => {
@@ -367,7 +379,9 @@ export default {
         const setterActions = computed(() => {
             return {
                 format: actions.value.filter((action) => action.type),
-                history: actions.value.filter((action) => /clear|undo|redo/.test(action.value)),
+                history: actions.value.filter((action) =>
+                    /clear|undo|redo|markdown/.test(action.value)
+                ),
             }
         })
         const checkArguments = computed(() => {
@@ -383,6 +397,15 @@ export default {
         }
         const resetNode = () => {
             node.value = { type: '', scheme: [], argument: {} }
+        }
+        const toggleMarkdown = () => {
+            const turndownService = new TurndownService({
+                hr: '___',
+                fence: '~~~',
+                headingStyle: 'atx',
+                codeBlockStyle: 'fenced',
+            })
+            navigator.clipboard.writeText(turndownService.turndown(props.text))
         }
         const toggleModal = (state) => (modal.value = state)
         const toggleNodeAction = (state) => {
@@ -401,45 +424,49 @@ export default {
         }
         const setText = (type) => {
             const action = getAction(type)
-            if (action.type) {
-                const attributes = editor.value.getAttributes(action.type)
-                if (action.type === 'heading') {
-                    current.value.heading = arrayCreate(false)
-                    current.value.paragraph = false
-                    editor.value.commands.toggleHeading(action.arg)
-                    current.value.heading[action.arg.level - 1] = editor.value.isActive(
-                        action.type,
-                        action.arg
-                    )
-                } else {
-                    if (action.type === 'paragraph') {
-                        current.value.heading = arrayCreate(false)
-                    }
-                    if (action.arg) {
-                        const scheme = Object.keys(action.arg)
-                        if (attributes) {
-                            const used = importFilter(attributes, Object.keys(action.arg), true)
-                            scheme.forEach((arg) => {
-                                node.value.argument[arg] = used[arg]
-                            })
-                        }
-                        node.value.scheme = scheme
-                        node.value.type = action.type
-                        toggleModal(true)
-                    } else {
-                        editor.value.commands.focus()
-                        editor.value.commands[action.action]()
-                    }
-                    current.value[action.type] = editor.value.isActive(action.type)
-                }
-            } else if (action.value === 'clear') {
-                editor.value.chain().focus().clearNodes().unsetAllMarks().run()
-                editor.value.commands.selectTextblockEnd()
-            } else if (/undo|redo/.test(action.value)) {
-                editor.value.commands[action.action]()
-                editor.value.commands.selectTextblockEnd()
+            if (typeof action.action === 'function') {
+                action.action()
             } else {
-                editor.value.commands[action.action](action.arg)
+                if (action.type) {
+                    const attributes = editor.value.getAttributes(action.type)
+                    if (action.type === 'heading') {
+                        current.value.heading = arrayCreate(false)
+                        current.value.paragraph = false
+                        editor.value.commands.toggleHeading(action.arg)
+                        current.value.heading[action.arg.level - 1] = editor.value.isActive(
+                            action.type,
+                            action.arg
+                        )
+                    } else {
+                        if (action.type === 'paragraph') {
+                            current.value.heading = arrayCreate(false)
+                        }
+                        if (action.arg) {
+                            const scheme = Object.keys(action.arg)
+                            if (attributes) {
+                                const used = importFilter(attributes, Object.keys(action.arg), true)
+                                scheme.forEach((arg) => {
+                                    node.value.argument[arg] = used[arg]
+                                })
+                            }
+                            node.value.scheme = scheme
+                            node.value.type = action.type
+                            toggleModal(true)
+                        } else {
+                            editor.value.commands.focus()
+                            editor.value.commands[action.action]()
+                        }
+                        current.value[action.type] = editor.value.isActive(action.type)
+                    }
+                } else if (action.value === 'clear') {
+                    editor.value.chain().focus().clearNodes().unsetAllMarks().run()
+                    editor.value.commands.selectTextblockEnd()
+                } else if (/undo|redo/.test(action.value)) {
+                    editor.value.commands[action.action]()
+                    editor.value.commands.selectTextblockEnd()
+                } else {
+                    editor.value.commands[action.action](action.arg)
+                }
             }
         }
         const checkFormats = (editor) => {
