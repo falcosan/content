@@ -46,6 +46,13 @@ const translatable = computed(() =>
         return { ...acc, [key]: obj[locale.value] }
     }, {})
 )
+const inputs = computed(() => [
+    {
+        title: 'Date',
+        type: 'date',
+        value: 'date',
+    },
+])
 const editors = computed(() => [
     {
         title: 'Title',
@@ -75,7 +82,7 @@ const resetModal = () => {
     }, 5000)
 }
 const mapPost = (values) => {
-    const keys = properties.value.translatable.reduce((acc, value) => {
+    const translatables = properties.value.translatable.reduce((acc, value) => {
         const regex = new RegExp(`${enums.translatableSuffix}.*`)
         const key = value.replace(regex, '')
         return enums.languages.reduce((objAcc, lang) => {
@@ -89,7 +96,12 @@ const mapPost = (values) => {
             }
         }, {})
     }, {})
-    return { ...values, content: { ...values.content, ...keys } }
+    const content = Object.entries(values.content).reduce((acc, [k, v]) => {
+        if (k === 'date') acc[k] = new Date(v).toISOString().slice(0, 10)
+        else acc[k] = v
+        return acc
+    }, {})
+    return { ...values, content: { ...content, ...translatables } }
 }
 const cleanPost = (values) => {
     const keys = properties.value.translatable.reduce((acc, curr) => {
@@ -216,6 +228,20 @@ watch(
 
 <template>
     <div v-if="post.content">
+        <div class="grid grid-cols-12">
+            <div
+                v-for="(input, indexInput) in inputs"
+                :key="`${indexInput}_${locale}`"
+                class="col-span-12 md:col-span-6 xl:col-span-4 mb-10"
+            >
+                <span
+                    v-if="input.title"
+                    class="block mb-5 text-lg font-semibold text-gray-800"
+                    v-text="input.title"
+                />
+                <input v-model="post.content[input.value]" :type="input.type" />
+            </div>
+        </div>
         <Editor
             v-for="(editor, indexEditor) in editors"
             :key="`${indexEditor}_${locale}`"
