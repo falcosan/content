@@ -1,5 +1,5 @@
 import { computed, reactive, toRefs, watch } from 'vue'
-import { setCookie, getCookie } from '@/utils/cookies.js'
+import { setCookie, getCookie, deleteCookie } from '@/utils/cookies.js'
 
 export default {
     install: (app) => {
@@ -8,6 +8,7 @@ export default {
             auth: getCookie('auth') === import.meta.env.STORY_AUTH_SECRET,
         })
         const { locale, auth } = toRefs(state)
+        if (!auth.value) setCookie('path', window.location.href)
         watch(
             locale,
             (val) => {
@@ -19,7 +20,8 @@ export default {
         watch(auth, (val) => {
             if (val) {
                 setCookie('auth', val)
-                window.location.reload()
+                window.location.replace(getCookie('path'))
+                deleteCookie('path')
             }
         })
         app.provide(
