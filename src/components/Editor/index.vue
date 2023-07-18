@@ -409,7 +409,7 @@ export default {
                 replacement: (content) => `<mark>${content}</mark>`
             });
             td.addRule('br', {
-                filter: (node) => node.nodeName.toLowerCase() === 'br',
+                filter: 'br',
                 replacement: () => '<p><br></p>'
             });
             navigator.clipboard.writeText(td.turndown(props.text))
