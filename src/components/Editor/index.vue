@@ -89,7 +89,7 @@
                         v-text="renderLength.max"
                     />
                 </div>
-                <div v-if="renderLength.characters" class="m-1">
+                <div class="m-1">
                     <span
                         class="inline-block mr-1 text-xs italic text-gray-500"
                         v-text="'characters:'"
@@ -99,7 +99,7 @@
                         v-text="renderLength.characters"
                     />
                 </div>
-                <div v-if="renderLength.words" class="m-1">
+                <div class="m-1">
                     <span
                         class="inline-block mr-1 text-xs italic text-gray-500"
                         v-text="'words:'"
@@ -359,11 +359,9 @@ export default {
             const text = editor.value?.getText() ?? ''
             return {
                 ...(checkMax.value && { max: props.max }),
-                ...(text && {
-                    words: (text.replace(/(<([^>]+)>)/gim, '').match(/.*?\w+.*?(\s|$)/gim) || '')
-                        .length,
-                    characters: text.replace(/(<([^>]+)>)/gim, '').length,
-                }),
+                words: (text.replace(/(<([^>]+)>)/gim, '').match(/.*?\w+.*?(\s|$)/gim) || '')
+                    .length,
+                characters: text.replace(/(<([^>]+)>)/gim, '').length,
             }
         })
         const setterActions = computed(() => {
