@@ -1,6 +1,6 @@
 .env
 node_modules/
-blog/
 .DS_Store
 dev-dist
 .tool-versions
+package-lock.json

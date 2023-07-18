@@ -4,6 +4,7 @@ import { Plugin, PluginKey } from '@tiptap/pm/state'
 export const CustomLink = Link.extend({
     addProseMirrorPlugins() {
         return [
+            ...this.parent?.(),
             new Plugin({
                 key: new PluginKey('eventHandler'),
                 props: {
