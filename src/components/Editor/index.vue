@@ -408,10 +408,6 @@ export default {
                 filter: 'mark',
                 replacement: (content) => `<mark>${content}</mark>`
             });
-            td.addRule('br', {
-                filter: 'br',
-                replacement: () => '<p>\n</p>'
-            });
             navigator.clipboard.writeText(td.turndown(props.text))
         }
         const toggleModal = (state) => (modal.value = state)
