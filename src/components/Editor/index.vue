@@ -399,7 +399,7 @@ export default {
             node.value = { type: '', scheme: [], argument: {} }
         }
         const toggleMarkdown = () => {
-            const turndownService = new TurndownService({
+            const td = new TurndownService({
                 hr: '---',
                 headingStyle: 'atx',
                 codeBlockStyle: 'fenced',
@@ -408,7 +408,7 @@ export default {
                 filter: 'mark',
                 replacement: (content) => `<mark>${content}</mark>`
             });
-            navigator.clipboard.writeText(turndownService.turndown(props.text))
+            navigator.clipboard.writeText(td.turndown(props.text))
         }
         const toggleModal = (state) => (modal.value = state)
         const toggleNodeAction = (state) => {
