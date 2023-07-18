@@ -410,7 +410,7 @@ export default {
             });
             td.addRule('br', {
                 filter: 'br',
-                replacement: () => '<p><br></p>'
+                replacement: () => '<p>\n</p>'
             });
             navigator.clipboard.writeText(td.turndown(props.text))
         }
