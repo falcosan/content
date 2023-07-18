@@ -209,29 +209,31 @@ onUnmounted(() => window.removeEventListener('keydown', handleSave))
 watch(
     props.data,
     async (val) => {
-        const data = await getStoryblokComponents(val.content.component, [
-            'required',
-            'max_length',
-            'translatable',
-            { type: ['markdown', 'datetime'] },
-            { max_length: [String, Number] },
-        ])
-        const getKeys = (list, type) => {
-            const mapper = (arr) => arr.map((val) => val[0])
-            if (type) return mapper(list.filter((value) => value.includes(type)))
-            else return mapper(list)
+        if (val.content) {
+            const data = await getStoryblokComponents(val.content.component, [
+                'required',
+                'max_length',
+                'translatable',
+                { type: ['markdown', 'datetime'] },
+                { max_length: [String, Number] },
+            ])
+            const getKeys = (list, type) => {
+                const mapper = (arr) => arr.map((val) => val[0])
+                if (type) return mapper(list.filter((value) => value.includes(type)))
+                else return mapper(list)
+            }
+            const getObj = (list, type) => {
+                const mapper = (arr) => arr.map((val) => ({ [val[0]]: val[1] }))
+                if (type) return mapper(list.filter((value) => value.includes(type)))
+                else return mapper(list)
+            }
+            properties.value.required = getKeys(data.required)
+            properties.value.maxLength = getObj(data.max_length)
+            properties.value.markdown = getKeys(data.type, 'markdown')
+            properties.value.datetime = getKeys(data.type, 'datetime')
+            properties.value.translatable = getKeys(data.translatable)
+            post.value = mapPost(val)
         }
-        const getObj = (list, type) => {
-            const mapper = (arr) => arr.map((val) => ({ [val[0]]: val[1] }))
-            if (type) return mapper(list.filter((value) => value.includes(type)))
-            else return mapper(list)
-        }
-        properties.value.required = getKeys(data.required)
-        properties.value.maxLength = getObj(data.max_length)
-        properties.value.markdown = getKeys(data.type, 'markdown')
-        properties.value.datetime = getKeys(data.type, 'datetime')
-        properties.value.translatable = getKeys(data.translatable)
-        post.value = mapPost(val)
     },
     { immediate: true }
 )

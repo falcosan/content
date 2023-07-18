@@ -33,8 +33,12 @@ onBeforeMount(() => {
     onBeforeUnmount(() => window.removeEventListener('beforeunload', preventNav))
 })
 router.beforeEach((to, from, next) => {
-    if (!leave.value) {
-        if (from.query.type != null) {
+    if (to.query.type === 'error') {
+        leave.value = true
+        next(true)
+        return
+    } else if (!leave.value) {
+        if (enums.types.includes(from.query.type)) {
             toggleModal(true)
             next(false)
             return

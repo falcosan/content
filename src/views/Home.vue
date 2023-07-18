@@ -45,9 +45,14 @@ const getStories = async (language) => {
 const getStory = async () => {
     const index = data.value.findIndex((item) => String(item.id) === String(route.query.id))
     detail.value.loading[index] = true
-    const { story } = await getStoryblokStory(route.query.id)
-    setDetail(story)
-    detail.value.loading[index] = false
+    try {
+        const { story } = await getStoryblokStory(route.query.id)
+        setDetail(story)
+    } catch {
+        router.replace({ query: { type: 'error' } })
+    } finally {
+        detail.value.loading[index] = false
+    }
 }
 watch(locale, async (val) => {
     if (!route.query.id) await getStories(val)

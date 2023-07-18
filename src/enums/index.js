@@ -5,6 +5,7 @@ export default {
     translatableSuffix: '__i18n__',
     languages: ['en', 'es', 'it'],
     metaHtml: { title: { variable: 'META_TITLE', value: webTitle } },
+    types: ['post', 'error'],
     manifest: {
         name: webTitle,
         short_name: webTitle,
