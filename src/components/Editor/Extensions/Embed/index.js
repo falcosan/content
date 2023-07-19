@@ -49,15 +49,15 @@ export const EmbedCustom = Node.create({
                     'parent=aprograma-dev.netlify.app',
                     'parent=aprograma-editor.netlify.app',
                 ]
-                if (patterns.twitchLive) {
-                    return `${url.replace(
-                        patterns.twitchLive,
-                        'https://player.twitch.tv/?channel=$1'
-                    )}&${domains.join('&')}`
-                } else if (patterns.twitchClip) {
+                if (patterns.twitchClip) {
                     return `${url.replace(
                         patterns.twitchClip,
                         'https://clips.twitch.tv/embed?clip=$1-$2'
+                    )}&${domains.join('&')}`
+                } else if (patterns.twitchLive) {
+                    return `${url.replace(
+                        patterns.twitchLive,
+                        'https://player.twitch.tv/?channel=$1'
                     )}&${domains.join('&')}`
                 }
             } else if (patterns.youtube.test(url)) {
