@@ -26,8 +26,8 @@ export const EmbedCustom = Node.create({
     },
     renderHTML({ node }) {
         const patterns = {
+            twitchLive: /https:\/\/www\.twitch\.tv\/(.*)/,
             vimeo: /(https:\/\/)?(www\.)?vimeo\.com\/(\d+)/,
-            twitchLive: /https:\/\/www\.twitch\.tv\/(?!.*\/clip\/).*$/,
             twitchClip: /^https:\/\/(?:www\.)?twitch\.tv\/\w+\/clip\/(\w+)-(\w+)/,
             youtube: /^(https?:\/\/)?(www\.)?youtube\.com\/watch\?v=([a-zA-Z0-9_-]+).*$/,
             dailymotion: /(https?:\/\/)(www\.)?(dailymotion\.com\/video\/)([a-zA-Z0-9]+)(.*)/,
