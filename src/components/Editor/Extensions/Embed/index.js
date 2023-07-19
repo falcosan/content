@@ -34,8 +34,12 @@ export const EmbedCustom = Node.create({
             url: /^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/|ftp:\/\/|ftps:\/\/|blob:|localhost)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/,
         }
         function convertUrl(url) {
+            const hosts = [
+                'parent=aprograma.com',
+                'parent=aprograma-dev.netlify.app',
+                'parent=aprograma-editor.netlify.app',
+            ].join('&')
             if (!patterns.url) return ''
-
             if (patterns.vimeo.test(url)) {
                 return `https://player.vimeo.com/video/${url.replace(patterns.vimeo, '$3')}`
             } else if (patterns.dailymotion.test(url)) {
@@ -43,23 +47,16 @@ export const EmbedCustom = Node.create({
                     patterns.dailymotion,
                     '$4'
                 )}`
-            } else if (patterns.twitchLive || patterns.twitchClip) {
-                const domains = [
-                    'parent=aprograma.com',
-                    'parent=aprograma-dev.netlify.app',
-                    'parent=aprograma-editor.netlify.app',
-                ]
-                if (patterns.twitchClip) {
-                    return `${url.replace(
-                        patterns.twitchClip,
-                        'https://clips.twitch.tv/embed?clip=$1-$2'
-                    )}&${domains.join('&')}`
-                } else if (patterns.twitchLive) {
-                    return `${url.replace(
-                        patterns.twitchLive,
-                        'https://player.twitch.tv/?channel=$1'
-                    )}&${domains.join('&')}`
-                }
+            } else if (patterns.twitchClip.test(url)) {
+                return `${url.replace(
+                    patterns.twitchClip,
+                    'https://clips.twitch.tv/embed?clip=$1-$2'
+                )}&${hosts}`
+            } else if (patterns.twitchLive.test(url)) {
+                return `${url.replace(
+                    patterns.twitchLive,
+                    'https://player.twitch.tv/?channel=$1'
+                )}&${hosts}`
             } else if (patterns.youtube.test(url)) {
                 return `https://www.youtube.com/embed/${url.replace(patterns.youtube, '$3')}`
             } else {
