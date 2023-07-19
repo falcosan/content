@@ -26,7 +26,9 @@ export const EmbedCustom = Node.create({
     },
     renderHTML({ node }) {
         const patterns = {
+            twitchLive: /https:\/\/www\.twitch\.tv\/(.*)/,
             vimeo: /(https:\/\/)?(www\.)?vimeo\.com\/(\d+)/,
+            twitchClip: /^https:\/\/(?:www\.)?twitch\.tv\/\w+\/clip\/(\w+)-(\w+)/,
             youtube: /^(https?:\/\/)?(www\.)?youtube\.com\/watch\?v=([a-zA-Z0-9_-]+).*$/,
             dailymotion: /(https?:\/\/)(www\.)?(dailymotion\.com\/video\/)([a-zA-Z0-9]+)(.*)/,
             url: /^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/|ftp:\/\/|ftps:\/\/|blob:|localhost)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/,
@@ -41,6 +43,23 @@ export const EmbedCustom = Node.create({
                     patterns.dailymotion,
                     '$4'
                 )}`
+            } else if (patterns.twitchLive || patterns.twitchClip) {
+                const domains = [
+                    'parent=aprograma.com',
+                    'parent=aprograma-dev.netlify.app',
+                    'parent=aprograma-editor.netlify.app',
+                ]
+                if (patterns.twitchLive) {
+                    return `${url.replace(
+                        patterns.twitchLive,
+                        'https://player.twitch.tv/?channel=$1'
+                    )}&${domains.join('&')}`
+                } else if (patterns.twitchClip) {
+                    return `${url.replace(
+                        patterns.twitchClip,
+                        'https://clips.twitch.tv/embed?clip=$1-$2'
+                    )}&${domains.join('&')}`
+                }
             } else if (patterns.youtube.test(url)) {
                 return `https://www.youtube.com/embed/${url.replace(patterns.youtube, '$3')}`
             } else {
