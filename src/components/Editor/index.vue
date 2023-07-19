@@ -125,9 +125,10 @@ import Underline from '@tiptap/extension-underline'
 import Highlight from '@tiptap/extension-highlight'
 import { computed, reactive, toRefs, watch } from 'vue'
 import { useEditor, EditorContent } from '@tiptap/vue-3'
-import { CodeBlock, Image, CharacterCount, Link } from './Extensions'
+import { CodeBlock, Image, CharacterCount, Link, Embed } from './Extensions'
 const extensions = [
     Image,
+    Embed,
     Underline,
     Highlight,
     CodeBlock,
@@ -327,6 +328,14 @@ export default {
                 icon: 'material-symbols:image',
                 arg: { src: '', caption: '', alt: '', title: '' },
                 active: current.value.image,
+            },
+            {
+                type: 'embed',
+                action: 'addEmbed',
+                actionAlt: 'removeEmbed',
+                title: 'Embed',
+                icon: 'material-symbols:iframe',
+                arg: { src: '' },
             },
             {
                 type: 'code',

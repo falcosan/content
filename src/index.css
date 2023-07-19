@@ -92,7 +92,8 @@
     }
     .markdown img,
     .markdown video,
-    .markdown figure {
+    .markdown figure,
+    .markdown iframe {
         width: 100%;
         max-width: 65ch;
         margin: 0 auto;
@@ -101,6 +102,9 @@
     }
     .markdown img {
         cursor: pointer;
+    }
+    .markdown iframe {
+        @apply aspect-video;
     }
     .markdown-modal {
         position: fixed;
