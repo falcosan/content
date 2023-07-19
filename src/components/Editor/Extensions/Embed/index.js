@@ -1,4 +1,4 @@
-import { Node, mergeAttributes, findChildrenInRange } from '@tiptap/core'
+import { Node, findChildrenInRange, mergeAttributes } from '@tiptap/core'
 
 export const EmbedCustom = Node.create({
     name: 'embed',
@@ -17,11 +17,12 @@ export const EmbedCustom = Node.create({
         return {
             src: {
                 default: null,
+                parseHTML: (element) => element.querySelector('iframe')?.getAttribute('src'),
             },
         }
     },
     parseHTML() {
-        return [{ tag: 'iframe' }]
+        return [{ tag: 'div', preserveWhitespace: 'full' }]
     },
     renderHTML({ node }) {
         const patterns = {

@@ -175,6 +175,7 @@ export default {
                 link: false,
                 code: false,
                 image: false,
+                embed: false,
                 italic: false,
                 strike: false,
                 underline: false,
@@ -336,6 +337,7 @@ export default {
                 title: 'Embed',
                 icon: 'material-symbols:iframe',
                 arg: { src: '' },
+                active: current.value.embed,
             },
             {
                 type: 'code',
@@ -415,8 +417,8 @@ export default {
             })
             td.addRule('mark', {
                 filter: 'mark',
-                replacement: (content) => `<mark>${content}</mark>`
-            });
+                replacement: (content) => `<mark>${content}</mark>`,
+            })
             navigator.clipboard.writeText(td.turndown(props.text))
         }
         const toggleModal = (state) => (modal.value = state)
@@ -486,6 +488,7 @@ export default {
             current.value.bold = editor.isActive('bold')
             current.value.code = editor.isActive('code')
             current.value.image = editor.isActive('image')
+            current.value.embed = editor.isActive('embed')
             current.value.italic = editor.isActive('italic')
             current.value.strike = editor.isActive('strike')
             current.value.underline = editor.isActive('underline')
