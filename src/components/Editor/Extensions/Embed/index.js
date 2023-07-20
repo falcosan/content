@@ -1,3 +1,5 @@
+import Component from './Component.vue'
+import { VueNodeViewRenderer } from '@tiptap/vue-3'
 import { Node, findChildrenInRange, mergeAttributes } from '@tiptap/core'
 
 export const EmbedCustom = Node.create({
@@ -103,5 +105,8 @@ export const EmbedCustom = Node.create({
                     else return commands.deleteSelection()
                 },
         }
+    },
+    addNodeView() {
+        return VueNodeViewRenderer(Component)
     },
 })
