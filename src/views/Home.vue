@@ -54,9 +54,7 @@ const getStory = async () => {
         detail.value.loading[index] = false
     }
 }
-watch(locale, async (val) => {
-    if (!route.query.id) await getStories(val)
-})
+watch(locale, async (val) => await getStories(val))
 watch(
     () => route.query,
     async (val) => {
