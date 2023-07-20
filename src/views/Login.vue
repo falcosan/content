@@ -1,7 +1,7 @@
 <template>
     <div class="w-full min-h-screen flex justify-center items-center max-w-md mx-auto space-y-8">
         <div class="w-full text-center">
-            <span class="block mb-5 text-3xl font-bold text-gray-700" v-text="name" />
+            <span class="block mb-5 text-3xl font-bold text-gray-200" v-text="name" />
             <form class="space-y-6" @submit.prevent="signIn" @keydown.enter="signIn">
                 <div class="rounded-md shadow-sm -space-y-px">
                     <div>
@@ -34,7 +34,7 @@
                 <div>
                     <button
                         type="submit"
-                        class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 text-white bg-gray-900 hover:bg-gray-700 focus:ring-gray-500"
+                        class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 text-white bg-black hover:bg-gray-900 focus:ring-gray-500"
                     >
                         <span class="absolute left-0 inset-y-0 flex items-center pl-3"> </span>
                         Login

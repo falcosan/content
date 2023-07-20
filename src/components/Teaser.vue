@@ -10,7 +10,7 @@ defineProps({
 <template>
     <div
         v-if="data.content"
-        class="relative h-full flex flex-col rounded-md overflow-hidden border border-opacity-10 border-gray-100 cursor-pointer"
+        class="relative h-full flex flex-col rounded-md overflow-hidden border border-gray-800 cursor-pointer"
     >
         <div
             class="w-full h-36 flex flex-col flex-auto space-y-2.5 p-5"

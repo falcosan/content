@@ -76,7 +76,7 @@ router.beforeEach((to, from, next) => {
     </div>
     <Modal v-model:open="modal">
         <template #header>
-            <p class="text-lg text-center font-bold text-gray-500" v-text="'Are you leaving ?'" />
+            <p class="text-lg text-center font-bold text-gray-900" v-text="'Are you leaving ?'" />
         </template>
         <template #body>
             <div class="flex flex-wrap -m-2">
