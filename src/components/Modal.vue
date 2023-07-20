@@ -4,12 +4,12 @@
             <div
                 v-show="open"
                 ref="modal"
-                class="fixed h-screen w-screen flex items-center justify-center left-0 top-0 px-2.5 md:px-5 z-20 bg-opacity-40 bg-gray-600"
+                class="fixed h-screen w-screen flex items-center justify-center left-0 top-0 px-2.5 md:px-5 z-20 bg-opacity-40 bg-gray-900"
                 tabindex="0"
                 @click.self="closeModal"
                 @keydown.esc="closeModal"
             >
-                <div class="w-full max-w-lg p-2.5 md:p-5 rounded bg-white">
+                <div class="w-full max-w-lg p-2.5 md:p-5 rounded bg-gray-100">
                     <div v-if="hasSlot('header')" class="mb-5">
                         <slot v-if="hasSlot('header')" name="header" />
                     </div>

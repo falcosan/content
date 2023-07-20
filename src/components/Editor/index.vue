@@ -1,6 +1,6 @@
 <template>
     <div class="w-full flex flex-col">
-        <span v-if="title" class="block mb-5 text-lg font-semibold text-gray-800" v-text="title" />
+        <span v-if="title" class="block mb-5 text-lg font-semibold text-gray-300" v-text="title" />
         <div class="flex flex-col">
             <EditorContent
                 :class="['h-full min-w-[2rem]', { 'min-h-[16rem]': tools }]"
@@ -8,7 +8,7 @@
             />
             <div v-if="tools" class="lg:sticky lg:bottom-0 pb-5">
                 <div class="flex flex-wrap justify-end lg:justify-between -m-2.5">
-                    <div class="m-2.5 rounded border border-gray-200 bg-white">
+                    <div class="m-2.5 rounded border border-gray-200 bg-gray-100">
                         <button
                             v-for="action in setterActions.format"
                             :key="action.type"
@@ -27,7 +27,7 @@
                             <span v-else v-text="action.value" />
                         </button>
                     </div>
-                    <div class="m-2.5 rounded border border-gray-200 bg-white">
+                    <div class="m-2.5 rounded border border-gray-200 bg-gray-100">
                         <button
                             v-for="action in setterActions.history"
                             :key="action.type"
@@ -68,7 +68,7 @@
                                 </button>
                                 <button
                                     :class="[
-                                        'flex justify-center flex-auto py-2 px-5 m-2 rounded  active:bg-opacity-70',
+                                        'flex justify-center flex-auto py-2 px-5 m-2 rounded active:bg-opacity-70',
                                         checkArguments
                                             ? 'text-white bg-green-500'
                                             : 'text-gray-500 bg-gray-200',
@@ -85,29 +85,29 @@
             </div>
             <div class="w-full flex flex-wrap items-center justify-end">
                 <div v-if="renderLength.max" class="m-1">
-                    <span class="inline-block mr-1 text-xs italic text-gray-500" v-text="'max:'" />
+                    <span class="inline-block mr-1 text-xs italic text-gray-300" v-text="'max:'" />
                     <span
-                        class="inline-block font-bold text-xs italic text-gray-500"
+                        class="inline-block font-bold text-xs italic text-gray-300"
                         v-text="renderLength.max"
                     />
                 </div>
                 <div class="m-1">
                     <span
-                        class="inline-block mr-1 text-xs italic text-gray-500"
+                        class="inline-block mr-1 text-xs italic text-gray-300"
                         v-text="'characters:'"
                     />
                     <span
-                        class="inline-block font-bold text-xs italic text-gray-500"
+                        class="inline-block font-bold text-xs italic text-gray-300"
                         v-text="renderLength.characters"
                     />
                 </div>
                 <div class="m-1">
                     <span
-                        class="inline-block mr-1 text-xs italic text-gray-500"
+                        class="inline-block mr-1 text-xs italic text-gray-300"
                         v-text="'words:'"
                     />
                     <span
-                        class="inline-block font-bold text-xs italic text-gray-500"
+                        class="inline-block font-bold text-xs italic text-gray-300"
                         v-text="renderLength.words"
                     />
                 </div>

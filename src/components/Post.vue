@@ -190,7 +190,7 @@ const togglePost = async () => {
                 post.value = mapPost(res.story)
                 modal.value.message = post.value.published ? 'Published' : 'Unpublished'
                 modal.value.state = true
-                modal.value.type = 'published'
+                modal.value.type = post.value.published ? 'published' : 'error'
             })
             .catch(() => {
                 modal.value.message = 'Error'
@@ -256,7 +256,7 @@ watch(
             >
                 <span
                     v-if="input.title"
-                    class="block mb-5 text-lg font-semibold text-gray-800"
+                    class="block mb-5 text-lg font-semibold text-gray-300"
                     v-text="input.title"
                 />
                 <input v-model="post.content[input.value]" :type="input.type" />
@@ -287,7 +287,7 @@ watch(
             <button
                 :class="[
                     'w-full sm:w-32 flex justify-center m-2.5 p-2.5 px-6 rounded font-semibold active:bg-opacity-70 text-white',
-                    post.published ? 'bg-red-500' : 'bg-green-600',
+                    post.published ? 'bg-red-500' : 'bg-green-500',
                 ]"
                 @click="togglePost"
             >
