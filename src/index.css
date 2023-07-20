@@ -118,7 +118,7 @@
         right: 0;
         bottom: 0;
         z-index: 50;
-        background-color: #c2c2c2e6;
+        background-color: #c1c1c1e6;
     }
     .markdown-modal > img {
         height: 100%;
@@ -164,11 +164,11 @@
     }
     .markdown blockquote {
         @apply relative pt-10 pb-5 px-6 lg:px-8 rounded bg-[#eeeeee] text-[#212121];
-        border-top: 5px solid #212121;
+        border-top: 5px solid #c1c1c1;
     }
     .markdown blockquote:before {
         content: '“';
-        @apply absolute h-7 top-0 right-[calc(50%_-_20px)] pb-2.5 px-2.5 text-5xl rounded-b-full font-serif text-white bg-[#c2c2c2];
+        @apply absolute h-7 top-0 right-[calc(50%_-_20px)] pb-2.5 px-2.5 text-5xl rounded-b-full font-serif text-white bg-[#c1c1c1];
     }
     .markdown table {
         border-spacing: 0;
@@ -235,7 +235,7 @@
     .markdown hr {
         border: 0;
         margin: 2rem auto;
-        border-top: 1px solid #212121;
+        border-top: 1px solid #c1c1c1;
         max-width: 10rem;
     }
     .markdown *:last-child {
