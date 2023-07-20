@@ -36,10 +36,12 @@ export const EmbedCustom = Node.create({
         }
         function convertUrl(url) {
             const hosts = [
-                'parent=aprograma.com',
-                'parent=aprograma-dev.netlify.app',
-                'parent=aprograma-editor.netlify.app',
-            ].join('&')
+                process.env.STORY_DOMAIN_PRO,
+                process.env.STORY_DOMAIN_DEV,
+                process.env.STORY_DOMAIN_EDITOR,
+            ]
+                .map((domain) => `parent=${domain.replace(/^(?:https?:\/\/)?([^\/]+)\/?$/, '$1')}`)
+                .join('&')
             if (!patterns.url) return ''
             if (patterns.vimeo.test(url)) {
                 return `https://player.vimeo.com/video/${url.replace(patterns.vimeo, '$3')}`

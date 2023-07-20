@@ -149,6 +149,13 @@ const checkPost = () => {
         throw new Error(message)
     }
 }
+const goToPost = () => {
+    let domain
+    const slug = post.value.slug
+    if (post.value.published) domain = process.env.STORY_DOMAIN_PRO
+    else domain = process.env.STORY_DOMAIN_DEV
+    window.open(`${domain}blog/${slug}`, '_blank', 'noopener,noreferrer')
+}
 const editPost = async () => {
     loading.value.edit = true
     try {
@@ -264,6 +271,12 @@ watch(
             :max="editor.max"
         />
         <div class="flex flex-wrap justify-center xs:justify-end mt-10 -m-2.5">
+            <button
+                class="w-full sm:w-32 flex justify-center m-2.5 p-2.5 px-6 rounded font-semibold active:bg-opacity-70 text-white bg-slate-700"
+                @click="goToPost"
+            >
+                <span v-text="'Post'" />
+            </button>
             <button
                 class="w-full sm:w-32 flex justify-center m-2.5 p-2.5 px-6 rounded font-semibold active:bg-opacity-70 text-white bg-blue-500"
                 @click="editPost"
