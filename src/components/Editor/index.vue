@@ -8,7 +8,7 @@
             />
             <div v-if="tools" class="lg:sticky lg:bottom-0 pb-5">
                 <div class="flex flex-wrap justify-end lg:justify-between -m-2.5">
-                    <div class="m-2.5 rounded border border-gray-200 bg-gray-100">
+                    <div class="m-2.5 rounded border border-gray-200 bg-white">
                         <button
                             v-for="action in setterActions.format"
                             :key="action.type"
@@ -27,7 +27,7 @@
                             <span v-else v-text="action.value" />
                         </button>
                     </div>
-                    <div class="m-2.5 rounded border border-gray-200 bg-gray-100">
+                    <div class="m-2.5 rounded border border-gray-200 bg-white">
                         <button
                             v-for="action in setterActions.history"
                             :key="action.type"

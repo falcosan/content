@@ -1,7 +1,7 @@
 <template>
     <NodeViewWrapper
         as="div"
-        class="cursor-pointer rounded transition-[background-color] hover:bg-opacity-70 hover:bg-gray-100"
+        class="cursor-pointer rounded transition-[background-color] hover:bg-opacity-70 hover:bg-white"
         @click="setAttributes"
     >
         <iframe :src="attrs.src" />

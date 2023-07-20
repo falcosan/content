@@ -58,7 +58,7 @@
     }
     input,
     .ProseMirror {
-        @apply focus:outline-none border border-gray-300 rounded-lg py-2 px-3 block w-full appearance-none leading-normal bg-gray-100;
+        @apply focus:outline-none rounded-lg py-2 px-3 block w-full appearance-none leading-normal border border-gray-300 bg-white;
     }
 }
 @tailwind components;
