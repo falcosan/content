@@ -14,8 +14,8 @@
 </template>
 
 <script>
-import { computed, inject } from 'vue'
 import { formatURL } from '@/utils/string'
+import { computed, inject, watch } from 'vue'
 import { nodeViewProps, NodeViewWrapper } from '@tiptap/vue-3'
 export default {
     components: {
@@ -33,6 +33,12 @@ export default {
             props.editor.commands.setNodeSelection(props.getPos())
             setText('embed')
         }
+        watch(
+            () => props.selected,
+            (val) => {
+                if (val) props.updateAttributes({ src: formatURL(attrs.value.src) })
+            }
+        )
         return { attrs, setAttributes }
     },
 }
