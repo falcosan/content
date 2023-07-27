@@ -10,7 +10,7 @@
         >
             <div class="w-full max-w-lg p-2.5 md:p-5 rounded bg-white">
                 <div v-if="hasSlot('header')" class="mb-5">
-                    <slot v-if="hasSlot('header')" name="header" />
+                    <slot name="header" />
                 </div>
                 <div v-if="hasSlot('body')">
                     <slot name="body" />
@@ -66,11 +66,3 @@ export default {
     },
 }
 </script>
-<style>
-.body-container > * {
-    @apply h-full object-contain;
-}
-.body-container > *:not(:first-child) {
-    @apply mt-5;
-}
-</style>
