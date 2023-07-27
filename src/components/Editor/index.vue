@@ -116,6 +116,7 @@
     </div>
 </template>
 <script>
+import { marked } from 'marked'
 import { Icon } from '@iconify/vue'
 import Modal from '@/components/Modal'
 import TurndownService from 'turndown'
@@ -192,35 +193,19 @@ export default {
             CharacterCount.configure({ ...(checkMax.value && { limit: props.max }) }),
             Link.configure({ openOnClick: false, autolink: props.tools, linkOnPaste: props.tools }),
         ])
-        const editor = useEditor({
-            extensions: [...extensions, ...dynamicExtensions.value],
-            editable: true,
-            content: props.text,
-            enablePasteRules: true,
-            enableCoreExtensions: true,
-            editorProps: {
-                ...(!props.tools && {
-                    transformPastedText(text) {
-                        return text.replace(/(<([^>]+)>)|\r|\n/gim, '')
-                    },
-                    transformPastedHTML(html) {
-                        return html.replace(/(<([^>]+)>)|\r|\n/gim, '')
-                    },
-                }),
-                attributes: {
-                    class: `${props.tools ? 'markdown' : 'plain'} h-full min-h-[inherit] mb-2.5`,
+        const text = computed(() => {
+            const renderer = {
+                paragraph(text) {
+                    return `<p>${text}</p>`
                 },
-            },
-            onUpdate({ editor }) {
-                checkFormats(editor)
-                emit('update:text', setContent(editor))
-            },
-            onTransaction({ editor }) {
-                checkFormats(editor)
-            },
-            onSelectionUpdate({ editor }) {
-                checkFormats(editor)
-            },
+            }
+            marked.use({
+                renderer,
+                mangle: false,
+                pedantic: true,
+                headerIds: false,
+            })
+            return marked.parse(props.text)
         })
         const actions = computed(() => [
             {
@@ -397,6 +382,36 @@ export default {
         })
         const checkArguments = computed(() => {
             return !!Object.values(node.value.argument).filter(Boolean).length
+        })
+        const editor = useEditor({
+            extensions: [...extensions, ...dynamicExtensions.value],
+            editable: true,
+            content: text.value,
+            enablePasteRules: true,
+            enableCoreExtensions: true,
+            editorProps: {
+                ...(!props.tools && {
+                    transformPastedText(text) {
+                        return text.replace(/(<([^>]+)>)|\r|\n/gim, '')
+                    },
+                    transformPastedHTML(html) {
+                        return html.replace(/(<([^>]+)>)|\r|\n/gim, '')
+                    },
+                }),
+                attributes: {
+                    class: `${props.tools ? 'markdown' : 'plain'} h-full min-h-[inherit] mb-2.5`,
+                },
+            },
+            onUpdate({ editor }) {
+                checkFormats(editor)
+                emit('update:text', setContent(editor))
+            },
+            onTransaction({ editor }) {
+                checkFormats(editor)
+            },
+            onSelectionUpdate({ editor }) {
+                checkFormats(editor)
+            },
         })
         const setContent = (editor) => {
             return props.tools ? editor.getHTML() : editor.getText()
