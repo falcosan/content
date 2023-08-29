@@ -7,4 +7,6 @@
   for = "/*"
     [headers.values]
     Access-Control-Allow-Origin = "*"
-  
+
+[build.processing]
+    skip_processing = true
