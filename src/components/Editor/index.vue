@@ -399,7 +399,9 @@ export default {
                     },
                 }),
                 attributes: {
-                    class: `${props.tools ? 'markdown' : 'plain'} h-full min-h-[inherit] my-2.5`,
+                    class: `${
+                        props.tools ? 'markdown py-3' : 'plain py-[9px]'
+                    } h-full min-h-[inherit] mb-2.5`,
                 },
             },
             onUpdate({ editor }) {
