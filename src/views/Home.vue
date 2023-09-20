@@ -78,7 +78,7 @@ watch(
             <div>
                 <h3 class="font-semibold text-gray-300" v-text="'Blog'" />
                 <div
-                    class="grid grid-cols-12 sm:grid-cols-[repeat(auto-fit,_minmax(2rem,_1fr))] lg:grid-cols-12 auto-rows-fr gap-5"
+                    class="grid grid-cols-12 sm:grid-cols-[repeat(auto-fit,_minmax(2rem,_1fr))] md:grid-cols-[repeat(auto-fit,_minmax(4rem,_1fr))] xl:grid-cols-12 auto-rows-fr gap-5"
                 >
                     <Teaser
                         v-for="(post, indexPost) in data"
