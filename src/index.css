@@ -104,7 +104,7 @@
         cursor: pointer;
     }
     .markdown iframe {
-        @apply aspect-video;
+        @apply aspect-[9/16];
     }
     .markdown-modal {
         position: fixed;
