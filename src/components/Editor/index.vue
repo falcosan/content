@@ -47,7 +47,7 @@
                     <template #header>
                         <p
                             class="text-lg text-center font-bold text-gray-600"
-                            v-text="'Complete the fields'"
+                            v-text="`Complete the field${node.scheme.length > 1 ? 's' : ''}`"
                         />
                     </template>
                     <template #body>

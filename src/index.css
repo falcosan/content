@@ -54,7 +54,7 @@
     }
     *::placeholder {
         font-size: 14px;
-        text-transform: capitalize;
+        text-transform: uppercase;
     }
     input,
     .ProseMirror {
@@ -104,7 +104,7 @@
         cursor: pointer;
     }
     .markdown iframe {
-        @apply aspect-[9/16];
+        @apply aspect-square;
     }
     .markdown-modal {
         position: fixed;
