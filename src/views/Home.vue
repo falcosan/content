@@ -64,8 +64,8 @@ watch(
         } else {
             if (val.type) router.replace({ query: undefined })
             if (detail.value.state) detail.value.state = false
+            await getStories(locale.value)
         }
-        if (!data.value.length) await getStories(locale.value)
     },
     { immediate: true }
 )
