@@ -28,11 +28,6 @@ defineProps({
                 {{ data.content.intro }}
             </span>
         </div>
-        <slot
-            name="loader"
-            icon="text-8xl text-white"
-            container="absolute h-full w-full flex items-center justify-center bg-opacity-50 bg-black"
-        />
     </div>
 </template>
 <style scoped>
