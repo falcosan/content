@@ -152,9 +152,10 @@ const checkPost = () => {
 const goToPost = () => {
     let domain
     const slug = post.value.slug
+    const language = locale.value === 'en' ? '' : `${locale.value}/`
     if (post.value.published) domain = process.env.STORY_DOMAIN_PRO
     else domain = process.env.STORY_DOMAIN_DEV
-    window.open(`${domain}blog/${slug}`, '_blank', 'noopener,noreferrer')
+    window.open(`${domain}${language}blog/${slug}`, '_blank', 'noopener,noreferrer')
 }
 const editPost = async () => {
     loading.value.edit = true
