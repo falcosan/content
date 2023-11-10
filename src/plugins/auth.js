@@ -9,9 +9,9 @@ export default {
             auth.value = getCookie('auth') === process.env.STORY_AUTH_SECRET
             if (!auth.value) setCookie('path', window.location.href)
         } else {
-            db.auth.onAuthStateChange((event, session) => {
+            db.auth.onAuthStateChange((_, session) => {
                 if (session) auth.value = true
-                else if (event === 'INITIAL_SESSION') setCookie('path', window.location.href)
+                else setCookie('path', window.location.href)
             })
         }
         watch(auth, (val) => {
