@@ -7,13 +7,12 @@ export default {
         const db = createClient(process.env.STORY_SUPABASE_URL, process.env.STORY_SUPABASE_TOKEN)
         if (process.env.NODE_ENV === 'development') {
             auth.value = getCookie('auth') === process.env.STORY_AUTH_SECRET
-            if (!auth.value) setCookie('path', window.location.href)
         } else {
             db.auth.onAuthStateChange((_, session) => {
                 if (session) auth.value = true
-                else setCookie('path', window.location.href)
             })
         }
+        if (!auth.value) setCookie('path', window.location.href)
         watch(auth, (val) => {
             if (val) {
                 if (/login/.test(window.location.pathname)) {
