@@ -47,7 +47,7 @@
                         leave-active-class="transition duration-75"
                     >
                         <span
-                            v-if="error"
+                            v-if="failed"
                             class="absolute w-full block px-1 py-1.5 rounded-md translate-y-6 text-sm font-medium text-white bg-red-500"
                             v-text="'Email or Password is incorrect'"
                         />
@@ -64,25 +64,34 @@ export default {
     name: 'Login',
     setup() {
         const db = inject('db')
-        const state = reactive({ email: '', password: '', error: false })
-        const { email, password, error } = toRefs(state)
+        const auth = inject('auth')
+        const state = reactive({ email: '', password: '', failed: false })
+        const { email, password, failed } = toRefs(state)
         const signIn = async () => {
             reset()
-            const { error: failed } = await db.auth.signInWithPassword({
-                email: email.value,
-                password: password.value,
-            })
-            if (failed) {
-                setTimeout(() => (error.value = true), 75)
-                throw new Error(failed)
+            if (process.env.NODE_ENV === 'development') {
+                const authorized =
+                    email.value === process.env.STORY_AUTH_EMAIL &&
+                    password.value === process.env.STORY_AUTH_PASSWORD
+                if (authorized) auth.value = process.env.STORY_AUTH_SECRET
+                else setTimeout(() => (failed.value = true), 75)
+            } else {
+                const { error } = await db.auth.signInWithPassword({
+                    email: email.value,
+                    password: password.value,
+                })
+                if (error) {
+                    setTimeout(() => (error.value = true), 75)
+                    throw new Error(error)
+                }
             }
         }
         const reset = () => {
-            if (error.value) error.value = false
+            if (failed.value) failed.value = false
         }
         return {
             reset,
-            error,
+            failed,
             signIn,
             email,
             password,
