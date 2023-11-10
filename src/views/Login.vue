@@ -5,16 +5,16 @@
             <form class="space-y-6" @submit.prevent="signIn" @keydown.enter="signIn">
                 <div class="rounded-md shadow-sm -space-y-px">
                     <div>
-                        <label for="username" class="sr-only">Username</label>
+                        <label for="email" class="sr-only">Email</label>
                         <input
-                            id="username"
-                            v-model="username"
-                            name="username"
+                            id="email"
+                            v-model="email"
+                            name="email"
                             type="text"
-                            autocomplete="username"
+                            autocomplete="email"
                             required
                             class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-gray-500 focus:border-gray-500 focus:z-10 sm:text-sm"
-                            placeholder="Username"
+                            placeholder="Email"
                             @input="reset"
                         />
                     </div>
@@ -49,7 +49,7 @@
                         <span
                             v-if="error"
                             class="absolute w-full block px-1 py-1.5 rounded-md translate-y-6 text-sm font-medium text-white bg-red-500"
-                            v-text="'Username or Password is incorrect'"
+                            v-text="'Email or Password is incorrect'"
                         />
                     </Transition>
                 </div>
@@ -59,21 +59,23 @@
 </template>
 <script>
 import enums from '@/enums'
-import { inject } from 'vue'
-import { reactive, toRefs } from 'vue'
+import { reactive, toRefs, inject } from 'vue'
 export default {
     name: 'Login',
     setup() {
-        const auth = inject('auth')
-        const state = reactive({ username: '', password: '', error: false })
-        const { username, password, error } = toRefs(state)
-        const signIn = () => {
+        const db = inject('db')
+        const state = reactive({ email: '', password: '', error: false })
+        const { email, password, error } = toRefs(state)
+        const signIn = async () => {
             reset()
-            const authorized =
-                username.value === import.meta.env.STORY_AUTH_USERNAME &&
-                password.value === import.meta.env.STORY_AUTH_PASSWORD
-            if (authorized) auth.value = import.meta.env.STORY_AUTH_SECRET
-            else setTimeout(() => (error.value = true), 75)
+            const { error: failed } = await db.auth.signInWithPassword({
+                email: email.value,
+                password: password.value,
+            })
+            if (failed) {
+                setTimeout(() => (error.value = true), 75)
+                throw new Error(failed)
+            }
         }
         const reset = () => {
             if (error.value) error.value = false
@@ -82,7 +84,7 @@ export default {
             reset,
             error,
             signIn,
-            username,
+            email,
             password,
             name: enums.webTitle,
         }
