@@ -8,35 +8,21 @@ export default {
         const db = createClient(process.env.STORY_SUPABASE_URL, process.env.STORY_SUPABASE_TOKEN)
         if (process.env.NODE_ENV === 'development') {
             auth.value = getCookie('auth') === process.env.STORY_AUTH_SECRET
-            watch(
-                auth,
-                (val) => {
-                    if (val) {
-                        if (/login/.test(window.location.pathname)) {
-                            setCookie('auth', val)
-                            window.location.replace(path ?? '/')
-                            deleteCookie('path')
-                        }
-                    } else {
-                        setCookie('path', window.location.href)
-                    }
-                },
-                { immediate: true }
-            )
         } else {
-            db.auth.onAuthStateChange((event, session) => {
-                if (session) {
-                    auth.value = true
-                    if (/login/.test(window.location.pathname)) {
-                        window.location.replace(path ?? '/')
-                        deleteCookie('path')
-                    }
-                } else if (event === 'INITIAL_SESSION') {
-                    setCookie('path', window.location.href)
-                }
+            db.auth.onAuthStateChange((_, session) => {
+                if (session) auth.value = true
             })
         }
-
+        if (!auth.value) setCookie('path', window.location.href)
+        watch(auth, (val) => {
+            if (val) {
+                if (/login/.test(window.location.pathname)) {
+                    setCookie('auth', val)
+                    window.location.replace(path ?? '/')
+                    deleteCookie('path')
+                }
+            }
+        })
         app.provide('db', db)
         app.provide(
             'auth',
