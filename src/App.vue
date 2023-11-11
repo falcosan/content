@@ -4,7 +4,6 @@ import { useRouter } from 'vue-router'
 import Navbar from '@/components/Navbar'
 const router = useRouter()
 const auth = inject('auth')
-const loaded = ref(false)
 router.beforeEach((to, _, next) => {
     if (to.meta.requiresAuth && !auth.value) {
         next({ name: 'login' })
@@ -15,16 +14,9 @@ router.beforeEach((to, _, next) => {
     }
     next()
 })
-watch(
-    auth,
-    (val) => {
-        if (val) setTimeout(() => (loaded.value = true), 200)
-    },
-    { immediate: true }
-)
 </script>
 
 <template>
-    <Navbar v-if="auth && loaded" />
+    <Navbar v-if="auth" />
     <RouterView />
 </template>

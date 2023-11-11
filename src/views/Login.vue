@@ -69,21 +69,13 @@ export default {
         const { email, password, failed } = toRefs(state)
         const signIn = async () => {
             reset()
-            if (process.env.NODE_ENV === 'development') {
-                const authorized =
-                    email.value === process.env.STORY_AUTH_EMAIL &&
-                    password.value === process.env.STORY_AUTH_PASSWORD
-                if (authorized) auth.value = process.env.STORY_AUTH_SECRET
-                else setTimeout(() => (failed.value = true), 75)
-            } else {
-                const { error } = await db.auth.signInWithPassword({
-                    email: email.value,
-                    password: password.value,
-                })
-                if (error) {
-                    setTimeout(() => (error.value = true), 75)
-                    throw new Error(error)
-                }
+            const { error } = await db.auth.signInWithPassword({
+                email: email.value,
+                password: password.value,
+            })
+            if (error) {
+                setTimeout(() => (error.value = true), 75)
+                throw new Error(error)
             }
         }
         const reset = () => {
