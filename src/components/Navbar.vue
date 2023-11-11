@@ -56,12 +56,12 @@ router.beforeEach((to, from, next) => {
 
 <template>
     <div class="sticky flex justify-between z-20 top-0 pb-5 -m-2 pointer-events-none">
-        <div class="mx-2 shadow rounded-b transition-[padding] pointer-events-auto bg-white">
+        <div class="mx-2 shadow rounded-md transition-[padding] pointer-events-auto bg-white">
             <button
                 v-for="(language, indexLanguage) in enums.languages"
                 :key="indexLanguage"
                 :class="[
-                    'py-1.5 xx:py-2.5 px-3 xx:px-6 m-1 xx:m-2 rounded text-xs font-semibold uppercase',
+                    'py-1.5 xx:py-2.5 px-3 xx:px-6 m-1 xx:m-2 rounded-md text-xs font-semibold uppercase',
                     locale === language ? 'text-gray-200 bg-gray-500' : 'text-gray-500 bg-gray-200',
                 ]"
                 @click="changeLanguage(language)"
@@ -69,10 +69,10 @@ router.beforeEach((to, from, next) => {
             />
         </div>
         <div
-            class="self-baseline mx-2 shadow rounded-b transition-[padding] pointer-events-auto bg-white"
+            class="self-baseline mx-2 shadow rounded-md transition-[padding] pointer-events-auto bg-white"
         >
             <button
-                class="py-1 xx:py-2 px-3 xx:px-5 m-1 xx:m-2 rounded text-gray-500 active:text-gray-200 bg-gray-200 active:bg-gray-500"
+                class="py-1 xx:py-2 px-3 xx:px-5 m-1 xx:m-2 rounded-md text-gray-500 active:text-gray-200 bg-gray-200 active:bg-gray-500"
                 @click="checkDetail ? toggleModal(true) : signOut()"
             >
                 <Icon class="text-xl" icon="ic:round-door-back" />
@@ -86,13 +86,13 @@ router.beforeEach((to, from, next) => {
         <template #body>
             <div class="flex flex-wrap -m-2">
                 <button
-                    class="flex justify-center flex-auto py-2 px-5 m-2 rounded text-gray-200 active:bg-opacity-70 bg-red-500"
+                    class="flex justify-center flex-auto py-2 px-5 m-2 rounded-md text-gray-200 active:bg-opacity-70 bg-red-500"
                     @click="toggleModal(false)"
                 >
                     <Icon class="text-xl" icon="dashicons:no" />
                 </button>
                 <button
-                    class="flex justify-center flex-auto py-2 px-5 m-2 rounded text-gray-200 active:bg-opacity-70 bg-green-500"
+                    class="flex justify-center flex-auto py-2 px-5 m-2 rounded-md text-gray-200 active:bg-opacity-70 bg-green-500"
                     @click="goBack"
                 >
                     <Icon class="text-xl" icon="dashicons:yes" />
