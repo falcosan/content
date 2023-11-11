@@ -36,9 +36,10 @@
                 <div class="relative">
                     <button
                         type="submit"
-                        class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 text-white bg-black hover:bg-gray-900 focus:ring-gray-500"
+                        class="group relative w-full h-10 flex items-center justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 text-white bg-black hover:bg-gray-900 focus:ring-gray-500"
                     >
-                        Login
+                        <Loader v-if="loading" size="3" />
+                        <span v-else class="block" v-text="'Login'" />
                     </button>
                     <Transition
                         enter-from-class="opacity-0"
@@ -49,7 +50,7 @@
                         <span
                             v-if="failed"
                             class="absolute w-full block px-1 py-1.5 rounded-md translate-y-6 text-sm font-medium text-white bg-red-500"
-                            v-text="'Email or Password is incorrect'"
+                            v-text="failed"
                         />
                     </Transition>
                 </div>
@@ -59,33 +60,45 @@
 </template>
 <script>
 import enums from '@/enums'
+import Loader from '@/components/Loader'
 import { reactive, toRefs, inject } from 'vue'
 export default {
     name: 'Login',
+    components: { Loader },
     setup() {
         const db = inject('db')
         const auth = inject('auth')
-        const state = reactive({ email: '', password: '', failed: false })
-        const { email, password, failed } = toRefs(state)
+        const state = reactive({ email: '', password: '', loading: false, failed: '' })
+        const { email, password, loading, failed } = toRefs(state)
+        const errorHandler = (error) => {
+            console.table(error)
+            failed.value = error.message || error
+            if (error.status === 400) password.value = ''
+        }
         const signIn = async () => {
             reset()
-            const { error } = await db.auth.signInWithPassword({
-                email: email.value,
-                password: password.value,
-            })
-            if (error) {
-                setTimeout(() => (error.value = true), 75)
-                throw new Error(error)
-            }
+            loading.value = true
+            await db.auth
+                .signInWithPassword({
+                    email: email.value,
+                    password: password.value,
+                })
+                .then(({ data, error }) => {
+                    if (error) errorHandler(error)
+                    else if (data) auth.value = data
+                })
+                .catch(errorHandler)
+                .finally(() => (loading.value = false))
         }
         const reset = () => {
-            if (failed.value) failed.value = false
+            if (failed.value) failed.value = ''
         }
         return {
             reset,
+            email,
             failed,
             signIn,
-            email,
+            loading,
             password,
             name: enums.webTitle,
         }

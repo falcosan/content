@@ -4,14 +4,18 @@ defineProps({
         type: Boolean,
         default: false,
     },
+    size: {
+        type: String,
+        default: '5',
+    },
 })
 </script>
 <template>
     <div
         :class="[
+            'flex items-center justify-center',
             {
-                'fixed w-full h-full flex items-center justify-center inset-0 z-10 bg-[#262626]':
-                    full,
+                'fixed w-full h-full inset-0 z-10 bg-[#262626]': full,
             },
         ]"
     >
@@ -20,6 +24,7 @@ defineProps({
             xmlns="http://www.w3.org/2000/svg"
             width="667"
             height="182"
+            :style="`width: ${size}rem`"
             viewBox="0 0 677.34762 182.15429"
         >
             <g>
@@ -34,7 +39,7 @@ defineProps({
 </template>
 <style scoped>
 #loader-pencil {
-    @apply w-20 fill-gray-200;
+    @apply h-auto fill-gray-200;
 }
 #line {
     animation: linePencil 0.8s infinite linear;
