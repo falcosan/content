@@ -10,7 +10,7 @@ export default {
         name: webTitle,
         short_name: webTitle,
         description: webTitle,
-        theme_color: '#ffffff',
+        theme_color: '#262626',
         icons: [
             {
                 src: 'icons/icon-48x48.png',
