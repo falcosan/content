@@ -56,9 +56,7 @@ router.beforeEach((to, from, next) => {
 
 <template>
     <div class="sticky flex justify-between z-20 top-0 pb-5 -m-2 pointer-events-none">
-        <div
-            class="self-baseline mx-2 shadow rounded-md transition-[padding] pointer-events-auto bg-white"
-        >
+        <div class="mx-2 shadow rounded-md transition-[padding] pointer-events-auto bg-white">
             <button
                 v-for="(language, indexLanguage) in enums.languages"
                 :key="indexLanguage"
@@ -70,9 +68,7 @@ router.beforeEach((to, from, next) => {
                 v-text="language"
             />
         </div>
-        <div
-            class="self-baseline mx-2 shadow rounded-md transition-[padding] pointer-events-auto bg-white"
-        >
+        <div class="mx-2 shadow rounded-md transition-[padding] pointer-events-auto bg-white">
             <button
                 class="py-1 xx:py-2 px-3 xx:px-5 m-1 xx:m-2 rounded-md text-gray-500 active:text-gray-200 bg-gray-200 active:bg-gray-500"
                 @click="checkDetail ? toggleModal(true) : signOut()"
