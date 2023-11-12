@@ -3,12 +3,12 @@ import { ref, inject, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import Navbar from '@/components/Navbar'
 const router = useRouter()
-const auth = inject('auth')
+const logged = inject('logged')
 router.beforeEach((to, _, next) => {
-    if (to.meta.requiresAuth && !auth.value) {
+    if (to.meta.requiresAuth && !logged.value) {
         next({ name: 'login' })
         return
-    } else if (to.name === 'login' && auth.value) {
+    } else if (to.name === 'login' && logged.value) {
         next({ name: 'home' })
         return
     }
@@ -17,6 +17,6 @@ router.beforeEach((to, _, next) => {
 </script>
 
 <template>
-    <Navbar v-if="auth" />
+    <Navbar v-if="logged" />
     <RouterView />
 </template>

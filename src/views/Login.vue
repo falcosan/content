@@ -83,9 +83,8 @@ export default {
                     email: email.value,
                     password: password.value,
                 })
-                .then(({ data, error }) => {
+                .then(({ error }) => {
                     if (error) errorHandler(error)
-                    else if (data) auth.value = data
                 })
                 .catch(errorHandler)
                 .finally(() => (loading.value = false))

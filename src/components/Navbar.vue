@@ -56,7 +56,9 @@ router.beforeEach((to, from, next) => {
 
 <template>
     <div class="sticky flex justify-between z-20 top-0 pb-5 -m-2 pointer-events-none">
-        <div class="mx-2 shadow rounded-md transition-[padding] pointer-events-auto bg-white">
+        <div
+            class="self-baseline mx-2 shadow rounded-md transition-[padding] pointer-events-auto bg-white"
+        >
             <button
                 v-for="(language, indexLanguage) in enums.languages"
                 :key="indexLanguage"
