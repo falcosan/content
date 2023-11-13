@@ -13,6 +13,7 @@ const props = defineProps({
         default: () => ({}),
     },
 })
+const emit = defineEmits(['edited'])
 const locale = inject('locale')
 const state = reactive({
     post: {},
@@ -167,6 +168,7 @@ const editPost = async () => {
                 modal.value.message = 'Saved'
                 modal.value.state = true
                 modal.value.type = 'edited'
+                emit('edited', post.value)
             })
             .catch(() => {
                 modal.value.message = 'Error'

@@ -11,7 +11,9 @@ const router = useRouter()
 const auth = inject('auth')
 const locale = inject('locale')
 const state = reactive({
-    data: [],
+    data: {
+        blog: [],
+    },
     loading: false,
     detail: {
         item: {},
@@ -39,13 +41,19 @@ const setDetail = (item) => {
     })
 }
 const getStories = async (language) => {
-    if (!data.value.length && !!!view.value) loading.value = true
-    const { stories } = await getStoryblokStories(language, 'blog')
+    if (!!!view.value) loading.value = true
+    const { stories: posts } = await getStoryblokStories(language, 'blog')
+    data.value.blog = posts
+        .filter((story) => !story.is_startpage)
+        .sort((a, b) => {
+            const firstDate = new Date(a.content.date)
+            const secondDate = new Date(b.content.date)
+            return secondDate - firstDate
+        })
     if (loading.value) loading.value = false
-    data.value = stories.filter((story) => !story.is_startpage)
 }
 const getStory = async () => {
-    const index = data.value.findIndex((item) => String(item.id) === String(route.query.id))
+    const index = data.value.blog.findIndex((item) => String(item.id) === String(route.query.id))
     try {
         const { story } = await getStoryblokStory(route.query.id)
         setDetail(story)
@@ -88,7 +96,7 @@ watch(
                 class="grid grid-cols-12 sm:grid-cols-[repeat(auto-fit,_minmax(2rem,_1fr))] md:grid-cols-[repeat(auto-fit,_minmax(4rem,_1fr))] xl:grid-cols-12 auto-rows-fr gap-5"
             >
                 <Teaser
-                    v-for="post in data"
+                    v-for="post in data.blog"
                     :key="post.uuid"
                     class="col-span-12 sm:col-span-5 md:col-span-4 lg:col-span-3"
                     :data="post"
