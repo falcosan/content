@@ -15,10 +15,7 @@ export const CustomImage = Node.create({
         return {
             caption: {
                 default: '',
-                parseHTML: (element) => {
-                    const figcaption = element.querySelector('figcaption')
-                    return figcaption?.textContent
-                },
+                parseHTML: (element) => element.querySelector('figcaption')?.textContent,
             },
             src: {
                 default: '',
@@ -38,12 +35,13 @@ export const CustomImage = Node.create({
         return [{ tag: 'figure', preserveWhitespace: 'full' }]
     },
     renderHTML({ HTMLAttributes, node }) {
-        return [
+        const nodes = [
             'figure',
             this.options.HTMLAttributes,
             ['img', mergeAttributes(HTMLAttributes, { caption: undefined })],
-            ['figcaption', node.attrs.caption],
         ]
+        if (!!node.attrs.caption) nodes.push(['figcaption', node.attrs.caption])
+        return nodes
     },
     addCommands() {
         return {
