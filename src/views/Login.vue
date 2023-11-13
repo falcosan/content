@@ -42,8 +42,8 @@
                         <span v-else class="block" v-text="'Login'" />
                     </button>
                     <Transition
-                        enter-from-class="opacity-0"
                         leave-to-class="opacity-0"
+                        enter-from-class="opacity-0"
                         enter-active-class="transition duration-75"
                         leave-active-class="transition duration-75"
                     >

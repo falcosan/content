@@ -29,15 +29,27 @@
                     </div>
                     <div class="m-2.5 rounded border border-gray-200 bg-white">
                         <button
-                            v-for="action in setterActions.history"
+                            v-for="(action, actionIndex) in setterActions.history"
                             :key="action.type"
                             :title="action.title"
                             :class="[
-                                'w-12 m-1 border rounded shadow border-gray-300 text-gray-500 bg-gray-200 active:text-gray-200 active:bg-gray-500',
+                                'relative w-12 m-1 rounded shadow border border-gray-300 text-gray-500 bg-gray-200 active:text-gray-200 active:bg-gray-500',
                             ]"
-                            style="font-variant: all-petite-caps"
                             @click="setText(action)"
                         >
+                            <Transition
+                                leave-to-class="opacity-0"
+                                enter-from-class="opacity-0"
+                                enter-active-class="transition duration-75"
+                                leave-active-class="transition duration-75"
+                            >
+                                <div
+                                    v-if="feedback[actionIndex]"
+                                    class="absolute left-1/2 -bottom-2.5 px-1.5 py-1 translate-y-full -translate-x-1/2 text-xs rounded text-gray-200 bg-gray-500"
+                                >
+                                    <span class="block" v-text="feedback[actionIndex]" />
+                                </div>
+                            </Transition>
                             <Icon v-if="action.icon" class="mx-auto text-2xl" :icon="action.icon" />
                             <span v-else v-text="action.value" />
                         </button>
@@ -186,8 +198,9 @@ export default {
                 blockquote: false,
                 heading: arrayCreate(false),
             },
+            feedback: [],
         })
-        const { modal, node, current } = toRefs(state)
+        const { modal, node, current, feedback } = toRefs(state)
         const checkMax = computed(() => props.max && !isNaN(+props.max))
         const dynamicExtensions = computed(() => [
             CharacterCount.configure({ ...(checkMax.value && { limit: props.max }) }),
@@ -410,6 +423,7 @@ export default {
             },
             onTransaction({ editor }) {
                 checkFormats(editor)
+                if (feedback.value.some((feed) => feed)) setFeedbacks()
             },
             onSelectionUpdate({ editor }) {
                 checkFormats(editor)
@@ -427,6 +441,9 @@ export default {
             node.value = { type: '', scheme: [], argument: {} }
         }
         const toggleMarkdown = () => {
+            const markdownIndex = setterActions.value.history.findIndex(
+                (action) => action.value === 'markdown'
+            )
             const td = new TurndownService({
                 hr: '---',
                 headingStyle: 'atx',
@@ -437,6 +454,10 @@ export default {
                 replacement: (content) => `<mark>${content}</mark>`,
             })
             navigator.clipboard.writeText(td.turndown(props.text))
+            if (markdownIndex) {
+                feedback.value[markdownIndex] = 'Copied'
+                setTimeout(() => (feedback.value[markdownIndex] = ''), 2500)
+            }
         }
         const toggleModal = (state) => (modal.value = state)
         const toggleNodeAction = (state) => {
@@ -520,6 +541,9 @@ export default {
                     }))
             )
         }
+        const setFeedbacks = () => {
+            feedback.value = arrayCreate('', setterActions.value.history.length)
+        }
         watch(
             () => props.text,
             (val) => {
@@ -532,6 +556,7 @@ export default {
             if (!val) resetNode()
             editor.value.setOptions({ editable: !val })
         })
+        setFeedbacks()
         return {
             node,
             modal,
@@ -539,6 +564,7 @@ export default {
             current,
             actions,
             setText,
+            feedback,
             renderLength,
             setterActions,
             checkArguments,
