@@ -7,8 +7,8 @@
                 :editor="editor"
             />
             <div v-if="tools" class="lg:sticky lg:bottom-0 pb-5">
-                <div class="flex flex-wrap justify-end lg:justify-between -m-4">
-                    <div class="m-4 rounded border border-gray-200 bg-white">
+                <div class="flex flex-wrap justify-end lg:justify-between -m-2.5">
+                    <div class="m-2.5 rounded border border-gray-200 bg-white">
                         <button
                             v-for="action in setterActions.format"
                             :key="action.type"
@@ -27,7 +27,7 @@
                             <span v-else v-text="action.value" />
                         </button>
                     </div>
-                    <div class="m-4 rounded border border-gray-200 bg-white">
+                    <div class="m-2.5 rounded border border-gray-200 bg-white">
                         <button
                             v-for="(action, actionIndex) in setterActions.history"
                             :key="action.type"
@@ -45,7 +45,7 @@
                             >
                                 <div
                                     v-if="feedback[actionIndex]"
-                                    class="absolute left-1/2 -bottom-2.5 lg:bottom-auto lg:-top-2.5 px-1.5 py-1 translate-y-full lg:-translate-y-full -translate-x-1/2 text-xs rounded text-gray-200 bg-gray-500"
+                                    class="absolute left-1/2 -bottom-2.5 ss:bottom-auto ss:-top-2.5 px-1.5 py-1 translate-y-full ss:-translate-y-full -translate-x-1/2 text-xs rounded text-gray-200 bg-gray-500"
                                 >
                                     <span class="block" v-text="feedback[actionIndex]" />
                                 </div>
