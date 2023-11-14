@@ -67,7 +67,6 @@ export default {
     components: { Loader },
     setup() {
         const db = inject('db')
-        const auth = inject('auth')
         const state = reactive({ email: '', password: '', loading: false, failed: '' })
         const { email, password, loading, failed } = toRefs(state)
         const errorHandler = (error) => {

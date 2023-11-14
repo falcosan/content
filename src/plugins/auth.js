@@ -1,13 +1,14 @@
-import { reactive, toRefs, watch, computed } from 'vue'
 import { createClient } from '@supabase/supabase-js'
+import { reactive, toRefs, watch, computed } from 'vue'
 import { setCookie, getCookie, deleteCookie } from '@/utils/cookies'
 export default {
     install: (app) => {
         const state = reactive({
             auth: null,
             logged: false,
+            loading: true,
         })
-        const { auth, logged } = toRefs(state)
+        const { auth, logged, loading } = toRefs(state)
         const db = createClient(process.env.STORY_SUPABASE_URL, process.env.STORY_SUPABASE_TOKEN)
         db.auth.onAuthStateChange((_, session) => {
             if (session) {
@@ -15,6 +16,7 @@ export default {
                 logged.value = true
             }
         })
+        loading.value = false
         if (!logged.value) setCookie('path', window.location.href)
         watch(logged, async (val) => {
             if (val) {
@@ -39,6 +41,13 @@ export default {
         })
         app.provide('db', db)
         app.provide('logged', logged)
+        app.provide(
+            'loading',
+            computed({
+                get: () => loading.value ?? {},
+                set: (val) => (loading.value = val),
+            })
+        )
         app.provide(
             'auth',
             computed({

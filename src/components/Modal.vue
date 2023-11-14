@@ -1,5 +1,5 @@
 <template>
-    <div v-if="show" :class="['modal', { opened: open }]">
+    <div v-if="show" ref="modalContainer" :class="['modal', { opened: open }]">
         <div
             v-show="open"
             ref="modal"
@@ -31,6 +31,7 @@ export default {
     emits: ['update:open'],
     setup(props, { emit }) {
         const modal = ref(null)
+        const modalContainer = ref(null)
         const state = reactive({
             show: false,
         })
@@ -44,7 +45,7 @@ export default {
                 })
             } else {
                 modal.value.parentNode.removeChild(modal.value)
-                document.querySelector('.modal.opened').appendChild(modal.value)
+                modalContainer.value.appendChild(modal.value)
                 show.value = false
             }
         }
@@ -62,6 +63,7 @@ export default {
             modal,
             hasSlot,
             closeModal,
+            modalContainer,
         }
     },
 }

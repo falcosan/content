@@ -10,17 +10,17 @@ const route = useRoute()
 const router = useRouter()
 const auth = inject('auth')
 const locale = inject('locale')
+const loading = inject('loading')
 const state = reactive({
     data: {
         blog: [],
     },
-    loading: false,
     detail: {
         item: {},
         state: false,
     },
 })
-const { data, loading, detail } = toRefs(state)
+const { data, detail } = toRefs(state)
 const view = computed(() => {
     switch (route.query.type) {
         case 'post':
@@ -79,11 +79,10 @@ watch(
 </script>
 
 <template>
-    <Loader v-if="loading" full />
-    <div v-else class="py-5">
+    <div class="py-5">
         <template v-if="!!view">
             <component :is="view" v-if="detail.state" :data="detail.item" />
-            <Loader v-else full />
+            <Loader v-else position="full" />
         </template>
         <template v-else>
             <h1

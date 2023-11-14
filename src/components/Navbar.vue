@@ -10,6 +10,7 @@ const route = useRoute()
 const router = useRouter()
 const auth = inject('auth')
 const locale = inject('locale')
+const loading = inject('loading')
 const state = reactive({
     modal: false,
     leave: false,
@@ -18,6 +19,7 @@ const { modal, leave } = toRefs(state)
 const checkDetail = computed(() => !!route.query.type)
 const toggleModal = (state) => (modal.value = state)
 const signOut = async () => {
+    loading.value = true
     await db.auth.signOut()
     auth.value = null
 }

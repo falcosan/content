@@ -1,8 +1,9 @@
 <script setup>
 defineProps({
-    full: {
-        type: Boolean,
-        default: false,
+    position: {
+        type: String,
+        default: '',
+        validator: (val) => /cover|full|/.test(val),
     },
     size: {
         type: String,
@@ -15,7 +16,9 @@ defineProps({
         :class="[
             'flex items-center justify-center',
             {
-                'fixed w-full h-full inset-0 z-10 bg-[#262626]': full,
+                [`fixed w-full h-full inset-0 ${
+                    position === 'cover' ? 'z-20' : 'z-10'
+                } bg-[#262626]`]: /cover|full/.test(position),
             },
         ]"
     >
