@@ -199,28 +199,30 @@
     .markdown ul dl,
     .markdown ul ol,
     .markdown ul ul {
-        padding: 1rem 0 0 1rem;
-    }
-    .markdown dl dd {
-        padding-left: 1rem;
+        padding: 18px 0 0 18px;
     }
     .markdown ol {
-        list-style: decimal inside;
-    }
-    .markdown ol ol {
-        list-style: upper-alpha inside;
-    }
-    .markdown ol ol ol {
-        list-style: lower-alpha inside;
+        list-style: decimal;
+        padding-left: 18px;
     }
     .markdown ul {
-        list-style: disc inside;
+        list-style: disc;
+        padding-left: 18px;
+    }
+    .markdown ol ol {
+        list-style: upper-alpha;
+    }
+    .markdown ol ol ol {
+        list-style: lower-alpha;
     }
     .markdown ul ul {
-        list-style: circle inside;
+        list-style: circle;
     }
     .markdown ul ul ul {
-        list-style: square inside;
+        list-style: square;
+    }
+    .markdown dl dd {
+        padding-left: 18px;
     }
     .markdown * li > p:first-child {
         display: inline;
