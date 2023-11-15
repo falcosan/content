@@ -28,9 +28,10 @@ const state = reactive({
         edit: false,
         toggle: false,
     },
+    keys: { ctrl: false },
     modal: { state: false, message: '', type: '', timeout: 0 },
 })
-const { post, modal, loading, properties } = toRefs(state)
+const { post, keys, modal, loading, properties } = toRefs(state)
 const modalType = {
     edited: { background: 'bg-blue-500', text: 'text-white' },
     error: { background: 'bg-red-500', text: 'text-white' },
@@ -209,9 +210,14 @@ const togglePost = async () => {
     }
 }
 const handleSave = async (event) => {
-    if (event.metaKey && event.code === 'KeyS') {
+    if (event.keyCode == 17) {
+        event.preventDefault()
+        keys.value.ctrl = true
+    }
+    if (event.keyCode == 83 && keys.value.ctrl) {
         event.preventDefault()
         await editPost()
+        keys.value.ctrl = false
     }
 }
 onMounted(() => window.addEventListener('keydown', handleSave))
