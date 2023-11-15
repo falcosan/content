@@ -210,14 +210,19 @@ const togglePost = async () => {
     }
 }
 const handleSave = async (event) => {
-    if (event.keyCode == 17) {
-        event.preventDefault()
-        keys.value.ctrl = true
-    }
-    if (event.keyCode == 83 && keys.value.ctrl) {
+    if (event.metaKey && event.code === 'KeyS') {
         event.preventDefault()
         await editPost()
-        keys.value.ctrl = false
+    } else {
+        if (event.keyCode == 17) {
+            event.preventDefault()
+            keys.value.ctrl = true
+        }
+        if (event.keyCode == 83 && keys.value.ctrl) {
+            event.preventDefault()
+            await editPost()
+            keys.value.ctrl = false
+        }
     }
 }
 onMounted(() => window.addEventListener('keydown', handleSave))
