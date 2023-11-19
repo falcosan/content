@@ -33,8 +33,8 @@ const state = reactive({
 })
 const { post, keys, modal, loading, properties } = toRefs(state)
 const modalType = {
-    edited: { background: 'bg-blue-500', text: 'text-white' },
     error: { background: 'bg-red-500', text: 'text-white' },
+    edited: { background: 'bg-blue-500', text: 'text-white' },
     published: { background: 'bg-green-500', text: 'text-white' },
 }
 const html = /^<([a-z]+)([^>]+)*(?:>(?:\s*|\n*)<\/\1>|[^/]*\/>)$/
