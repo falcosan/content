@@ -155,8 +155,8 @@ const goToPost = () => {
     let domain
     const slug = post.value.slug
     const language = locale.value === 'en' ? '' : `${locale.value}/`
-    if (post.value.published) domain = process.env.STORY_DOMAIN_PRO
-    else domain = process.env.STORY_DOMAIN_DEV
+    if (post.value.published) domain = import.meta.env.STORY_DOMAIN_PRO
+    else domain = import.meta.env.STORY_DOMAIN_DEV
     window.open(`${domain}${language}blog/${slug}`, '_blank', 'noopener,noreferrer')
 }
 const editPost = async () => {

@@ -9,7 +9,10 @@ export default {
             loading: true,
         })
         const { auth, logged, loading } = toRefs(state)
-        const db = createClient(process.env.STORY_SUPABASE_URL, process.env.STORY_SUPABASE_TOKEN)
+        const db = createClient(
+            import.meta.env.STORY_SUPABASE_URL,
+            import.meta.env.STORY_SUPABASE_TOKEN
+        )
         db.auth.onAuthStateChange((_, session) => {
             if (session) {
                 auth.value = auth.value ? { ...auth.value, ...session.user } : session.user

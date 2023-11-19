@@ -13,9 +13,9 @@ export function formatURL(url) {
         url: /^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/|ftp:\/\/|ftps:\/\/|blob:|localhost)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/,
     }
     const hosts = [
-        process.env.STORY_DOMAIN_PRO,
-        process.env.STORY_DOMAIN_DEV,
-        process.env.STORY_DOMAIN_EDITOR,
+        import.meta.env.STORY_DOMAIN_PRO,
+        import.meta.env.STORY_DOMAIN_DEV,
+        import.meta.env.STORY_DOMAIN_EDITOR,
     ]
         .map((domain) => `parent=${domain.replace(/^(?:https?:\/\/)?([^\/]+)\/?$/, '$1')}`)
         .join('&')

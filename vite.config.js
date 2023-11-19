@@ -6,7 +6,7 @@ import { VitePWA } from 'vite-plugin-pwa'
 import { defineConfig, loadEnv } from 'vite'
 import { htmlPlugin } from './src/plugins/html.js'
 
-export default defineConfig(({ mode }) => {
+export default defineConfig(() => {
     return {
         plugins: [
             vue(),
@@ -16,9 +16,6 @@ export default defineConfig(({ mode }) => {
                 registerType: 'autoUpdate',
             }),
         ],
-        define: {
-            'process.env': loadEnv(mode, process.cwd(), ''),
-        },
         envPrefix: 'STORY_',
         resolve: {
             extensions: ['.js', '.vue', '.json'],
