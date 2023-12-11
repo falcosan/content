@@ -18,14 +18,14 @@ export async function getStoryblokStories(language, startsWith, query = 'cdn/sto
             ...(startsWith && { starts_with: startsWith }),
         })
         .then(({ data }) => data)
-        .catch((error) => console.error(error))
+        .catch((error) => console.error(error.message || error))
 }
 
 export async function getStoryblokStory(id) {
     return await Storyblok.management
         .get(`spaces/${import.meta.env.STORY_ID_SPACE}/stories/${id}`, {})
         .then(({ data }) => data)
-        .catch((error) => console.error(error))
+        .catch((error) => console.error(error.message || error))
 }
 
 export async function editStoryblokStory(story, lang) {
@@ -36,7 +36,7 @@ export async function editStoryblokStory(story, lang) {
             ...(story.published && { publish: '1' }),
         })
         .then(({ data }) => data)
-        .catch((error) => console.error(error))
+        .catch((error) => console.error(error.message || error))
 }
 
 export async function getStoryblokComponents(name, properties) {
@@ -111,5 +111,5 @@ export async function toggleStoryblokStory(id, state) {
     return await Storyblok.management
         .get(`spaces/${import.meta.env.STORY_ID_SPACE}/stories/${id}/${state}`, {})
         .then(({ data }) => data)
-        .catch((error) => console.error(error))
+        .catch((error) => console.error(error.message || error))
 }
