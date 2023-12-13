@@ -1,5 +1,6 @@
 <script setup>
 import Post from '@/components/Post'
+import Note from '@/components/Note'
 import Loader from '@/components/Loader'
 import Teaser from '@/components/Teaser'
 import { useRoute, useRouter } from 'vue-router'
@@ -13,6 +14,7 @@ const locale = inject('locale')
 const loading = inject('loading')
 const state = reactive({
     data: {
+        note: [],
         blog: [],
     },
     detail: {
@@ -25,6 +27,8 @@ const view = computed(() => {
     switch (route.query.type) {
         case 'post':
             return Post
+        case 'note':
+            return Note
         default:
             return null
     }
@@ -40,9 +44,13 @@ const setDetail = (item) => {
         },
     })
 }
-const getStories = async (language) => {
+const getNote = async () => {
+    const { stories: notes } = await getStoryblokStories(locale.value, 'note')
+    data.value.note = notes.filter((story) => !story.is_startpage)
+}
+const getBlog = async () => {
     if (!!!view.value) loading.value = true
-    const { stories: posts } = await getStoryblokStories(language, 'blog')
+    const { stories: posts } = await getStoryblokStories(locale.value, 'blog')
     data.value.blog = posts
         .filter((story) => !story.is_startpage)
         .sort((a, b) => {
@@ -52,8 +60,8 @@ const getStories = async (language) => {
         })
     if (loading.value) loading.value = false
 }
+const getStories = async () => await Promise.all([getNote(), getBlog()])
 const getStory = async () => {
-    const index = data.value.blog.findIndex((item) => String(item.id) === String(route.query.id))
     try {
         const { story } = await getStoryblokStory(route.query.id)
         setDetail(story)
@@ -61,17 +69,17 @@ const getStory = async () => {
         router.replace({ query: { type: 'error' } })
     }
 }
-watch(locale, async (val) => await getStories(val))
+watch(locale, getStories)
 watch(
     () => route.query,
     async (val) => {
         if (val.id) {
-            await getStory(locale.value)
+            await getStory()
             if (!detail.value.state) detail.value.state = true
         } else {
             if (val.type) router.replace({ query: undefined })
             if (detail.value.state) detail.value.state = false
-            await getStories(locale.value)
+            await getStories()
         }
     },
     { immediate: true }
@@ -84,24 +92,40 @@ watch(
             <component :is="view" v-if="detail.state" :data="detail.item" />
             <Loader v-else position="full" />
         </template>
-        <template v-else>
+        <div v-else class="space-y-10">
             <h1
                 v-if="auth.first_name"
                 class="font-semibold text-gray-300"
                 v-text="`Hello, ${auth.first_name} ${auth.last_name ?? ''}`"
             />
-            <h2 class="font-semibold text-gray-300" v-text="'Blog'" />
-            <div
-                class="grid grid-cols-12 sm:grid-cols-[repeat(auto-fit,_minmax(2rem,_1fr))] md:grid-cols-[repeat(auto-fit,_minmax(4rem,_1fr))] xl:grid-cols-12 auto-rows-fr gap-5"
-            >
-                <Teaser
-                    v-for="post in data.blog"
-                    :key="post.uuid"
-                    class="col-span-12 sm:col-span-5 md:col-span-4 lg:col-span-3"
-                    :data="post"
-                    @click="setDetail(post)"
-                />
+            <div class="relative">
+                <h2 class="font-semibold text-gray-300" v-text="'Note'" />
+                <div
+                    class="grid grid-cols-12 sm:grid-cols-[repeat(auto-fit,_minmax(2rem,_1fr))] md:grid-cols-[repeat(auto-fit,_minmax(4rem,_1fr))] xl:grid-cols-12 auto-rows-fr gap-5"
+                >
+                    <Teaser
+                        v-for="note in data.note"
+                        :key="note.uuid"
+                        class="col-span-12 sm:col-span-5 md:col-span-4 lg:col-span-3"
+                        :data="note"
+                        @click="setDetail(note)"
+                    />
+                </div>
             </div>
-        </template>
+            <div class="relative">
+                <h2 class="font-semibold text-gray-300" v-text="'Blog'" />
+                <div
+                    class="grid grid-cols-12 sm:grid-cols-[repeat(auto-fit,_minmax(2rem,_1fr))] md:grid-cols-[repeat(auto-fit,_minmax(4rem,_1fr))] xl:grid-cols-12 auto-rows-fr gap-5"
+                >
+                    <Teaser
+                        v-for="post in data.blog"
+                        :key="post.uuid"
+                        class="col-span-12 sm:col-span-5 md:col-span-4 lg:col-span-3"
+                        :data="post"
+                        @click="setDetail(post)"
+                    />
+                </div>
+            </div>
+        </div>
     </div>
 </template>
