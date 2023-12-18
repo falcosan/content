@@ -17,12 +17,11 @@ const props = defineProps({
 const emit = defineEmits(['edited'])
 const locale = inject('locale')
 const state = reactive({
-    post: {},
+    project: {},
     properties: {
         datetime: [],
         markdown: [],
         required: [],
-        maxLength: [],
         translatable: [],
     },
     loading: {
@@ -32,11 +31,10 @@ const state = reactive({
     keys: { ctrl: false },
     modal: { state: false, message: '', type: '', timeout: 0 },
 })
-const { post, keys, modal, loading, properties } = toRefs(state)
+const { project, keys, modal, loading, properties } = toRefs(state)
 const modalType = {
     error: { background: 'bg-red-500', text: 'text-white' },
     edited: { background: 'bg-blue-500', text: 'text-white' },
-    published: { background: 'bg-green-500', text: 'text-white' },
 }
 const html = /^<([a-z]+)([^>]+)*(?:>(?:\s*|\n*)<\/\1>|[^/]*\/>)$/
 const translatable = computed(() =>
@@ -64,7 +62,6 @@ const editors = computed(() => [
             properties.value.required.includes('title') ? '*' : ''
         }`,
         value: translatable.value.title,
-        max: checkProperties('maxLength', 'title'),
         markdown: checkProperties('markdown', 'title'),
     },
     {
@@ -72,16 +69,7 @@ const editors = computed(() => [
             properties.value.required.includes('intro') ? '*' : ''
         }`,
         value: translatable.value.intro,
-        max: checkProperties('maxLength', 'intro'),
         markdown: checkProperties('markdown', 'intro'),
-    },
-    {
-        title: `${formatString(properties.value.translatable.find((val) => val === 'long_text'))}${
-            properties.value.required.includes('long_text') ? '*' : ''
-        }`,
-        value: translatable.value.long_text,
-        max: checkProperties('maxLength', 'long_text'),
-        markdown: checkProperties('markdown', 'long_text'),
     },
 ])
 const resetModal = () => {
@@ -92,7 +80,7 @@ const resetModal = () => {
         modal.value.type = ''
     }, 5000)
 }
-const mapPost = (values) => {
+const mapProject = (values) => {
     const translatables = properties.value.translatable.reduce((acc, value) => {
         const regex = new RegExp(`${enums.translatableSuffix}.*`)
         const key = value.replace(regex, '')
@@ -108,13 +96,12 @@ const mapPost = (values) => {
         }, {})
     }, {})
     const content = Object.entries(values.content).reduce((acc, [k, v]) => {
-        if (k === 'date') acc[k] = new Date(v).toISOString().slice(0, 10)
-        else acc[k] = v
+        acc[k] = v
         return acc
     }, {})
     return { ...values, content: { ...content, ...translatables } }
 }
-const cleanPost = (values) => {
+const cleanProject = (values) => {
     const keys = properties.value.translatable.reduce((acc, curr) => {
         const transformed = enums.languages
             .filter((lang) => lang !== 'en')
@@ -144,9 +131,9 @@ const checkProperties = (prop, value) => {
         return property.includes(value)
     }
 }
-const checkPost = () => {
+const checkProject = () => {
     const check = properties.value.required.every((prop) => {
-        return post.value.content[prop] && !html.test(post.value.content[prop])
+        return project.value.content[prop] && !html.test(project.value.content[prop])
     })
     if (!check) {
         const message = 'Complete required fields'
@@ -158,25 +145,17 @@ const checkPost = () => {
         throw new Error(message)
     }
 }
-const goToPost = () => {
-    let domain
-    const slug = post.value.slug
-    const language = locale.value === 'en' ? '' : `${locale.value}/`
-    if (post.value.published) domain = import.meta.env.STORY_DOMAIN_PRO
-    else domain = import.meta.env.STORY_DOMAIN_DEV
-    window.open(`${domain}${language}blog/${slug}`, '_blank', 'noopener,noreferrer')
-}
-const editPost = async () => {
+const editProject = async () => {
     loading.value.edit = true
     try {
-        checkPost()
-        await editStoryblokStory(cleanPost(post.value), locale.value)
+        checkProject()
+        await editStoryblokStory(cleanProject(project.value), locale.value)
             .then((res) => {
-                post.value = mapPost(res.story)
+                project.value = mapProject(res.story)
                 modal.value.message = 'Saved'
                 modal.value.state = true
                 modal.value.type = 'edited'
-                emit('edited', post.value)
+                emit('edited', project.value)
             })
             .catch(() => {
                 modal.value.message = 'Error'
@@ -191,35 +170,10 @@ const editPost = async () => {
         loading.value.edit = false
     }
 }
-const togglePost = async () => {
-    loading.value.toggle = true
-    const state = post.value.published ? 'unpublish' : 'publish'
-    try {
-        checkPost()
-        await toggleStoryblokStory(post.value.id, state)
-            .then((res) => {
-                post.value = mapPost(res.story)
-                modal.value.message = post.value.published ? 'Published' : 'Unpublished'
-                modal.value.state = true
-                modal.value.type = post.value.published ? 'published' : 'error'
-            })
-            .catch(() => {
-                modal.value.message = 'Error'
-                modal.value.state = true
-                modal.value.type = 'error'
-            })
-            .finally(() => {
-                resetModal()
-                loading.value.toggle = false
-            })
-    } catch {
-        loading.value.toggle = false
-    }
-}
 const handleSave = async (event) => {
     if (event.metaKey && event.code === 'KeyS') {
         event.preventDefault()
-        await editPost()
+        await editProject()
     } else {
         if (event.keyCode == 17) {
             event.preventDefault()
@@ -227,7 +181,7 @@ const handleSave = async (event) => {
         }
         if (event.keyCode == 83 && keys.value.ctrl) {
             event.preventDefault()
-            await editPost()
+            await editProject()
             keys.value.ctrl = false
         }
     }
@@ -240,27 +194,19 @@ watch(
         if (val.content) {
             const data = await getStoryblokComponents(val.content.component, [
                 'required',
-                'max_length',
                 'translatable',
                 { type: ['markdown', 'datetime'] },
-                { max_length: [String, Number] },
             ])
             const getKeys = (list, type) => {
                 const mapper = (arr) => arr.map((val) => val[0])
                 if (type) return mapper(list.filter((value) => value.includes(type)))
                 else return mapper(list)
             }
-            const getObj = (list, type) => {
-                const mapper = (arr) => arr.map((val) => ({ [val[0]]: val[1] }))
-                if (type) return mapper(list.filter((value) => value.includes(type)))
-                else return mapper(list)
-            }
             properties.value.required = getKeys(data.required)
-            properties.value.maxLength = getObj(data.max_length)
             properties.value.markdown = getKeys(data.type, 'markdown')
             properties.value.datetime = getKeys(data.type, 'datetime')
             properties.value.translatable = getKeys(data.translatable)
-            post.value = mapPost(val)
+            project.value = mapProject(val)
         }
     },
     { immediate: true }
@@ -268,7 +214,7 @@ watch(
 </script>
 
 <template>
-    <div v-if="post.content">
+    <div v-if="project.content">
         <div class="grid grid-cols-12 gap-x-5">
             <div
                 v-for="(input, indexInput) in inputs"
@@ -281,43 +227,26 @@ watch(
                     v-text="input.title"
                 />
                 <input
-                    :value="dateWithoutHour(post.content[input.value])"
+                    :value="dateWithoutHour(project.content[input.value])"
                     :type="input.type"
-                    @input="({ target }) => (post.content[input.value] = target.value)"
+                    @input="({ target }) => (project.content[input.value] = target.value)"
                 />
             </div>
         </div>
         <Editor
             v-for="(editor, indexEditor) in editors"
             :key="`${indexEditor}_${locale}`"
-            v-model:text="post.content[editor.value]"
+            v-model:text="project.content[editor.value]"
             :title="editor.title"
             :tools="editor.markdown"
-            :max="editor.max"
         />
         <div class="flex flex-wrap justify-center xs:justify-end mt-10 -m-2.5">
             <button
-                class="w-full sm:w-32 flex justify-center m-2.5 p-2.5 px-6 rounded font-semibold active:bg-opacity-70 text-white bg-slate-700"
-                @click="goToPost"
-            >
-                <span v-text="'Post'" />
-            </button>
-            <button
                 class="w-full sm:w-32 flex justify-center m-2.5 p-2.5 px-6 rounded font-semibold active:bg-opacity-70 text-white bg-blue-500"
-                @click="editPost"
+                @click="editProject"
             >
                 <Icon v-if="loading.edit" class="text-2xl" icon="eos-icons:three-dots-loading" />
                 <span v-else v-text="'Save'" />
-            </button>
-            <button
-                :class="[
-                    'w-full sm:w-32 flex justify-center m-2.5 p-2.5 px-6 rounded font-semibold active:bg-opacity-70 text-white',
-                    post.published ? 'bg-red-500' : 'bg-green-500',
-                ]"
-                @click="togglePost"
-            >
-                <Icon v-if="loading.toggle" class="text-2xl" icon="eos-icons:three-dots-loading" />
-                <span v-else v-text="post.published ? 'Unpublish' : 'Publish'" />
             </button>
         </div>
         <Modal v-model:open="modal.state">

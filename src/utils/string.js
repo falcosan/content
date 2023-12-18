@@ -43,3 +43,44 @@ export function formatURL(url) {
         return url
     }
 }
+
+export function formatHTML(data) {
+    if (data != null) {
+        if (Array.isArray(data)) {
+            return data.map((elem) => formatHTML(elem))
+        } else if (typeof data === 'object') {
+            return Object.entries(data).reduce((acc, [k, v]) => {
+                if (Array.isArray(v)) acc[k] = v.map((elem) => formatHTML(elem))
+                else acc[k] = formatHTML(v)
+                return acc
+            }, {})
+        } else {
+            return data.toString().replace(/(<([^>]+)>|\n)/gi, ' ')
+        }
+    } else return ''
+}
+
+export function formatMarkdown(data) {
+    const text = data
+        .replace(/\*\*(.+?)\*\*/g, '$1')
+        .replace(/__(.+?)__/g, '$1')
+        .replace(/_(.+?)_/g, '$1')
+        .replace(/\*(.+?)\*/g, '$1')
+        .replace(/~~(.+?)~~/g, '$1')
+        .replace(/`(.+?)`/g, '$1')
+        .replace(/```[\s\S]*?```/g, '')
+        .replace(/\[(.+?)\]\((.+?)\)/g, '$1')
+        .replace(/!\[(.+?)\]\((.+?)\)/g, '')
+        .replace(/^#+\s+(.+?)\s*$/gm, '$1')
+        .replace(/^\s*=+\s*$/gm, '')
+        .replace(/^\s*-+\s*$/gm, '')
+        .replace(/^\s*>\s+(.+?)\s*$/gm, '$1')
+        .replace(/^\s*[\*\+-]\s+(.+?)\s*$/gm, '$1')
+        .replace(/^\s*\d+\.\s+(.+?)\s*$/gm, '$1')
+        .replace(/^\s*[-*_]{3,}\s*$/gm, '')
+    return text.trim()
+}
+
+export function formatPlainText(data) {
+    return formatHTML(formatMarkdown(data))
+}

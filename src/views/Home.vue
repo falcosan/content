@@ -1,8 +1,9 @@
 <script setup>
-import Post from '@/components/Post'
 import Note from '@/components/Note'
+import Post from '@/components/Post'
 import Loader from '@/components/Loader'
 import Teaser from '@/components/Teaser'
+import Project from '@/components/Project'
 import { useRoute, useRouter } from 'vue-router'
 import { getStoryblokStories, getStoryblokStory } from '@/api'
 import { computed, inject, reactive, toRefs, watch } from 'vue'
@@ -16,6 +17,7 @@ const state = reactive({
     data: {
         note: [],
         blog: [],
+        portfolio: [],
     },
     detail: {
         item: {},
@@ -25,10 +27,12 @@ const state = reactive({
 const { data, detail } = toRefs(state)
 const view = computed(() => {
     switch (route.query.type) {
-        case 'post':
-            return Post
         case 'note':
             return Note
+        case 'post':
+            return Post
+        case 'project':
+            return Project
         default:
             return null
     }
@@ -49,7 +53,6 @@ const getNote = async () => {
     data.value.note = notes.filter((story) => !story.is_startpage)
 }
 const getBlog = async () => {
-    if (!!!view.value) loading.value = true
     const { stories: posts } = await getStoryblokStories(locale.value, 'blog')
     data.value.blog = posts
         .filter((story) => !story.is_startpage)
@@ -58,9 +61,23 @@ const getBlog = async () => {
             const secondDate = new Date(b.content.date)
             return secondDate - firstDate
         })
-    if (loading.value) loading.value = false
 }
-const getStories = async () => await Promise.all([getNote(), getBlog()])
+const getPortfolio = async () => {
+    const { stories: projects } = await getStoryblokStories(locale.value, 'portfolio')
+    data.value.portfolio = projects
+        .filter((story) => !story.is_startpage)
+        .sort((a, b) => {
+            const firstDate = new Date(a.content.start_date)
+            const secondDate = new Date(b.content.start_date)
+            return secondDate - firstDate
+        })
+}
+const getStories = async () => {
+    if (!!!view.value) loading.value = true
+    await Promise.all([getNote(), getBlog(), getPortfolio()]).then(() => {
+        if (loading.value) loading.value = false
+    })
+}
 const getStory = async () => {
     try {
         const { story } = await getStoryblokStory(route.query.id)
@@ -123,6 +140,20 @@ watch(
                         class="col-span-12 sm:col-span-5 md:col-span-4 lg:col-span-3"
                         :data="post"
                         @click="setDetail(post)"
+                    />
+                </div>
+            </div>
+            <div class="relative">
+                <h2 class="font-semibold text-gray-300" v-text="'Portfolio'" />
+                <div
+                    class="grid grid-cols-12 sm:grid-cols-[repeat(auto-fit,_minmax(2rem,_1fr))] md:grid-cols-[repeat(auto-fit,_minmax(4rem,_1fr))] xl:grid-cols-12 auto-rows-fr gap-5"
+                >
+                    <Teaser
+                        v-for="project in data.portfolio"
+                        :key="project.uuid"
+                        class="col-span-12 sm:col-span-5 md:col-span-4 lg:col-span-3"
+                        :data="project"
+                        @click="setDetail(project)"
                     />
                 </div>
             </div>

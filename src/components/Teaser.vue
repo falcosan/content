@@ -1,4 +1,5 @@
 <script setup>
+import { formatPlainText } from '@/utils/string'
 defineProps({
     data: {
         type: Object,
@@ -25,7 +26,7 @@ defineProps({
                 v-if="data.content.intro"
                 class="teaser-intro overflow-hidden leading-relaxed text-sm"
             >
-                {{ data.content.intro }}
+                {{ formatPlainText(data.content.intro) }}
             </span>
         </div>
     </div>
