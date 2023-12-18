@@ -240,10 +240,9 @@ watch(
         if (val.content) {
             const data = await getStoryblokComponents(val.content.component, [
                 'required',
-                'max_length',
                 'translatable',
-                { type: ['markdown', 'datetime'] },
                 { max_length: [String, Number] },
+                { type: ['markdown', 'datetime'] },
             ])
             const getKeys = (list, type) => {
                 const mapper = (arr) => arr.map((val) => val[0])
