@@ -10,7 +10,7 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx,.vue --fix"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.39.0",
+    "@supabase/supabase-js": "^2.39.1",
     "@tiptap/extension-highlight": "^2.1.13",
     "@tiptap/extension-link": "^2.1.13",
     "@tiptap/extension-underline": "^2.1.13",
@@ -21,7 +21,7 @@
     "marked": "^11.1.0",
     "storyblok-js-client": "6.4.1",
     "turndown": "^7.1.2",
-    "vue": "^3.3.12",
+    "vue": "^3.3.13",
     "vue-router": "^4.2.5"
   },
   "devDependencies": {
@@ -31,11 +31,11 @@
     "eslint": "^8.56.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-html": "^7.1.0",
-    "eslint-plugin-prettier": "^5.0.1",
+    "eslint-plugin-prettier": "^5.1.0",
     "eslint-plugin-vue": "^9.19.2",
     "postcss": "^8.4.32",
     "prettier": "^3.1.1",
-    "tailwindcss": "^3.3.6",
+    "tailwindcss": "^3.4.0",
     "vite": "5.0.10",
     "vite-plugin-pwa": "^0.17.4"
   }

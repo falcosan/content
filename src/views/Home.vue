@@ -50,7 +50,12 @@ const setDetail = (item) => {
 }
 const getNote = async () => {
     const { stories: notes } = await getStoryblokStories(locale.value, 'note')
-    data.value.note = notes.filter((story) => !story.is_startpage)
+    data.value.note = notes
+        .filter((story) => !story.is_startpage)
+        .map((note) => ({
+            ...note,
+            content: { ...note.content, title: note.name },
+        }))
 }
 const getBlog = async () => {
     const { stories: posts } = await getStoryblokStories(locale.value, 'blog')
