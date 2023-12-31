@@ -19,8 +19,6 @@ const {
     modalType,
     editDetail,
     properties,
-    goToDetail,
-    toggleDetail,
     translatable,
     checkProperties,
 } = useDetail(props)

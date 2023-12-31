@@ -77,11 +77,17 @@ const getPortfolio = async () => {
             return secondDate - firstDate
         })
 }
-const getStories = async () => {
+const getStories = async (update) => {
     if (!!!view.value) loading.value = true
-    await Promise.all([getNote(), getBlog(), getPortfolio()]).then(() => {
-        if (loading.value) loading.value = false
-    })
+    let fetchers = []
+    if (update) {
+        if (data.value.note.length) fetchers.push(getNote())
+        if (data.value.blog.length) fetchers.push(getBlog())
+        if (data.value.portfolio.length) fetchers.push(getPortfolio())
+    } else {
+        fetchers.push(getNote(), getBlog(), getPortfolio())
+    }
+    await Promise.all(fetchers).then(() => (loading.value = false))
 }
 const getStory = async () => {
     try {
@@ -91,7 +97,7 @@ const getStory = async () => {
         router.replace({ query: { type: 'error' } })
     }
 }
-watch(locale, getStories)
+watch(locale, async () => await getStories(true))
 watch(
     () => route.query,
     async (val) => {
@@ -120,7 +126,7 @@ watch(
                 class="font-semibold text-gray-300"
                 v-text="`Hello, ${auth.first_name} ${auth.last_name ?? ''}`"
             />
-            <div class="relative">
+            <div v-if="data.note.length" class="relative">
                 <h2 class="font-semibold text-gray-300" v-text="'Note'" />
                 <div
                     class="grid grid-cols-12 sm:grid-cols-[repeat(auto-fit,_minmax(2rem,_1fr))] md:grid-cols-[repeat(auto-fit,_minmax(4rem,_1fr))] xl:grid-cols-12 auto-rows-fr gap-5"
@@ -134,7 +140,7 @@ watch(
                     />
                 </div>
             </div>
-            <div class="relative">
+            <div v-if="data.blog.length" class="relative">
                 <h2 class="font-semibold text-gray-300" v-text="'Blog'" />
                 <div
                     class="grid grid-cols-12 sm:grid-cols-[repeat(auto-fit,_minmax(2rem,_1fr))] md:grid-cols-[repeat(auto-fit,_minmax(4rem,_1fr))] xl:grid-cols-12 auto-rows-fr gap-5"
@@ -148,7 +154,7 @@ watch(
                     />
                 </div>
             </div>
-            <div class="relative">
+            <div v-if="data.portfolio.length" class="relative">
                 <h2 class="font-semibold text-gray-300" v-text="'Portfolio'" />
                 <div
                     class="grid grid-cols-12 sm:grid-cols-[repeat(auto-fit,_minmax(2rem,_1fr))] md:grid-cols-[repeat(auto-fit,_minmax(4rem,_1fr))] xl:grid-cols-12 auto-rows-fr gap-5"

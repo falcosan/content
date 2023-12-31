@@ -1,6 +1,5 @@
 import enums from '@/enums'
 import { formatString } from '@/utils/string'
-import { dateWithoutHour } from '@/utils/date'
 import { watch, toRefs, inject, reactive, computed, onMounted, onUnmounted } from 'vue'
 import { editStoryblokStory, toggleStoryblokStory, getStoryblokComponents } from '@/api'
 
@@ -135,12 +134,12 @@ export const useDetail = (props) => {
         }
     }
     const goToDetail = () => {
-        let domain
-        const slug = detail.value.slug
+        const slug = detail.value.full_slug
         const language = locale.value === 'en' ? '' : `${locale.value}/`
-        if (detail.value.published) domain = import.meta.env.STORY_DOMAIN_PRO
-        else domain = import.meta.env.STORY_DOMAIN_DEV
-        window.open(`${domain}${language}blog/${slug}`, '_blank', 'noopener,noreferrer')
+        const domain = import.meta.env[
+            detail.value.published ? 'STORY_DOMAIN_PRO' : 'STORY_DOMAIN_DEV'
+        ]
+        window.open(`${domain}${language}${slug}`, '_blank', 'noopener,noreferrer')
     }
     const editDetail = async () => {
         loading.value.edit = true

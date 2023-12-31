@@ -57,11 +57,27 @@ const {
         />
         <div class="flex flex-wrap justify-center xs:justify-end mt-10 -m-2.5">
             <button
+                class="w-full sm:w-32 flex justify-center m-2.5 p-2.5 px-6 rounded font-semibold active:bg-opacity-70 text-white bg-slate-700"
+                @click="goToDetail"
+            >
+                <span v-text="'Project'" />
+            </button>
+            <button
                 class="w-full sm:w-32 flex justify-center m-2.5 p-2.5 px-6 rounded font-semibold active:bg-opacity-70 text-white bg-blue-500"
                 @click="editDetail"
             >
                 <Icon v-if="loading.edit" class="text-2xl" icon="eos-icons:three-dots-loading" />
                 <span v-else v-text="'Save'" />
+            </button>
+            <button
+                :class="[
+                    'w-full sm:w-32 flex justify-center m-2.5 p-2.5 px-6 rounded font-semibold active:bg-opacity-70 text-white',
+                    detail.published ? 'bg-red-500' : 'bg-green-500',
+                ]"
+                @click="toggleDetail"
+            >
+                <Icon v-if="loading.toggle" class="text-2xl" icon="eos-icons:three-dots-loading" />
+                <span v-else v-text="detail.published ? 'Unpublish' : 'Publish'" />
             </button>
         </div>
         <Modal v-model:open="modal.state">
