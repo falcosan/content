@@ -18,6 +18,7 @@ const {
     loading,
     modalType,
     editDetail,
+    goToDetail,
     properties,
     translatable,
     checkProperties,
@@ -34,6 +35,12 @@ const {
             :tools="editor.markdown"
         />
         <div class="flex flex-wrap justify-center xs:justify-end mt-10 -m-2.5">
+            <button
+                class="w-full sm:w-32 flex justify-center m-2.5 p-2.5 px-6 rounded font-semibold active:bg-opacity-70 text-white bg-slate-700"
+                @click="goToDetail"
+            >
+                <span v-text="'Note'" />
+            </button>
             <button
                 class="w-full sm:w-32 flex justify-center m-2.5 p-2.5 px-6 rounded font-semibold active:bg-opacity-70 text-white bg-blue-500"
                 @click="editDetail"
