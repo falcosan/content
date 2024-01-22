@@ -19,15 +19,15 @@
     "@tiptap/vue-3": "^2.1.16",
     "@vueuse/core": "^10.7.2",
     "marked": "^11.1.1",
-    "storyblok-js-client": "6.6.2",
+    "storyblok-js-client": "^6.6.3",
     "turndown": "^7.1.2",
-    "vue": "^3.4.14",
+    "vue": "^3.4.15",
     "vue-router": "^4.2.5"
   },
   "devDependencies": {
     "@iconify/vue": "^4.1.1",
     "@vitejs/plugin-vue": "^5.0.3",
-    "autoprefixer": "^10.4.16",
+    "autoprefixer": "^10.4.17",
     "eslint": "^8.56.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-html": "^7.1.0",
@@ -36,7 +36,7 @@
     "postcss": "^8.4.33",
     "prettier": "^3.2.4",
     "tailwindcss": "^3.4.1",
-    "vite": "5.0.11",
+    "vite": "5.0.12",
     "vite-plugin-pwa": "^0.17.4"
   }
 }
