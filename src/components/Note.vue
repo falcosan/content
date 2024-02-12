@@ -10,19 +10,8 @@ const props = defineProps({
         default: () => ({}),
     },
 })
-const {
-    modal,
-    detail,
-    locale,
-    editors,
-    loading,
-    modalType,
-    editDetail,
-    goToDetail,
-    properties,
-    translatable,
-    checkProperties,
-} = useDetail(props)
+const { modal, detail, locale, editors, loading, modalType, editDetail, goToDetail } =
+    useDetail(props)
 </script>
 
 <template>

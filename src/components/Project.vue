@@ -20,11 +20,8 @@ const {
     loading,
     modalType,
     editDetail,
-    properties,
     goToDetail,
     toggleDetail,
-    translatable,
-    checkProperties,
 } = useDetail(props)
 </script>
 
