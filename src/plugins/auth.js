@@ -1,3 +1,4 @@
+import { router } from '@/router'
 import { createClient } from '@supabase/supabase-js'
 import { reactive, toRefs, watch, computed } from 'vue'
 import { setCookie, getCookie, deleteCookie } from '@/utils/cookies'
@@ -20,7 +21,7 @@ export default {
             }
         })
         loading.value = false
-        if (!logged.value) setCookie('path', window.location.href)
+        if (!logged.value) setCookie('path', window.location.pathname)
         watch(logged, async (val) => {
             if (val) {
                 const user = auth.value
@@ -32,8 +33,8 @@ export default {
         watch(auth, (val) => {
             if (val) {
                 if (/login/.test(window.location.pathname)) {
-                    setCookie('auth', val)
-                    window.location.replace(getCookie('path') ?? '/')
+                    setCookie('auth', val.aud)
+                    router.push(getCookie('path') ?? '/')
                     deleteCookie('path')
                 }
             } else {

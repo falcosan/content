@@ -1,7 +1,7 @@
 <script setup>
+import { inject } from 'vue'
 import { useRouter } from 'vue-router'
 import Loader from '@/components/Loader'
-import { ref, inject, watch } from 'vue'
 import Navbar from '@/components/Navbar'
 const router = useRouter()
 const logged = inject('logged')
