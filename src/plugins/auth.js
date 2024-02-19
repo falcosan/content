@@ -21,7 +21,7 @@ export default {
             }
         })
         loading.value = false
-        if (!logged.value) setCookie('path', window.location.pathname)
+        if (!logged.value) setCookie('path', `${window.location.pathname}${window.location.search}`)
         watch(logged, async (val) => {
             if (val) {
                 const user = auth.value
