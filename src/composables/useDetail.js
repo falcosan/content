@@ -233,7 +233,7 @@ export const useDetail = (props, emits) => {
                 properties.value.datetime = getProperties(data.type, 'key', 'datetime')
                 properties.value.translatable = getProperties(data.translatable, 'key')
                 detail.value = mapDetail(val)
-                emits('ready')
+                emits('ready', true)
             }
         }
     )

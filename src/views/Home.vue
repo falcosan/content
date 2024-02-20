@@ -48,7 +48,7 @@ const setDetail = (item) => {
         },
     })
 }
-const setState = (state = true) => (detail.value.state = state)
+const setState = (state) => (detail.value.state = state)
 const getNote = async () => {
     const { stories: notes } = await getStoryblokStories(locale.value, 'note')
     data.value.note = notes
