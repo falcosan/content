@@ -3,7 +3,7 @@ import { formatString } from '@/utils/string'
 import { watch, toRefs, inject, reactive, computed, onMounted, onUnmounted } from 'vue'
 import { editStoryblokStory, toggleStoryblokStory, getStoryblokComponents } from '@/api'
 
-export const useDetail = (props) => {
+export const useDetail = (props, emits) => {
     const locale = inject('locale')
     const state = reactive({
         detail: {},
@@ -66,7 +66,7 @@ export const useDetail = (props) => {
         }, 5000)
     }
     const mapDetail = (values) => {
-        const translatables = properties.value.translatable.reduce((acc, value) => {
+        const translatable = properties.value.translatable.reduce((acc, value) => {
             const regex = new RegExp(`${enums.translatableSuffix}.*`)
             const key = value.replace(regex, '')
             return enums.languages.reduce((objAcc, lang) => {
@@ -85,7 +85,7 @@ export const useDetail = (props) => {
             else acc[k] = v
             return acc
         }, {})
-        return { ...values, content: { ...content, ...translatables } }
+        return { ...values, content: { ...content, ...translatable } }
     }
     const cleanDetail = (values) => {
         const keys = properties.value.translatable.reduce((acc, curr) => {
@@ -207,10 +207,18 @@ export const useDetail = (props) => {
             }
         }
     }
+    const getProperties = (list, setter, type) => {
+        if (list?.length) {
+            const mapper = (arr) =>
+                arr.map((val) => (setter === 'key' ? val[0] : { [val[0]]: val[1] }))
+            if (type) return mapper(list.filter((value) => value.includes(type)))
+            else return mapper(list)
+        }
+    }
     onMounted(() => window.addEventListener('keydown', handleSave))
     onUnmounted(() => window.removeEventListener('keydown', handleSave))
     watch(
-        props.data,
+        () => props.data,
         async (val) => {
             if (val.content) {
                 const data = await getStoryblokComponents(val.content.component, [
@@ -219,29 +227,15 @@ export const useDetail = (props) => {
                     { max_length: [String, Number] },
                     { type: ['markdown', 'datetime'] },
                 ])
-                const getKeys = (list, type) => {
-                    if (list?.length) {
-                        const mapper = (arr) => arr.map((val) => val[0])
-                        if (type) return mapper(list.filter((value) => value.includes(type)))
-                        else return mapper(list)
-                    }
-                }
-                const getObj = (list, type) => {
-                    if (list?.length) {
-                        const mapper = (arr) => arr.map((val) => ({ [val[0]]: val[1] }))
-                        if (type) return mapper(list.filter((value) => value.includes(type)))
-                        else return mapper(list)
-                    }
-                }
-                properties.value.required = getKeys(data.required)
-                properties.value.maxLength = getObj(data.max_length)
-                properties.value.markdown = getKeys(data.type, 'markdown')
-                properties.value.datetime = getKeys(data.type, 'datetime')
-                properties.value.translatable = getKeys(data.translatable)
+                properties.value.required = getProperties(data.required, 'key')
+                properties.value.maxLength = getProperties(data.max_length, 'obj')
+                properties.value.markdown = getProperties(data.type, 'key', 'markdown')
+                properties.value.datetime = getProperties(data.type, 'key', 'datetime')
+                properties.value.translatable = getProperties(data.translatable, 'key')
                 detail.value = mapDetail(val)
+                emits('ready')
             }
-        },
-        { immediate: true }
+        }
     )
     return {
         modal,

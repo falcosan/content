@@ -10,8 +10,11 @@ const props = defineProps({
         default: () => ({}),
     },
 })
-const { modal, detail, locale, editors, loading, modalType, editDetail, goToDetail } =
-    useDetail(props)
+const emits = defineEmits(['ready'])
+const { modal, detail, locale, editors, loading, modalType, editDetail, goToDetail } = useDetail(
+    props,
+    emits
+)
 </script>
 
 <template>

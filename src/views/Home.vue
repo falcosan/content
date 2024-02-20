@@ -48,6 +48,7 @@ const setDetail = (item) => {
         },
     })
 }
+const setState = () => (detail.value.state = !detail.value.state)
 const getNote = async () => {
     const { stories: notes } = await getStoryblokStories(locale.value, 'note')
     data.value.note = notes
@@ -103,10 +104,9 @@ watch(
     async (val) => {
         if (val.id) {
             await getStory()
-            if (!detail.value.state) detail.value.state = true
         } else {
             if (val.type) router.replace({ query: undefined })
-            if (detail.value.state) detail.value.state = false
+            setState()
             await getStories()
         }
     },
@@ -117,8 +117,8 @@ watch(
 <template>
     <div class="py-5">
         <template v-if="!!view">
-            <component :is="view" v-if="detail.state" :data="detail.item" />
-            <Loader v-else position="full" />
+            <component :is="view" v-show="detail.state" :data="detail.item" @ready="setState" />
+            <Loader v-if="!detail.state" position="full" />
         </template>
         <div v-else class="space-y-10">
             <h1
