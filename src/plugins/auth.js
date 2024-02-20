@@ -37,11 +37,13 @@ export default {
                     setCookie('auth', val.aud)
                     router.push(getCookie('path') ?? '/')
                     deleteCookie('path')
+                } else {
+                    loading.value = false
                 }
             } else {
                 deleteCookie('auth')
                 logged.value = false
-                router.push('/login')
+                router.go(0)
             }
         })
         app.provide('db', db)
