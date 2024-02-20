@@ -18,9 +18,10 @@ export default {
             if (session) {
                 auth.value = auth.value ? { ...auth.value, ...session.user } : session.user
                 logged.value = true
+            } else {
+                loading.value = false
             }
         })
-        loading.value = false
         if (!logged.value) setCookie('path', `${window.location.pathname}${window.location.search}`)
         watch(logged, async (val) => {
             if (val) {
@@ -40,7 +41,7 @@ export default {
             } else {
                 deleteCookie('auth')
                 logged.value = false
-                window.location.reload()
+                router.push('/login')
             }
         })
         app.provide('db', db)
