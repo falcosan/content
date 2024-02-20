@@ -48,7 +48,7 @@ const setDetail = (item) => {
         },
     })
 }
-const setState = () => (detail.value.state = !detail.value.state)
+const setState = (state = true) => (detail.value.state = state)
 const getNote = async () => {
     const { stories: notes } = await getStoryblokStories(locale.value, 'note')
     data.value.note = notes
@@ -106,7 +106,7 @@ watch(
             await getStory()
         } else {
             if (val.type) router.replace({ query: undefined })
-            setState()
+            setState(false)
             await getStories()
         }
     },
