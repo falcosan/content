@@ -17,7 +17,7 @@
     "@tiptap/pm": "^2.2.3",
     "@tiptap/starter-kit": "^2.2.3",
     "@tiptap/vue-3": "^2.2.3",
-    "@vueuse/core": "^10.7.2",
+    "@vueuse/core": "^10.8.0",
     "marked": "^12.0.0",
     "storyblok-js-client": "^6.6.7",
     "turndown": "^7.1.2",
