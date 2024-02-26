@@ -7,7 +7,7 @@ export default {
         const state = reactive({
             auth: null,
             logged: false,
-            loading: true,
+            loading: false,
         })
         const { auth, logged, loading } = toRefs(state)
         const db = createClient(
@@ -18,8 +18,6 @@ export default {
             if (session) {
                 auth.value = auth.value ? { ...auth.value, ...session.user } : session.user
                 logged.value = true
-            } else {
-                loading.value = false
             }
         })
         if (!logged.value) setCookie('path', `${window.location.pathname}${window.location.search}`)
@@ -37,8 +35,6 @@ export default {
                     setCookie('auth', val.aud)
                     router.push(getCookie('path') ?? '/')
                     deleteCookie('path')
-                } else {
-                    loading.value = false
                 }
             } else {
                 deleteCookie('auth')

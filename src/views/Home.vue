@@ -88,15 +88,16 @@ const getStories = async (update) => {
     } else {
         fetchers.push(getNote(), getBlog(), getPortfolio())
     }
-    await Promise.all(fetchers).then(() => (loading.value = false))
+    await Promise.all(fetchers).finally(() => (loading.value = false))
 }
 const getStory = async () => {
-    try {
-        const { story } = await getStoryblokStory(route.query.id)
-        setDetail(story)
-    } catch {
-        router.replace({ query: { type: 'error' } })
-    }
+    await getStoryblokStory(route.query.id)
+        .then(({ story }) => setDetail(story))
+        .catch((err) => {
+            router.replace({ query: { type: 'error' } })
+            console.error(err)
+        })
+        .finally(() => (loading.value = false))
 }
 watch(locale, async () => await getStories(true))
 watch(
