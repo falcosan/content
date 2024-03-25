@@ -10,7 +10,7 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx,.vue --fix"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.39.8",
+    "@supabase/supabase-js": "^2.40.0",
     "@tiptap/extension-highlight": "^2.2.4",
     "@tiptap/extension-link": "^2.2.4",
     "@tiptap/extension-underline": "^2.2.4",
@@ -27,16 +27,16 @@
   "devDependencies": {
     "@iconify/vue": "^4.1.1",
     "@vitejs/plugin-vue": "^5.0.4",
-    "autoprefixer": "^10.4.18",
+    "autoprefixer": "^10.4.19",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-html": "^8.0.0",
     "eslint-plugin-prettier": "^5.1.3",
-    "eslint-plugin-vue": "^9.23.0",
-    "postcss": "^8.4.37",
+    "eslint-plugin-vue": "^9.24.0",
+    "postcss": "^8.4.38",
     "prettier": "^3.2.5",
     "tailwindcss": "^3.4.1",
-    "vite": "5.2.2",
-    "vite-plugin-pwa": "^0.19.5"
+    "vite": "5.2.6",
+    "vite-plugin-pwa": "^0.19.7"
   }
 }
