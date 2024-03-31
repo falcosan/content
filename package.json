@@ -10,7 +10,7 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx,.vue --fix"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.40.0",
+    "@supabase/supabase-js": "^2.41.1",
     "@tiptap/extension-highlight": "^2.2.4",
     "@tiptap/extension-link": "^2.2.4",
     "@tiptap/extension-underline": "^2.2.4",
@@ -36,7 +36,7 @@
     "postcss": "^8.4.38",
     "prettier": "^3.2.5",
     "tailwindcss": "^3.4.3",
-    "vite": "5.2.6",
+    "vite": "5.2.7",
     "vite-plugin-pwa": "^0.19.7"
   }
 }
