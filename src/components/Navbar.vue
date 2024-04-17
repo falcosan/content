@@ -74,7 +74,10 @@ router.beforeEach((to, from, next) => {
                 class="py-1 xx:py-2 px-3 xx:px-5 m-1 xx:m-2 rounded-md text-gray-500 active:text-gray-200 bg-gray-200 active:bg-gray-500"
                 @click="checkDetail ? toggleModal(true) : signOut()"
             >
-                <Icon class="text-xl" icon="ic:round-door-back" />
+                <Icon
+                    class="text-xl"
+                    :icon="checkDetail ? 'ic:round-home' : 'solar:logout-2-bold'"
+                />
             </button>
         </div>
     </div>
