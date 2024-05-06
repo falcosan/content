@@ -10,7 +10,7 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx,.vue --fix"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.43.0",
+    "@supabase/supabase-js": "^2.43.1",
     "@tiptap/extension-highlight": "^2.3.1",
     "@tiptap/extension-link": "^2.3.1",
     "@tiptap/extension-underline": "^2.3.1",
@@ -28,7 +28,7 @@
     "@iconify/vue": "^4.1.2",
     "@vitejs/plugin-vue": "^5.0.4",
     "autoprefixer": "^10.4.19",
-    "eslint": "^9.1.1",
+    "eslint": "^9.2.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-html": "^8.1.1",
     "eslint-plugin-prettier": "^5.1.3",
