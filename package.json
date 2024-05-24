@@ -10,7 +10,7 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx,.vue --fix"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.43.2",
+    "@supabase/supabase-js": "^2.43.4",
     "@tiptap/extension-highlight": "^2.4.0",
     "@tiptap/extension-link": "^2.4.0",
     "@tiptap/extension-underline": "^2.4.0",
