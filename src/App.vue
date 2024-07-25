@@ -10,7 +10,7 @@ router.beforeResolve((to, _, next) => {
     if (to.meta.requiresAuth && !logged.value) {
         next({ name: 'login' })
         return
-    } 
+    }
     if (to.name === 'login' && logged.value) {
         next({ name: 'home' })
         return

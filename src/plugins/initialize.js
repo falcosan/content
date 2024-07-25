@@ -2,7 +2,7 @@ import { ref, computed, watch } from 'vue'
 import { setCookie, getCookie } from '@/utils/cookies'
 
 export default {
-    install:  (app) => {
+    install: (app) => {
         const locale = ref(getCookie('locale') ?? 'en')
         watch(
             locale,

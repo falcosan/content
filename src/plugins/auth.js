@@ -38,7 +38,7 @@ export default {
             } else {
                 deleteCookie('auth')
                 logged.value = false
-                location.assign("/login")
+                location.assign('/login')
             }
         })
         app.provide('db', db)
