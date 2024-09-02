@@ -207,18 +207,17 @@ export default {
             Link.configure({ openOnClick: false, autolink: props.tools, linkOnPaste: props.tools }),
         ])
         const text = computed(() => {
-            const renderer = {
-                paragraph(text) {
-                    return `<p>${text}</p>`
-                },
-            }
             marked.use({
-                renderer,
-                mangle: false,
+                renderer: {
+                    paragraph(token) {
+                        const text = this.parser.parseInline(token.tokens)
+                        return `<p>${text}</p>`
+                    },
+                },
                 pedantic: true,
-                headerIds: false,
             })
-            return marked.parse(props.text)
+
+            return marked.parse(markdown)
         })
         const actions = computed(() => [
             {
