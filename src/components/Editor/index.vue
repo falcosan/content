@@ -217,7 +217,7 @@ export default {
                 pedantic: true,
             })
 
-            return marked.parse(markdown)
+            return marked.parse(props.text)
         })
         const actions = computed(() => [
             {
