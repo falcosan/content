@@ -135,10 +135,8 @@ export const useDetail = (props, emits) => {
     }
     const goToDetail = () => {
         const slug = detail.value.full_slug
+        const domain = import.meta.env['STORY_DOMAIN_PRO']
         const language = locale.value === 'en' ? '' : `${locale.value}/`
-        const domain = import.meta.env[
-            detail.value.published ? 'STORY_DOMAIN_PRO' : 'STORY_DOMAIN_DEV'
-        ]
         window.open(`${domain}${language}${slug}`, '_blank', 'noopener,noreferrer')
     }
     const editDetail = async () => {
