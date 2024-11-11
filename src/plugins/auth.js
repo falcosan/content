@@ -20,14 +20,6 @@ export default {
             }
         })
         if (!logged.value) setCookie('path', `${window.location.pathname}${window.location.search}`)
-        watch(logged, async (val) => {
-            if (val) {
-                const user = auth.value
-                const { data, error } = await db.from('profiles').select('*').eq('id', user.id)
-                if (error) console.table(error)
-                else if (data?.length) auth.value = { ...user, ...data[0] }
-            }
-        })
         watch(auth, (val) => {
             if (val) {
                 if (/login/.test(window.location.pathname)) {
