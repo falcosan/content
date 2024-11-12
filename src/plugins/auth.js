@@ -20,9 +20,9 @@ export default {
                 deleteCookie('auth')
                 logged.value = false
                 location.assign('/login')
+                setCookie('path', `${window.location.pathname}${window.location.search}`)
             }
         })
-        if (!logged.value) setCookie('path', `${window.location.pathname}${window.location.search}`)
         watch(auth, (val) => {
             if (val) {
                 if (/login/.test(window.location.pathname)) {
