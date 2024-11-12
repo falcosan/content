@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 import { reactive, toRefs, watch, computed } from 'vue'
 import { setCookie, getCookie, deleteCookie } from '@/utils/cookies'
+
 export default {
     install: (app) => {
         const state = reactive({
@@ -14,9 +15,11 @@ export default {
             import.meta.env.STORY_SUPABASE_TOKEN
         )
         db.auth.onAuthStateChange((_, session) => {
-            if (session) {
-                auth.value = auth.value ? { ...auth.value, ...session.user } : session.user
-                logged.value = true
+            if (session) logged.value = true
+            else if (!/login/.test(window.location.pathname)) {
+                deleteCookie('auth')
+                logged.value = false
+                location.assign('/login')
             }
         })
         if (!logged.value) setCookie('path', `${window.location.pathname}${window.location.search}`)
@@ -27,10 +30,6 @@ export default {
                     location.assign(getCookie('path') ?? '/')
                     deleteCookie('path')
                 }
-            } else {
-                deleteCookie('auth')
-                logged.value = false
-                location.assign('/login')
             }
         })
         app.provide('db', db)

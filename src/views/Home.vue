@@ -122,11 +122,6 @@ watch(
             <Loader v-if="!detail.state" position="full" />
         </template>
         <div v-else class="space-y-10">
-            <h1
-                v-if="auth.first_name"
-                class="font-semibold text-gray-300"
-                v-text="`Hello, ${auth.first_name} ${auth.last_name ?? ''}`"
-            />
             <div v-if="data.note.length" class="relative">
                 <h2 class="font-semibold text-gray-300" v-text="'Note'" />
                 <div

@@ -20,7 +20,7 @@ const checkDetail = computed(() => !!route.query.type)
 const toggleModal = (state) => (modal.value = state)
 const signOut = async () => {
     loading.value = true
-    await db.auth.signOut().then(() => (auth.value = null))
+    await db.auth.signOut()
 }
 const goBack = () => {
     leave.value = true

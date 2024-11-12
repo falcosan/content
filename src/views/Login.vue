@@ -2,7 +2,7 @@
     <div class="w-full min-h-screen flex justify-center items-center max-w-md mx-auto space-y-8">
         <div class="w-full text-center">
             <span class="block mb-5 text-3xl font-bold text-gray-200" v-text="name" />
-            <form class="space-y-6" @submit.prevent="signIn" @keydown.enter="signIn">
+            <form class="space-y-6" @submit.prevent="signIn">
                 <div class="rounded-md shadow-sm -space-y-px">
                     <div>
                         <label for="email" class="sr-only">Email</label>
@@ -67,6 +67,7 @@ export default {
     components: { Loader },
     setup() {
         const db = inject('db')
+        const auth = inject('auth')
         const state = reactive({ email: '', password: '', loading: false, failed: '' })
         const { email, password, loading, failed } = toRefs(state)
         const errorHandler = (error) => {
@@ -82,8 +83,9 @@ export default {
                     email: email.value,
                     password: password.value,
                 })
-                .then(({ error }) => {
+                .then(({ data, error }) => {
                     if (error) errorHandler(error)
+                    auth.value = data.user
                 })
                 .catch(errorHandler)
                 .finally(() => (loading.value = false))
