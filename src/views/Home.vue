@@ -124,13 +124,11 @@ watch(
         <div v-else class="space-y-10">
             <div v-if="data.note.length" class="relative">
                 <h2 class="font-semibold text-gray-300" v-text="'Note'" />
-                <div
-                    class="grid grid-cols-12 sm:grid-cols-[repeat(auto-fit,_minmax(2rem,_1fr))] md:grid-cols-[repeat(auto-fit,_minmax(4rem,_1fr))] xl:grid-cols-12 auto-rows-fr gap-5"
-                >
+                <div class="grid grid-cols-12 auto-rows-fr gap-5">
                     <Teaser
                         v-for="note in data.note"
                         :key="note.uuid"
-                        class="col-span-12 sm:col-span-5 md:col-span-4 lg:col-span-3"
+                        class="col-span-12 sm:col-span-6 lg:col-span-4 xl:col-span-3"
                         :data="note"
                         @click="setDetail(note)"
                     />
@@ -138,13 +136,11 @@ watch(
             </div>
             <div v-if="data.blog.length" class="relative">
                 <h2 class="font-semibold text-gray-300" v-text="'Blog'" />
-                <div
-                    class="grid grid-cols-12 sm:grid-cols-[repeat(auto-fit,_minmax(2rem,_1fr))] md:grid-cols-[repeat(auto-fit,_minmax(4rem,_1fr))] xl:grid-cols-12 auto-rows-fr gap-5"
-                >
+                <div class="grid grid-cols-12 auto-rows-fr gap-5">
                     <Teaser
                         v-for="post in data.blog"
                         :key="post.uuid"
-                        class="col-span-12 sm:col-span-5 md:col-span-4 lg:col-span-3"
+                        class="col-span-12 sm:col-span-6 lg:col-span-4 xl:col-span-3"
                         :data="post"
                         @click="setDetail(post)"
                     />
@@ -152,13 +148,11 @@ watch(
             </div>
             <div v-if="data.portfolio.length" class="relative">
                 <h2 class="font-semibold text-gray-300" v-text="'Portfolio'" />
-                <div
-                    class="grid grid-cols-12 sm:grid-cols-[repeat(auto-fit,_minmax(2rem,_1fr))] md:grid-cols-[repeat(auto-fit,_minmax(4rem,_1fr))] xl:grid-cols-12 auto-rows-fr gap-5"
-                >
+                <div class="grid grid-cols-12 auto-rows-fr gap-5">
                     <Teaser
                         v-for="project in data.portfolio"
                         :key="project.uuid"
-                        class="col-span-12 sm:col-span-5 md:col-span-4 lg:col-span-3"
+                        class="col-span-12 sm:col-span-6 lg:col-span-4 xl:col-span-3"
                         :data="project"
                         @click="setDetail(project)"
                     />
