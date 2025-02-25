@@ -1,26 +1,47 @@
 <script setup>
-import { inject } from 'vue'
+import { inject, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import Loader from '@/components/Loader'
 import Navbar from '@/components/Navbar'
+
 const router = useRouter()
 const logged = inject('logged')
 const loading = inject('loading')
-router.beforeResolve((to, _, next) => {
-    if (to.meta.requiresAuth && !logged.value) {
-        next({ name: 'login' })
-        return
+
+const checkAuth = (to) => {
+    if (to.meta.requiresAuth && !logged?.value) {
+        return { name: 'login' }
     }
-    if (to.name === 'login' && logged.value) {
-        next({ name: 'home' })
-        return
+    if (to.name === 'login' && logged?.value) {
+        return { name: 'home' }
     }
-    next()
-})
+    return true
+}
+
+router.beforeResolve(checkAuth)
+
+watch(
+    () => logged?.value,
+    (isLogged) => {
+        const currentRoute = router.currentRoute.value
+
+        if (isLogged && currentRoute.name === 'login') {
+            router.replace({ name: 'home' })
+        } else if (!isLogged && currentRoute.meta.requiresAuth) {
+            router.replace({ name: 'login' })
+        }
+    }
+)
 </script>
 
 <template>
     <Loader v-if="loading" position="cover" />
     <Navbar v-if="logged" />
-    <RouterView />
+    <main>
+        <RouterView v-slot="{ Component }">
+            <transition name="fade" mode="out-in">
+                <component :is="Component" />
+            </transition>
+        </RouterView>
+    </main>
 </template>
