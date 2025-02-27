@@ -4,12 +4,14 @@ import vue from '@vitejs/plugin-vue'
 import { VitePWA } from 'vite-plugin-pwa'
 import { defineConfig } from 'vite'
 import { htmlPlugin } from './src/plugins/html.js'
+import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig(() => {
     return {
         plugins: [
             vue(),
             htmlPlugin(),
+            tailwindcss(),
             VitePWA({
                 manifest: enums.manifest,
                 registerType: 'autoUpdate',

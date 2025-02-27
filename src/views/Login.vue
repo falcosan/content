@@ -3,7 +3,7 @@
         <div class="w-full text-center">
             <span class="block mb-5 text-3xl font-bold text-gray-200" v-text="name" />
             <form class="space-y-6" @submit.prevent="signIn">
-                <div class="rounded-md shadow-sm -space-y-px">
+                <div class="rounded-md shadow-sm space-y-2.5">
                     <div>
                         <label for="email" class="sr-only">Email</label>
                         <input

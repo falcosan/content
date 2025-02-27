@@ -88,13 +88,13 @@ router.beforeEach((to, from, next) => {
         <template #body>
             <div class="flex flex-wrap -m-2">
                 <button
-                    class="flex justify-center flex-auto py-2 px-5 m-2 rounded-md text-gray-200 active:bg-opacity-70 bg-red-500"
+                    class="flex justify-center flex-auto py-2 px-5 m-2 rounded-md text-gray-200 active:bg-red-500/70 bg-red-500"
                     @click="toggleModal(false)"
                 >
                     <Icon class="text-xl" icon="dashicons:no" />
                 </button>
                 <button
-                    class="flex justify-center flex-auto py-2 px-5 m-2 rounded-md text-gray-200 active:bg-opacity-70 bg-green-500"
+                    class="flex justify-center flex-auto py-2 px-5 m-2 rounded-md text-gray-200 active:bg-green-500/70 bg-green-500"
                     @click="goBack"
                 >
                     <Icon class="text-xl" icon="dashicons:yes" />

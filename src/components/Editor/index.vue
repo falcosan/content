@@ -73,17 +73,17 @@
                             />
                             <div class="flex flex-wrap -m-2">
                                 <button
-                                    class="flex justify-center flex-auto py-2 px-5 m-2 rounded active:bg-opacity-70 text-white bg-red-500"
+                                    class="flex justify-center flex-auto py-2 px-5 m-2 rounded active:bg-red-500/70 text-white bg-red-500"
                                     @click="toggleNodeAction(false)"
                                 >
                                     <Icon class="text-xl" icon="dashicons:no" />
                                 </button>
                                 <button
                                     :class="[
-                                        'flex justify-center flex-auto py-2 px-5 m-2 rounded active:bg-opacity-70',
+                                        'flex justify-center flex-auto py-2 px-5 m-2 rounded',
                                         checkArguments
-                                            ? 'text-white bg-green-500'
-                                            : 'text-gray-500 bg-gray-200',
+                                            ? 'text-white active:bg-green-500/70 bg-green-500'
+                                            : 'text-gray-500 active:bg-gray-200/70 bg-gray-200',
                                     ]"
                                     :disabled="!checkArguments"
                                     @click="toggleNodeAction(true)"

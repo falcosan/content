@@ -42,7 +42,7 @@ defineProps({
 </template>
 <style scoped>
 #loader-pencil {
-    @apply h-auto fill-gray-200;
+    @apply h-auto fill-[#ccc];
 }
 #line {
     animation: linePencil 0.8s infinite linear;
