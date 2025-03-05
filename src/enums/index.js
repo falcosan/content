@@ -1,4 +1,4 @@
-const webTitle = 'Aprograma Editor'
+const webTitle = 'AP | Editor'
 
 export default {
     webTitle,
