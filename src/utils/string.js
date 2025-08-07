@@ -10,10 +10,10 @@ export function formatURL(url) {
         dailymotion: /(https?:\/\/)(www\.)?(dailymotion\.com\/video\/)([a-zA-Z0-9]+)(.*)/,
         youtube:
             /^(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|(?:youtube\.com\/(?:watch\?.*v=|embed\/|v\/)))([a-zA-Z0-9_-]+)(?:\S*)$/,
-        url: /^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/|ftp:\/\/|ftps:\/\/|blob:|localhost)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/,
+        url: /^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/|ftp:\/\/|ftps:\/\/|blob:|localhost)?[a-z0-9]+([-.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/,
     }
     const hosts = [import.meta.env.STORY_DOMAIN_PRO, import.meta.env.STORY_DOMAIN_EDITOR]
-        .map((domain) => `parent=${domain.replace(/^(?:https?:\/\/)?([^\/]+)\/?$/, '$1')}`)
+        .map((domain) => `parent=${domain.replace(/^(?:https?:\/\/)?([^/]+)\/?$/, '$1')}`)
         .join('&')
     if (!patterns.url) return ''
     if (patterns.vimeo.test(url)) {
@@ -71,7 +71,7 @@ export function formatMarkdown(data) {
         .replace(/^\s*=+\s*$/gm, '')
         .replace(/^\s*-+\s*$/gm, '')
         .replace(/^\s*>\s+(.+?)\s*$/gm, '$1')
-        .replace(/^\s*[\*\+-]\s+(.+?)\s*$/gm, '$1')
+        .replace(/^\s*[*+-]\s+(.+?)\s*$/gm, '$1')
         .replace(/^\s*\d+\.\s+(.+?)\s*$/gm, '$1')
         .replace(/^\s*[-*_]{3,}\s*$/gm, '')
     return text.trim()

@@ -1,46 +1,63 @@
-import vue from 'eslint-plugin-vue'
-import html from 'eslint-plugin-html'
-import prettier from 'eslint-plugin-prettier'
+import pluginJs from '@eslint/js'
+import prettierPlugin from 'eslint-plugin-prettier'
+import pluginVue from 'eslint-plugin-vue'
 import globals from 'globals'
-import parser from 'vue-eslint-parser'
-import path from 'node:path'
-import { fileURLToPath } from 'node:url'
-import js from '@eslint/js'
-import { FlatCompat } from '@eslint/eslintrc'
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
-const compat = new FlatCompat({
-    baseDirectory: __dirname,
-    recommendedConfig: js.configs.recommended,
-    allConfig: js.configs.all,
-})
-
+/** @type {import('eslint').Linter.Config[]} */
 export default [
-    ...compat.extends('plugin:vue/vue3-recommended', 'prettier'),
+    {
+        ignores: ['**/dist/**', '**/.git/**', '**/.dist/**', '**/node_modules/**'],
+    },
+    {
+        files: ['**/*.{js,mjs,cjs,ts,vue}'],
+        languageOptions: {
+            globals: { ...globals.browser, ...globals.node },
+        },
+    },
+    pluginJs.configs.recommended,
+    ...pluginVue.configs['flat/essential'],
+    {
+        files: ['**/*.vue'],
+        languageOptions: {
+            parserOptions: {
+                ecmaVersion: 2022,
+                sourceType: 'module',
+            },
+        },
+    },
     {
         plugins: {
-            vue,
-            html,
-            prettier,
+            prettier: prettierPlugin,
         },
-
-        languageOptions: {
-            globals: {
-                ...globals.browser,
-                ...globals.node,
-            },
-
-            parser: parser,
-            ecmaVersion: 13,
-            sourceType: 'module',
-        },
-
         rules: {
-            'prettier/prettier': 'error',
-            'vue/no-multiple-template-root': 'off',
+            'comma-dangle': 'off',
+            'comma-spacing': 'off',
+            'comma-style': 'off',
+            camelcase: 'off',
+            'no-console': 'off',
+            'no-debugger': 'off',
+            'default-case': 'off',
+            'linebreak-style': 'off',
+            'consistent-return': 'off',
+            'prefer-destructuring': 'off',
+            'import/imports-first': 'off',
+            'import/no-unresolved': 'off',
+            'import/extensions': 'off',
+            'import/prefer-default-export': 'off',
+            'no-param-reassign': 'off',
+            'operator-linebreak': 'off',
+            complexity: ['error', { max: 30 }],
+            'max-nested-callbacks': ['error', 4],
+            'arrow-body-style': ['error', 'as-needed'],
+            'vue/html-indent': 'off',
+            'vue/no-watch-after-await': 'off',
+            'vue/script-setup-uses-vars': 'off',
+            'vue/max-attributes-per-line': 'off',
             'vue/multi-word-component-names': 'off',
-            'vue/no-v-model-argument': 'off',
+            'vue/no-reserved-component-names': 'off',
+            'vue/html-closing-bracket-spacing': 'error',
+            'vue/singleline-html-element-content-newline': 'off',
+            'vue/html-self-closing': ['error', { html: { normal: 'any', void: 'always' } }],
         },
     },
 ]

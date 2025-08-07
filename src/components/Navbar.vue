@@ -41,7 +41,7 @@ router.beforeEach((to, from, next) => {
         next(true)
         return
     } else if (!leave.value) {
-        if (!!from.query.type) {
+        if (from.query.type) {
             toggleModal(true)
             next(false)
             return

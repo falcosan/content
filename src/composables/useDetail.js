@@ -83,9 +83,9 @@ export const useDetail = (props, emits) => {
         }
     }
     const checkDetail = () => {
-        const check = properties.value.required.every((prop) => {
-            return detail.value.content[prop] && !html.test(detail.value.content[prop])
-        })
+        const check = properties.value.required.every(
+            (prop) => detail.value.content[prop] && !html.test(detail.value.content[prop])
+        )
         if (!check) {
             const message = 'Complete required fields'
             clearTimeout(modal.value.timeout)

@@ -384,17 +384,15 @@ export default {
                 characters: text.replace(/(<([^>]+)>)/gim, '').length,
             }
         })
-        const setterActions = computed(() => {
-            return {
-                format: actions.value.filter((action) => action.type),
-                history: actions.value.filter((action) =>
-                    /clear|undo|redo|markdown/.test(action.value)
-                ),
-            }
-        })
-        const checkArguments = computed(() => {
-            return !!Object.values(node.value.argument).filter(Boolean).length
-        })
+        const setterActions = computed(() => ({
+            format: actions.value.filter((action) => action.type),
+            history: actions.value.filter((action) =>
+                /clear|undo|redo|markdown/.test(action.value)
+            ),
+        }))
+        const checkArguments = computed(
+            () => !!Object.values(node.value.argument).filter(Boolean).length
+        )
         const editor = useEditor({
             extensions: [...extensions, ...dynamicExtensions.value],
             editable: true,
@@ -428,9 +426,7 @@ export default {
                 checkFormats(editor)
             },
         })
-        const setContent = (editor) => {
-            return props.tools ? editor.getHTML() : editor.getText()
-        }
+        const setContent = (editor) => (props.tools ? editor.getHTML() : editor.getText())
         const getAction = (type) => {
             if (typeof type === 'string') {
                 return actions.value.find((action) => action.type === type)

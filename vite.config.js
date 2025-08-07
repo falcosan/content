@@ -6,23 +6,21 @@ import { defineConfig } from 'vite'
 import { htmlPlugin } from './src/plugins/html.js'
 import tailwindcss from '@tailwindcss/vite'
 
-export default defineConfig(() => {
-    return {
-        plugins: [
-            vue(),
-            htmlPlugin(),
-            tailwindcss(),
-            VitePWA({
-                manifest: enums.manifest,
-                registerType: 'autoUpdate',
-            }),
-        ],
-        envPrefix: 'STORY_',
-        resolve: {
-            extensions: ['.js', '.vue', '.json'],
-            alias: {
-                '@': fileURLToPath(new URL('./src', import.meta.url)),
-            },
+export default defineConfig(() => ({
+    plugins: [
+        vue(),
+        htmlPlugin(),
+        tailwindcss(),
+        VitePWA({
+            manifest: enums.manifest,
+            registerType: 'autoUpdate',
+        }),
+    ],
+    envPrefix: 'STORY_',
+    resolve: {
+        extensions: ['.js', '.vue', '.json'],
+        alias: {
+            '@': fileURLToPath(new URL('./src', import.meta.url)),
         },
-    }
-})
+    },
+}))

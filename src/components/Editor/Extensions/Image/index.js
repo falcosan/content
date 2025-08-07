@@ -40,7 +40,7 @@ export const CustomImage = Node.create({
             this.options.HTMLAttributes,
             ['img', mergeAttributes(HTMLAttributes, { caption: undefined })],
         ]
-        if (!!node.attrs.caption) nodes.push(['figcaption', node.attrs.caption])
+        if (node.attrs.caption) nodes.push(['figcaption', node.attrs.caption])
         return nodes
     },
     addCommands() {
