@@ -25,7 +25,7 @@ export const useDetail = (props, emits) => {
         edited: { background: 'bg-blue-500', text: 'text-white' },
         published: { background: 'bg-green-500', text: 'text-white' },
     }
-    const fields = ['title', 'intro', 'content', 'date', 'long_text']
+    const fields = ['date', 'title', 'intro', 'long_text']
     const html = /^<([a-z]+)([^>]+)*(?:>(?:\s*|\n*)<\/\1>|[^/]*\/>)$/
 
     const inputs = computed(() => [
@@ -35,14 +35,26 @@ export const useDetail = (props, emits) => {
             type: 'date',
         })),
     ])
-    const editors = computed(() => [
-        ...properties.value.textFields.map((key) => ({
+    const editors = computed(() => {
+        const sortedFields = properties.value.textFields.sort((a, b) => {
+            const indexA = fields.indexOf(a)
+            const indexB = fields.indexOf(b)
+            if (indexA !== -1 && indexB !== -1) {
+                return indexA - indexB
+            }
+
+            if (indexA !== -1) return -1
+            if (indexB !== -1) return 1
+            return 0
+        })
+
+        return sortedFields.map((key) => ({
             title: `${formatString(key)}${properties.value.required.includes(key) ? '*' : ''}`,
             value: key,
             max: checkProperties('maxLength', key),
             markdown: checkProperties('markdown', key),
-        })),
-    ])
+        }))
+    })
     const resetModal = () => {
         clearTimeout(modal.value.timeout)
         modal.value.timeout = setTimeout(() => {
