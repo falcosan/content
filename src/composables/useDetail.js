@@ -1,5 +1,5 @@
 import { formatString } from '@/utils/string'
-import { watch, toRefs, inject, reactive, computed, onMounted, onUnmounted } from 'vue'
+import { watch, toRefs, reactive, computed, onMounted, onUnmounted } from 'vue'
 import { editStoryblokStory, toggleStoryblokStory, getStoryblokComponents } from '@/api'
 
 export const useDetail = (props, emits) => {
@@ -25,6 +25,7 @@ export const useDetail = (props, emits) => {
         edited: { background: 'bg-blue-500', text: 'text-white' },
         published: { background: 'bg-green-500', text: 'text-white' },
     }
+    const fields = ['title', 'intro', 'content', 'date', 'long_text']
     const html = /^<([a-z]+)([^>]+)*(?:>(?:\s*|\n*)<\/\1>|[^/]*\/>)$/
 
     const inputs = computed(() => [
@@ -190,7 +191,10 @@ export const useDetail = (props, emits) => {
                 properties.value.markdown = getProperties(data.type, 'key', 'markdown')
                 properties.value.datetime = getProperties(data.type, 'key', 'datetime')
                 properties.value.textFields = Object.keys(val.content || {}).filter(
-                    (key) => !properties.value.datetime.includes(key)
+                    (key) =>
+                        typeof val.content[key] === 'string' &&
+                        !properties.value.datetime.includes(key) &&
+                        fields.includes(key)
                 )
                 detail.value = mapDetail(val)
                 emits('ready', true)
