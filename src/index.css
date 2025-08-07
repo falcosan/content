@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
     --breakpoint-ss: 320px;
@@ -79,11 +79,11 @@ h6 {
 }
 
 button,
-input[type="submit"],
-input[type="reset"],
-input[type="button"],
-input[type="file"],
-input[type="image"] {
+input[type='submit'],
+input[type='reset'],
+input[type='button'],
+input[type='file'],
+input[type='image'] {
     @apply cursor-pointer;
 }
 
