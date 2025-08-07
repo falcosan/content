@@ -1,10 +1,8 @@
-import enums from '@/enums'
 import { formatString } from '@/utils/string'
 import { watch, toRefs, inject, reactive, computed, onMounted, onUnmounted } from 'vue'
 import { editStoryblokStory, toggleStoryblokStory, getStoryblokComponents } from '@/api'
 
 export const useDetail = (props, emits) => {
-    const locale = inject('locale')
     const state = reactive({
         detail: {},
         properties: {
@@ -12,7 +10,7 @@ export const useDetail = (props, emits) => {
             markdown: [],
             required: [],
             maxLength: [],
-            translatable: [],
+            textFields: [],
         },
         loading: {
             edit: false,
@@ -28,18 +26,7 @@ export const useDetail = (props, emits) => {
         published: { background: 'bg-green-500', text: 'text-white' },
     }
     const html = /^<([a-z]+)([^>]+)*(?:>(?:\s*|\n*)<\/\1>|[^/]*\/>)$/
-    const translatable = computed(() =>
-        properties.value.translatable.reduce((acc, value) => {
-            const regex = new RegExp(`${enums.translatableSuffix}.*`)
-            const key = value.replace(regex, '')
-            const obj = enums.languages.reduce((objAcc, lang) => {
-                const translatedKey = `${key}${enums.translatableSuffix}${lang}`
-                const text = lang === 'en' ? key : translatedKey
-                return { ...objAcc, [lang]: text }
-            }, {})
-            return { ...acc, [key]: obj[locale.value] }
-        }, {})
-    )
+
     const inputs = computed(() => [
         ...properties.value.datetime.map((key) => ({
             title: `${formatString(key)}${properties.value.required.includes(key) ? '*' : ''}`,
@@ -48,11 +35,9 @@ export const useDetail = (props, emits) => {
         })),
     ])
     const editors = computed(() => [
-        ...properties.value.translatable.map((key) => ({
-            title: `${formatString(properties.value.translatable.find((val) => val === key))}${
-                properties.value.required.includes(key) ? '*' : ''
-            }`,
-            value: translatable.value[key],
+        ...properties.value.textFields.map((key) => ({
+            title: `${formatString(key)}${properties.value.required.includes(key) ? '*' : ''}`,
+            value: key,
             max: checkProperties('maxLength', key),
             markdown: checkProperties('markdown', key),
         })),
@@ -66,41 +51,18 @@ export const useDetail = (props, emits) => {
         }, 5000)
     }
     const mapDetail = (values) => {
-        const translatable = properties.value.translatable.reduce((acc, value) => {
-            const regex = new RegExp(`${enums.translatableSuffix}.*`)
-            const key = value.replace(regex, '')
-            return enums.languages.reduce((objAcc, lang) => {
-                const translatedKey = `${key}${enums.translatableSuffix}${lang}`
-                const text = lang === 'en' ? key : translatedKey
-                const value = values.content[text] || ''
-                return {
-                    ...acc,
-                    ...objAcc,
-                    [text]: value,
-                }
-            }, {})
-        }, {})
         const content = Object.entries(values.content).reduce((acc, [k, v]) => {
             if (k === 'date') acc[k] = new Date(v).toISOString().slice(0, 10)
             else acc[k] = v
             return acc
         }, {})
-        return { ...values, content: { ...content, ...translatable } }
+        return { ...values, content }
     }
     const cleanDetail = (values) => {
-        const keys = properties.value.translatable.reduce((acc, curr) => {
-            const transformed = enums.languages
-                .filter((lang) => lang !== 'en')
-                .map((lang) => `${curr}${enums.translatableSuffix}${lang}`)
-            return [...acc, ...transformed]
-        }, [])
         const content = Object.keys(values.content).reduce((fields, key) => {
             const value = values.content[key]
             if (!value) return fields
-            if (
-                (keys.includes(key) && !html.test(value)) ||
-                (!keys.includes(key) && !html.test(value))
-            ) {
+            if (!html.test(value)) {
                 return { ...fields, [key]: value }
             }
             return fields
@@ -142,7 +104,7 @@ export const useDetail = (props, emits) => {
         loading.value.edit = true
         try {
             checkDetail()
-            await editStoryblokStory(cleanDetail(detail.value), locale.value)
+            await editStoryblokStory(cleanDetail(detail.value))
                 .then((res) => {
                     detail.value = mapDetail(res.story)
                     modal.value.message = 'Saved'
@@ -228,7 +190,8 @@ export const useDetail = (props, emits) => {
                 properties.value.maxLength = getProperties(data.max_length, 'obj')
                 properties.value.markdown = getProperties(data.type, 'key', 'markdown')
                 properties.value.datetime = getProperties(data.type, 'key', 'datetime')
-                properties.value.translatable = getProperties(data.translatable, 'key')
+                // Use translatable fields as text fields for editing
+                properties.value.textFields = getProperties(data.translatable, 'key')
                 detail.value = mapDetail(val)
                 emits('ready', true)
             }
@@ -237,7 +200,6 @@ export const useDetail = (props, emits) => {
     return {
         modal,
         detail,
-        locale,
         inputs,
         editors,
         loading,
@@ -246,7 +208,6 @@ export const useDetail = (props, emits) => {
         properties,
         goToDetail,
         toggleDetail,
-        translatable,
         checkProperties,
     }
 }

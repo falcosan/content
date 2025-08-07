@@ -2,8 +2,6 @@ const webTitle = 'AP | Editor'
 
 export default {
     webTitle,
-    translatableSuffix: '__i18n__',
-    languages: ['en', 'es', 'it'],
     metaHtml: { title: { variable: 'META_TITLE', value: webTitle } },
     manifest: {
         name: webTitle,

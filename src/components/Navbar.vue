@@ -1,5 +1,4 @@
 <script setup>
-import enums from '@/enums'
 import { Icon } from '@iconify/vue'
 import Modal from '@/components/Modal'
 import { useRoute, useRouter } from 'vue-router'
@@ -8,8 +7,6 @@ import { computed, inject, reactive, toRefs, onBeforeMount, onBeforeUnmount } fr
 const db = inject('db')
 const route = useRoute()
 const router = useRouter()
-const auth = inject('auth')
-const locale = inject('locale')
 const loading = inject('loading')
 const state = reactive({
     modal: false,
@@ -27,7 +24,6 @@ const goBack = () => {
     toggleModal(false)
     router.replace({ query: {} })
 }
-const changeLanguage = (language) => (locale.value = language)
 const preventNav = (event) => {
     if (route.query.type) {
         if (leave.value) return
@@ -56,19 +52,7 @@ router.beforeEach((to, from, next) => {
 </script>
 
 <template>
-    <div class="sticky flex justify-between z-20 top-0 pb-5 -m-2 pointer-events-none">
-        <div class="mx-2 shadow rounded-md transition-[padding] pointer-events-auto bg-white">
-            <button
-                v-for="(language, indexLanguage) in enums.languages"
-                :key="indexLanguage"
-                :class="[
-                    'py-1.5 xx:py-2.5 px-3 xx:px-6 m-1 xx:m-2 rounded-md text-xs font-semibold uppercase',
-                    locale === language ? 'text-gray-200 bg-gray-500' : 'text-gray-500 bg-gray-200',
-                ]"
-                @click="changeLanguage(language)"
-                v-text="language"
-            />
-        </div>
+    <div class="sticky flex justify-end z-20 top-0 pb-5 -m-2 pointer-events-none">
         <div class="mx-2 shadow rounded-md transition-[padding] pointer-events-auto bg-white">
             <button
                 class="py-1 xx:py-2 px-3 xx:px-5 m-1 xx:m-2 rounded-md text-gray-500 active:text-gray-200 bg-gray-200 active:bg-gray-500"

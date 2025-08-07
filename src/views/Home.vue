@@ -8,7 +8,6 @@ import { computed, inject, reactive, toRefs, watch } from 'vue'
 
 const route = useRoute()
 const router = useRouter()
-const locale = inject('locale')
 const loading = inject('loading')
 const state = reactive({
     data: {
@@ -43,7 +42,7 @@ const setDetail = (item) => {
 const setState = (state) => (detail.value.state = state)
 
 const getBlog = async () => {
-    const { stories: posts } = await getStoryblokStories(locale.value, 'blog')
+    const { stories: posts } = await getStoryblokStories('blog')
     data.value.blog = posts
         .filter((story) => !story.is_startpage)
         .sort((a, b) => new Date(b.content.date) - new Date(a.content.date))
@@ -62,7 +61,6 @@ const getStory = async () => {
         .finally(() => (loading.value = false))
 }
 
-watch(locale, getStories)
 watch(
     () => route.query,
     async (val) => {

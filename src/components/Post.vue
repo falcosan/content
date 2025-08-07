@@ -16,7 +16,6 @@ const {
     modal,
     detail,
     inputs,
-    locale,
     editors,
     loading,
     modalType,
@@ -31,7 +30,7 @@ const {
         <div class="grid grid-cols-12 gap-x-5">
             <div
                 v-for="(input, indexInput) in inputs"
-                :key="`${indexInput}_${locale}`"
+                :key="indexInput"
                 class="col-span-12 md:col-span-6 xl:col-span-4 mb-10"
             >
                 <span
@@ -48,7 +47,7 @@ const {
         </div>
         <Editor
             v-for="(editor, indexEditor) in editors"
-            :key="`${indexEditor}_${locale}`"
+            :key="indexEditor"
             v-model:text="detail.content[editor.value]"
             :title="editor.title"
             :tools="editor.markdown"

@@ -9,10 +9,9 @@ const Storyblok = {
         accessToken: import.meta.env.STORY_PREVIEW_TOKEN,
     }),
 }
-export async function getStoryblokStories(language, startsWith, query = 'cdn/stories/') {
+export async function getStoryblokStories(startsWith, query = 'cdn/stories/') {
     return await Storyblok.common
         .get(query, {
-            language,
             version: 'draft',
             cv: 'CURRENT_TIMESTAMP',
             ...(startsWith && { starts_with: startsWith }),
@@ -28,10 +27,9 @@ export async function getStoryblokStory(id) {
         .catch((error) => console.error(error.message || error))
 }
 
-export async function editStoryblokStory(story, lang) {
+export async function editStoryblokStory(story) {
     return await Storyblok.management
         .put(`spaces/${import.meta.env.STORY_ID_SPACE}/stories/${story.id}`, {
-            lang,
             story,
             ...(story.published && { publish: '1' }),
         })
