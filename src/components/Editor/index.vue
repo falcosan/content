@@ -411,7 +411,7 @@ export default {
                 attributes: {
                     class: `${
                         props.tools ? 'markdown py-3' : 'plain py-[9px]'
-                    } h-full min-h-[inherit] mb-2.5`,
+                    } h-full !min-h-[inherit] mb-2.5`,
                 },
             },
             onUpdate({ editor }) {
