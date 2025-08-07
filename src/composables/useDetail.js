@@ -182,7 +182,6 @@ export const useDetail = (props, emits) => {
             if (val.content) {
                 const data = await getStoryblokComponents(val.content.component, [
                     'required',
-                    'translatable',
                     { max_length: [String, Number] },
                     { type: ['markdown', 'datetime'] },
                 ])
@@ -190,8 +189,9 @@ export const useDetail = (props, emits) => {
                 properties.value.maxLength = getProperties(data.max_length, 'obj')
                 properties.value.markdown = getProperties(data.type, 'key', 'markdown')
                 properties.value.datetime = getProperties(data.type, 'key', 'datetime')
-                // Use translatable fields as text fields for editing
-                properties.value.textFields = getProperties(data.translatable, 'key')
+                properties.value.textFields = Object.keys(val.content || {}).filter(
+                    (key) => !properties.value.datetime.includes(key)
+                )
                 detail.value = mapDetail(val)
                 emits('ready', true)
             }

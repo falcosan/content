@@ -12,17 +12,8 @@ const props = defineProps({
     },
 })
 const emits = defineEmits(['ready'])
-const {
-    modal,
-    detail,
-    inputs,
-    editors,
-    loading,
-    modalType,
-    editDetail,
-    goToDetail,
-    toggleDetail,
-} = useDetail(props, emits)
+const { modal, detail, inputs, editors, loading, modalType, editDetail, goToDetail, toggleDetail } =
+    useDetail(props, emits)
 </script>
 
 <template>
