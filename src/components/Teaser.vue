@@ -14,12 +14,15 @@ defineProps({
         class="relative h-full flex flex-col rounded-md overflow-hidden border border-gray-800 cursor-pointer"
     >
         <div
-            class="w-full h-36 flex flex-col flex-auto space-y-2.5 p-5"
+            class="w-full h-36 flex flex-col flex-auto space-y-2 p-5"
             :style="`background-color: ${
                 data.content.background_color?.color || '#e0e0e0'
             }; color: ${data.content.text_color?.color || '#212121'};`"
         >
-            <span v-if="data.content.title" class="teaser-title overflow-hidden text-lg sm:text-xl">
+            <span
+                v-if="data.content.title"
+                class="teaser-title h-[60px] overflow-hidden text-lg sm:text-xl"
+            >
                 {{ data.content.title }}
             </span>
             <span
