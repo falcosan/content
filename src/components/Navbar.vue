@@ -4,7 +4,7 @@ import Modal from '@/components/Modal'
 import { useRoute, useRouter } from 'vue-router'
 import { computed, inject, reactive, toRefs, onBeforeMount, onBeforeUnmount } from 'vue'
 
-const db = inject('db')
+const authService = inject('authService')
 const route = useRoute()
 const router = useRouter()
 const loading = inject('loading')
@@ -15,9 +15,9 @@ const state = reactive({
 const { modal, leave } = toRefs(state)
 const checkDetail = computed(() => !!route.query.type)
 const toggleModal = (state) => (modal.value = state)
-const signOut = async () => {
+const signOut = () => {
     loading.value = true
-    await db.auth.signOut()
+    authService.signOut()
 }
 const goBack = () => {
     leave.value = true

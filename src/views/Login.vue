@@ -66,26 +66,25 @@ export default {
     name: 'Login',
     components: { Loader },
     setup() {
-        const db = inject('db')
+        const authService = inject('authService')
         const auth = inject('auth')
         const state = reactive({ email: '', password: '', loading: false, failed: '' })
         const { email, password, loading, failed } = toRefs(state)
         const errorHandler = (error) => {
-            console.table(error)
             failed.value = error.message || error
-            if (error.status === 400) password.value = ''
+            if (error.status === 401) password.value = ''
         }
         const signIn = async () => {
             reset()
             loading.value = true
-            await db.auth
+            await authService
                 .signInWithPassword({
                     email: email.value,
                     password: password.value,
                 })
                 .then(({ data, error }) => {
                     if (error) errorHandler(error)
-                    auth.value = data.user
+                    else auth.value = data
                 })
                 .catch(errorHandler)
                 .finally(() => (loading.value = false))

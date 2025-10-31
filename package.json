@@ -11,7 +11,6 @@
         "format": "prettier --write ."
     },
     "dependencies": {
-        "@supabase/supabase-js": "^2.75.0",
         "@tailwindcss/vite": "^4.1.14",
         "@tiptap/extension-highlight": "^3.6.6",
         "@tiptap/extension-link": "^3.6.6",
