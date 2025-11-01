@@ -19,10 +19,7 @@ defineProps({
                 data.content.background_color?.color || '#e0e0e0'
             }; color: ${data.content.text_color?.color || '#212121'};`"
         >
-            <span
-                v-if="data.content.title"
-                class="teaser-title h-[60px] overflow-hidden text-lg sm:text-xl"
-            >
+            <span v-if="data.content.title" class="teaser-title h-[60px] overflow-hidden text-lg">
                 {{ data.content.title }}
             </span>
             <span

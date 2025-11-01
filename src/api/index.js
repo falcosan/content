@@ -111,3 +111,40 @@ export async function toggleStoryblokStory(id, state) {
         .then(({ data }) => data)
         .catch((error) => console.error(error.message || error))
 }
+
+export async function createStoryblokStory(title, slug) {
+    const blogFolder = await Storyblok.management
+        .get(`spaces/${import.meta.env.STORY_ID_SPACE}/stories`, {
+            with_slug: 'blog',
+        })
+        .then(({ data }) => data.stories[0])
+        .catch((error) => {
+            console.error('Error fetching blog folder:', error.message || error)
+            return null
+        })
+
+    if (!blogFolder) {
+        console.error('Blog folder not found')
+        return null
+    }
+
+    return await Storyblok.management
+        .post(`spaces/${import.meta.env.STORY_ID_SPACE}/stories/`, {
+            story: {
+                name: title,
+                slug: slug,
+                parent_id: blogFolder.id,
+                content: {
+                    component: 'Post',
+                    date: new Date().toISOString().slice(0, 10),
+                    title: title,
+                    intro: '',
+                    long_text: '',
+                },
+                is_startpage: false,
+            },
+            force_update: '1',
+        })
+        .then(({ data }) => data)
+        .catch((error) => console.error(error.message || error))
+}
