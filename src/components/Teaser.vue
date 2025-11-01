@@ -1,5 +1,4 @@
 <script setup>
-import { formatPlainText } from '@/utils/string'
 defineProps({
     data: {
         type: Object,
@@ -9,33 +8,10 @@ defineProps({
 </script>
 
 <template>
-    <div
-        v-if="data.content"
-        class="relative h-full flex flex-col rounded-md overflow-hidden border border-gray-800 cursor-pointer"
-    >
-        <div
-            class="w-full h-36 flex flex-col flex-auto space-y-2 p-5"
-            :style="`background-color: ${
-                data.content.background_color?.color || '#e0e0e0'
-            }; color: ${data.content.text_color?.color || '#212121'};`"
-        >
-            <span v-if="data.content.title" class="teaser-title h-[60px] overflow-hidden text-lg">
-                {{ data.content.title }}
-            </span>
-            <span
-                v-if="data.content.intro"
-                class="teaser-intro overflow-hidden leading-relaxed text-sm"
-            >
-                {{ formatPlainText(data.content.intro) }}
-            </span>
+    <div v-if="data.content" class="w-full py-2 first:pt-0 last:pb-0 cursor-pointer">
+        <div class="p-3 rounded bg-neutral-400">
+            <p class="font-semibold text-gray-900">{{ data.content.title }}</p>
+            <p class="text-gray-600 italic">{{ data.content.intro }}</p>
         </div>
     </div>
 </template>
-<style scoped>
-.teaser-title,
-.teaser-intro {
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-}
-</style>

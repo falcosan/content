@@ -136,11 +136,10 @@ watch(
                 </button>
             </div>
             <div v-if="data.blog.length" class="relative">
-                <div class="grid grid-cols-12 auto-rows-fr gap-5">
+                <div class="flex flex-col">
                     <Teaser
                         v-for="post in data.blog"
                         :key="post.uuid"
-                        class="col-span-12 sm:col-span-6 lg:col-span-4 xl:col-span-3"
                         :data="post"
                         @click="setDetail(post)"
                     />
