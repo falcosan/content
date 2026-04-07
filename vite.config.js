@@ -1,20 +1,14 @@
-import enums from './src/enums'
 import { fileURLToPath } from 'url'
-import vue from '@vitejs/plugin-vue'
-import { VitePWA } from 'vite-plugin-pwa'
 import { defineConfig } from 'vite'
-import { htmlPlugin } from './src/plugins/html.js'
+import vue from '@vitejs/plugin-vue'
 import tailwindcss from '@tailwindcss/vite'
+import { htmlPlugin } from './src/plugins/html.js'
 
 export default defineConfig(() => ({
     plugins: [
         vue(),
         htmlPlugin(),
         tailwindcss(),
-        VitePWA({
-            manifest: enums.manifest,
-            registerType: 'autoUpdate',
-        }),
     ],
     envPrefix: 'STORY_',
     resolve: {
