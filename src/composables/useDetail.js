@@ -1,8 +1,16 @@
+import { useRouter } from 'vue-router'
 import { formatString } from '@/utils/string'
-import { watch, toRefs, reactive, computed, onMounted, onUnmounted } from 'vue'
-import { editStoryblokStory, toggleStoryblokStory, getStoryblokComponents } from '@/api'
+import { inject, watch, toRefs, reactive, computed, onMounted, onUnmounted } from 'vue'
+import {
+    editStoryblokStory,
+    toggleStoryblokStory,
+    deleteStoryblokStory,
+    getStoryblokComponents,
+} from '@/api'
 
 export const useDetail = (props, emits) => {
+    const router = useRouter()
+    const leaving = inject('leaving')
     const state = reactive({
         detail: {},
         properties: {
@@ -15,11 +23,13 @@ export const useDetail = (props, emits) => {
         loading: {
             edit: false,
             toggle: false,
+            delete: false,
         },
+        confirmDelete: false,
         keys: { ctrl: false },
         modal: { state: false, message: '', type: '', timeout: 0 },
     })
-    const { detail, keys, modal, loading, properties } = toRefs(state)
+    const { detail, keys, modal, loading, properties, confirmDelete } = toRefs(state)
     const modalType = {
         error: { background: 'bg-red-500', text: 'text-white' },
         edited: { background: 'bg-blue-500', text: 'text-white' },
@@ -163,6 +173,25 @@ export const useDetail = (props, emits) => {
             loading.value.toggle = false
         }
     }
+    const deleteDetail = async () => {
+        loading.value.delete = true
+        try {
+            await deleteStoryblokStory(detail.value.id)
+            confirmDelete.value = false
+            detail.value = {}
+            leaving.value = true
+            await router.push({ path: '/' })
+        } catch {
+            modal.value.message = 'Error'
+            modal.value.state = true
+            modal.value.type = 'error'
+            resetModal()
+        } finally {
+            loading.value.delete = false
+        }
+    }
+    const openDeleteConfirm = () => (confirmDelete.value = true)
+    const closeDeleteConfirm = () => (confirmDelete.value = false)
     const handleSave = async (event) => {
         if (event.metaKey && event.code === 'KeyS') {
             event.preventDefault()
@@ -224,6 +253,10 @@ export const useDetail = (props, emits) => {
         properties,
         goToDetail,
         toggleDetail,
+        deleteDetail,
+        confirmDelete,
+        openDeleteConfirm,
+        closeDeleteConfirm,
         checkProperties,
     }
 }

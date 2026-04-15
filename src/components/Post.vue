@@ -1,6 +1,8 @@
 <script setup>
 import { Icon } from '@iconify/vue'
 import Editor from '@/components/Editor'
+import Modal from '@/components/Modal'
+import Loader from '@/components/Loader'
 import { dateWithoutHour } from '@/utils/date'
 import { useDetail } from '@/composables/useDetail'
 
@@ -11,8 +13,21 @@ const props = defineProps({
     },
 })
 const emits = defineEmits(['ready'])
-const { modal, detail, inputs, editors, loading, modalType, editDetail, goToDetail, toggleDetail } =
-    useDetail(props, emits)
+const {
+    modal,
+    detail,
+    inputs,
+    editors,
+    loading,
+    modalType,
+    editDetail,
+    goToDetail,
+    toggleDetail,
+    deleteDetail,
+    confirmDelete,
+    openDeleteConfirm,
+    closeDeleteConfirm,
+} = useDetail(props, emits)
 </script>
 
 <template>
@@ -70,6 +85,13 @@ const { modal, detail, inputs, editors, loading, modalType, editDetail, goToDeta
                 <span v-text="'Post'" />
             </button>
             <button
+                class="w-full sm:w-32 flex justify-center m-2.5 p-2.5 px-6 rounded font-semibold active:bg-red-600/70 text-white bg-red-600"
+                @click="openDeleteConfirm"
+            >
+                <Icon v-if="loading.delete" class="text-2xl" icon="eos-icons:three-dots-loading" />
+                <span v-else v-text="'Delete'" />
+            </button>
+            <button
                 class="w-full sm:w-32 flex justify-center m-2.5 p-2.5 px-6 rounded font-semibold active:bg-blue-500/70 text-white bg-blue-500"
                 @click="editDetail"
             >
@@ -89,5 +111,33 @@ const { modal, detail, inputs, editors, loading, modalType, editDetail, goToDeta
                 <span v-else v-text="detail.published ? 'Unpublish' : 'Publish'" />
             </button>
         </div>
+        <Modal :open="confirmDelete" @update:open="closeDeleteConfirm">
+            <template #body>
+                <div class="space-y-4">
+                    <p class="text-gray-800">
+                        Delete
+                        <span class="font-semibold">{{ detail.content.title }}</span>
+                        ? This cannot be undone.
+                    </p>
+                    <div class="flex justify-end gap-2">
+                        <button
+                            class="px-4 py-2 rounded-md font-semibold text-gray-700 bg-gray-200 hover:bg-gray-300 active:bg-gray-400"
+                            :disabled="loading.delete"
+                            @click="closeDeleteConfirm"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            class="flex w-20 justify-center items-center gap-2 px-4 py-2 rounded-md font-semibold text-white bg-red-600 hover:bg-red-700 active:bg-red-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                            :disabled="loading.delete"
+                            @click="deleteDetail"
+                        >
+                            <Loader v-if="loading.delete" size="2" />
+                            <span v-else v-text="'Delete'" />
+                        </button>
+                    </div>
+                </div>
+            </template>
+        </Modal>
     </div>
 </template>

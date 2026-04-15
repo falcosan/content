@@ -105,6 +105,13 @@ export async function getStoryblokComponents(name, properties) {
     return name === true ? components : components[name]
 }
 
+export async function deleteStoryblokStory(id) {
+    return await Storyblok.management
+        .delete(`spaces/${import.meta.env.STORY_ID_SPACE}/stories/${id}`, {})
+        .then(({ data }) => data)
+        .catch((error) => console.error(error.message || error))
+}
+
 export async function toggleStoryblokStory(id, state) {
     return await Storyblok.management
         .get(`spaces/${import.meta.env.STORY_ID_SPACE}/stories/${id}/${state}`, {})

@@ -1,5 +1,5 @@
 <script setup>
-import { inject, watch } from 'vue'
+import { inject, provide, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import Loader from '@/components/Loader'
 import Navbar from '@/components/Navbar'
@@ -7,6 +7,10 @@ import Navbar from '@/components/Navbar'
 const router = useRouter()
 const logged = inject('logged')
 const loading = inject('loading')
+
+const leaving = ref(false)
+
+provide('leaving', leaving)
 
 const checkAuth = (to) => {
     if (to.meta.requiresAuth && !logged?.value) {
