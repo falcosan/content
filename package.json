@@ -12,12 +12,12 @@
     },
     "dependencies": {
         "@tailwindcss/vite": "^4.2.2",
-        "@tiptap/extension-highlight": "^3.22.2",
-        "@tiptap/extension-link": "^3.22.2",
-        "@tiptap/extension-underline": "^3.22.2",
-        "@tiptap/pm": "^3.22.2",
-        "@tiptap/starter-kit": "^3.22.2",
-        "@tiptap/vue-3": "^3.22.2",
+        "@tiptap/extension-highlight": "^3.22.3",
+        "@tiptap/extension-link": "^3.22.3",
+        "@tiptap/extension-underline": "^3.22.3",
+        "@tiptap/pm": "^3.22.3",
+        "@tiptap/starter-kit": "^3.22.3",
+        "@tiptap/vue-3": "^3.22.3",
         "@vueuse/core": "^14.2.1",
         "marked": "^18.0.0",
         "storyblok-js-client": "^7.3.0",
@@ -27,14 +27,14 @@
     },
     "devDependencies": {
         "@iconify/vue": "^5.0.0",
-        "@vitejs/plugin-vue": "^6.0.5",
-        "autoprefixer": "^10.4.27",
+        "@vitejs/plugin-vue": "^6.0.6",
+        "autoprefixer": "^10.5.0",
         "eslint": "^10.2.0",
         "eslint-config-prettier": "^10.1.8",
         "eslint-plugin-prettier": "^5.5.5",
         "eslint-plugin-vue": "^10.8.0",
-        "prettier": "^3.8.1",
+        "prettier": "^3.8.3",
         "tailwindcss": "^4.2.2",
-        "vite": "8.0.7"
+        "vite": "8.0.8"
     }
 }
