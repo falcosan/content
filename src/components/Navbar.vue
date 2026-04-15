@@ -35,19 +35,20 @@ onBeforeMount(() => {
     window.addEventListener('beforeunload', preventNav)
     onBeforeUnmount(() => window.removeEventListener('beforeunload', preventNav))
 })
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, from) => {
     if (to.query.type === 'error') {
         leave.value = true
-        next(true)
-        return
-    } else if (!leave.value) {
+        return true
+    }
+    if (!leave.value) {
         if (from.query.type) {
             toggleModal(true)
-            next(false)
-            return
+            return false
         }
-    } else if (to.query.type != null) leave.value = false
-    next()
+    } else if (to.query.type != null) {
+        leave.value = false
+    }
+    return true
 })
 </script>
 

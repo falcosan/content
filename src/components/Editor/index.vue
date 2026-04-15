@@ -3,7 +3,7 @@
         <span v-if="title" class="block mb-5 text-lg font-semibold text-gray-300" v-text="title" />
         <div class="flex flex-col">
             <EditorContent
-                :class="['h-full min-w-[2rem]', { 'min-h-[16rem]': tools }]"
+                :class="['h-full min-w-8', { 'min-h-64': tools }]"
                 :editor="editor"
             />
             <div v-if="tools" class="lg:sticky lg:bottom-0 pb-5">
@@ -145,7 +145,7 @@ const extensions = [
     Underline,
     Highlight,
     CodeBlock,
-    StarterKit.configure({ codeBlock: false }),
+    StarterKit.configure({ codeBlock: false, link: false, underline: false }),
 ]
 export default {
     name: 'Editor',
