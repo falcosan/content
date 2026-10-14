@@ -1,12 +1,8 @@
+[build]
+command = "npm run build"
+publish = "dist"
+
 [[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
-
-[[headers]]
-  for = "/*"
-    [headers.values]
-    Access-Control-Allow-Origin = "*"
-
-[build.processing]
-    skip_processing = true
+from = "/*"
+to = "/index.html"
+status = 200

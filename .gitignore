@@ -1,7 +1,11 @@
 .env
+.env.*
+!.env.example
 node_modules/
 .DS_Store
 dist
-dev-dist
+.netlify
 .tool-versions
-package-lock.json
+coverage
+playwright-report
+test-results

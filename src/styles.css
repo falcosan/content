@@ -1,0 +1,133 @@
+@import 'tailwindcss';
+
+@theme {
+    --color-*: initial;
+    --color-ink: light-dark(#0a0a0a, #fafafa);
+    --color-paper: light-dark(#fafafa, #0a0a0a);
+}
+
+@layer base {
+    :root {
+        color-scheme: light dark;
+    }
+
+    body {
+        @apply min-h-dvh bg-paper font-sans text-ink antialiased;
+    }
+
+    ::selection {
+        @apply bg-ink text-paper;
+    }
+
+    :focus-visible {
+        @apply outline-2 outline-offset-2 outline-ink;
+    }
+
+    dialog::backdrop {
+        @apply bg-ink/40 backdrop-blur-[2px];
+    }
+}
+
+@utility control {
+    @apply block w-full rounded-md border border-ink/25 bg-paper px-3 py-2 text-sm text-ink transition-colors outline-none placeholder:text-ink/60 hover:border-ink/50 focus:border-ink disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-2 aria-invalid:border-ink;
+}
+
+@utility label {
+    @apply mb-1.5 flex items-baseline justify-between gap-2 text-xs font-semibold tracking-wide text-ink uppercase;
+}
+
+@utility hint {
+    @apply mt-1.5 text-xs text-ink/60;
+}
+
+@utility prose-content {
+    @apply text-base leading-7 wrap-break-word;
+
+    & > * + * {
+        @apply mt-4;
+    }
+
+    & h1 {
+        @apply text-3xl leading-tight font-bold;
+    }
+
+    & h2 {
+        @apply text-2xl leading-snug font-bold;
+    }
+
+    & h3 {
+        @apply text-xl leading-snug font-semibold;
+    }
+
+    & h4 {
+        @apply text-lg font-semibold;
+    }
+
+    & h5 {
+        @apply text-base font-semibold;
+    }
+
+    & :is(h1, h2, h3, h4, h5) {
+        @apply mt-8 first:mt-0;
+    }
+
+    & a {
+        @apply underline decoration-1 underline-offset-2;
+    }
+
+    & ul {
+        @apply list-disc pl-6;
+    }
+
+    & ol {
+        @apply list-decimal pl-6;
+    }
+
+    & li > p {
+        @apply my-1;
+    }
+
+    & blockquote {
+        @apply border-l-4 border-ink pl-4 italic;
+    }
+
+    & code {
+        @apply rounded bg-ink/10 px-1 py-0.5 font-mono text-[0.875em];
+    }
+
+    & pre {
+        @apply overflow-x-auto rounded-md bg-ink p-4 font-mono text-sm leading-6 text-paper;
+
+        & code {
+            @apply bg-transparent p-0 text-inherit;
+        }
+    }
+
+    & mark {
+        @apply rounded-sm bg-ink px-0.5 text-paper;
+    }
+
+    & hr {
+        @apply mx-auto my-8 w-40 border-ink/25;
+    }
+
+    & img {
+        @apply mx-auto max-w-full rounded-md;
+    }
+
+    & figcaption {
+        @apply mt-2 text-center text-sm text-ink/60 italic;
+    }
+
+    & iframe {
+        @apply pointer-events-none aspect-video w-full rounded-md border-0;
+    }
+
+    & .ProseMirror-selectednode {
+        @apply outline-2 outline-offset-4 outline-ink;
+    }
+
+    & .is-editor-empty:first-child::before {
+        @apply pointer-events-none float-left h-0 text-ink/60 content-[attr(data-placeholder)];
+    }
+}

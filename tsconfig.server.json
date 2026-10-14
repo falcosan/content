@@ -1,0 +1,12 @@
+{
+    "extends": "@tsconfig/node24/tsconfig.json",
+    "compilerOptions": {
+        "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.server.tsbuildinfo",
+        "noEmit": true,
+        "module": "preserve",
+        "moduleResolution": "bundler",
+        "verbatimModuleSyntax": true
+    },
+    "include": ["server/**/*.ts", "shared/**/*.ts", "netlify/**/*.ts"],
+    "exclude": ["server/**/*.test.ts", "server/test/**"]
+}

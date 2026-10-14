@@ -1,0 +1,12 @@
+{
+    "extends": "@tsconfig/node24/tsconfig.json",
+    "compilerOptions": {
+        "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
+        "noEmit": true,
+        "module": "preserve",
+        "moduleResolution": "bundler",
+        "verbatimModuleSyntax": true,
+        "lib": ["ES2024", "DOM", "DOM.Iterable"]
+    },
+    "include": ["vite.config.ts", "eslint.config.ts", "playwright.config.ts", "e2e/**/*.ts"]
+}
