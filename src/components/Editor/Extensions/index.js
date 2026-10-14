@@ -1,5 +1,0 @@
-export { CustomLink as Link } from './Link'
-export { CustomImage as Image } from './Image'
-export { EmbedCustom as Embed } from './Embed'
-export { CustomCodeBlock as CodeBlock } from './CodeBlock'
-export { CustomCharacterCount as CharacterCount } from './CharacterCount'
