@@ -7,12 +7,11 @@ import { fieldsQuery, keys } from '@/api/queries'
 import UiButton from '@/components/ui/UiButton.vue'
 import UiDialog from '@/components/ui/UiDialog.vue'
 import { notify } from '@/composables/useToasts'
-import { isSlug, slugify } from '@/lib/slug'
 import { BLOG } from '../../../shared/blog'
-import { MAX_LENGTH, SLUG_PATTERN } from '../../../shared/validation'
+import { MAX_LENGTH } from '../../../shared/validation'
 
 const { source } = defineProps<{
-    source?: { id: number; name: string; slug: string }
+    source?: { id: number; title: string }
 }>()
 
 const open = defineModel<boolean>('open', { required: true })
@@ -22,11 +21,9 @@ const router = useRouter()
 const { data: fields } = useQuery(fieldsQuery())
 const formId = useId()
 const titleId = useId()
-const slugId = useId()
-const slugHintId = useId()
 
 const save = useMutation({
-    mutationFn: (json: { name: string; slug: string }) =>
+    mutationFn: (json: { title: string }) =>
         parseResponse(
             source
                 ? api.stories[':id'].duplicate.$post({ param: { id: String(source.id) }, json })
@@ -40,71 +37,42 @@ const save = useMutation({
     },
 })
 
-const name = ref('')
-const slug = ref('')
-const slugEdited = ref(false)
+const title = ref('')
 
 const titleLimit = computed(() => {
-    const title = fields.value?.find((field) => field.key === BLOG.fields.title)
-    return title && 'maxLength' in title ? (title.maxLength ?? undefined) : undefined
+    const field = fields.value?.find(({ key }) => key === BLOG.fields.title)
+    return field && 'maxLength' in field ? (field.maxLength ?? undefined) : undefined
 })
 
-const valid = computed(() => !!name.value.trim() && isSlug(slug.value))
+const valid = computed(() => !!title.value.trim())
 
 watch(open, (isOpen) => {
-    if (!isOpen) return
-    name.value = source ? `${source.name} (copy)` : ''
-    slug.value = source ? `${source.slug}-copy` : ''
-    slugEdited.value = !!source
-})
-
-watch(name, (value) => {
-    if (!slugEdited.value) slug.value = slugify(value)
+    if (isOpen) title.value = source ? `${source.title} (copy)` : ''
 })
 
 const submit = () => {
-    if (valid.value) save.mutate({ name: name.value.trim(), slug: slug.value })
+    if (valid.value) save.mutate({ title: title.value.trim() })
 }
 </script>
 
 <template>
     <UiDialog v-model:open="open" :title="source ? 'Duplicate post' : 'New post'">
-        <form :id="formId" class="flex flex-col gap-4" @submit.prevent="submit">
-            <div>
-                <div class="label">
-                    <label :for="titleId">Title</label>
-                    <span v-if="titleLimit" class="font-normal tracking-normal normal-case">
-                        {{ name.length }}/{{ titleLimit }}
-                    </span>
-                </div>
-                <input
-                    :id="titleId"
-                    v-model="name"
-                    class="control"
-                    required
-                    autofocus
-                    :maxlength="titleLimit ?? MAX_LENGTH.storyName"
-                    placeholder="A great title"
-                />
+        <form :id="formId" @submit.prevent="submit">
+            <div class="label">
+                <label :for="titleId">Title</label>
+                <span v-if="titleLimit" class="font-normal tracking-normal normal-case">
+                    {{ title.length }}/{{ titleLimit }}
+                </span>
             </div>
-            <div>
-                <label class="label" :for="slugId">Slug</label>
-                <div class="flex items-center gap-1 text-sm">
-                    <span class="text-text-light">{{ BLOG.folder }}/</span>
-                    <input
-                        :id="slugId"
-                        v-model="slug"
-                        class="control font-mono"
-                        required
-                        :pattern="SLUG_PATTERN"
-                        :maxlength="MAX_LENGTH.slug"
-                        spellcheck="false"
-                        :aria-describedby="slugHintId"
-                        @input="slugEdited = true"
-                    />
-                </div>
-                <p :id="slugHintId" class="hint">Lowercase letters, numbers and hyphens.</p>
-            </div>
+            <input
+                :id="titleId"
+                v-model="title"
+                class="control"
+                required
+                autofocus
+                :maxlength="titleLimit ?? MAX_LENGTH.storyName"
+                placeholder="A great title"
+            />
         </form>
         <template #footer>
             <UiButton @click="open = false">Cancel</UiButton>

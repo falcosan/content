@@ -1,14 +1,14 @@
 import type { Story } from '#types/api'
-import type { Draft } from '#types/app'
+import type { StoryContent } from '#types/storyblok'
 import { BLOG } from '../../shared/blog'
 
-export const snapshot = (draft: Draft) => JSON.stringify(draft)
+export const snapshot = (draft: StoryContent) => JSON.stringify(draft)
 
-export const cloneDraft = (draft: Draft) => JSON.parse(snapshot(draft)) as Draft
+export const cloneDraft = (draft: StoryContent) => JSON.parse(snapshot(draft)) as StoryContent
 
-export const toDraft = ({ name, slug, content }: Story) => cloneDraft({ name, slug, content })
+export const toDraft = ({ content }: Story) => cloneDraft(content)
 
-export const draftTitle = (draft: Draft | null) => {
-    const value = draft?.content[BLOG.fields.title]
-    return typeof value === 'string' && value.trim() ? value : (draft?.name ?? 'Post')
+export const draftTitle = (draft: StoryContent | null) => {
+    const value = draft?.[BLOG.fields.title]
+    return typeof value === 'string' && value.trim() ? value : 'Post'
 }

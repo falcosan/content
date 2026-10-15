@@ -45,8 +45,6 @@ export const toStorySummary = (
 
 export const toStory = (story: StoryblokStory, siteUrl: string): Story => ({
     id: story.id,
-    name: story.name,
-    slug: story.slug,
     status: statusOf(story),
     url: new URL(story.full_slug, siteUrl).href,
     updatedAt: story.updated_at,
@@ -114,7 +112,6 @@ const toField = (key: string, field: StoryblokSchemaField): Field | null => {
         key,
         label: field.display_name?.trim() || humanize(key),
         required: field.required === true,
-        translatable: field.translatable === true,
         description: field.description?.trim() ?? '',
     }
     const options = (field.options ?? []).map(({ name, value }) => ({ name, value }))

@@ -2,7 +2,6 @@ import '@tanstack/vue-query'
 import type { Component } from 'vue'
 import 'vue-router'
 import type { AssetFolder } from './api'
-import type { StoryContent } from './storyblok'
 
 export type StatusFilter = 'all' | 'published' | 'draft'
 
@@ -20,12 +19,6 @@ export interface Page {
     page: number
     perPage: number
     total: number
-}
-
-export interface Draft {
-    name: string
-    slug: string
-    content: StoryContent
 }
 
 export type FieldErrors = Record<string, string>

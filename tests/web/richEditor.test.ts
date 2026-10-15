@@ -58,7 +58,6 @@ describe('RichEditor', () => {
             key: 'long_text',
             label: 'Text',
             required: false,
-            translatable: false,
             description: '',
             type: 'markdown' as const,
             maxLength: 10,

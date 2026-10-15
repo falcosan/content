@@ -185,20 +185,7 @@ export const createStoryblok = ({
         unpublishStory: async (id: number) => {
             await request('GET', `stories/${id}/unpublish`)
         },
-        duplicateStory: async (id: number, story: StoryblokStoryInput) =>
-            (
-                await data<{ story: StoryblokStory }>('PUT', `stories/${id}/duplicate`, {
-                    body: { story },
-                })
-            ).story,
-        getSpace,
         listStoryContents,
-        translateStory: async (id: number, code: string, lang: string) =>
-            (
-                await data<{ story: StoryblokStory }>('PUT', `stories/${id}/ai_translate`, {
-                    body: { code, lang, overwrite: true },
-                })
-            ).story,
         listComponents: async () =>
             (await data<{ components: StoryblokComponent[] }>('GET', 'components')).components,
         updateComponent: async (id: number, component: StoryblokComponentInput) => {

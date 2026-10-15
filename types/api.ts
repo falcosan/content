@@ -15,8 +15,6 @@ export interface StorySummary {
 
 export interface Story {
     id: number
-    name: string
-    slug: string
     status: StoryStatus
     url: string
     updatedAt: string
@@ -63,7 +61,6 @@ export interface FieldBase {
     key: string
     label: string
     required: boolean
-    translatable: boolean
     description: string
 }
 

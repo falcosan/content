@@ -20,26 +20,7 @@ import { roveFocus } from '@/lib/focus'
 import { flattenFolders, folderLabel } from '@/lib/folders'
 import { formatBytes, formatDate, formatRelative } from '@/lib/format'
 import { safeRedirect } from '@/lib/navigation'
-import { isSlug, slugify } from '@/lib/slug'
 import { validateContent } from '@/lib/validation'
-
-describe('slug', () => {
-    it.each([
-        ['Hello World', 'hello-world'],
-        ['  Ça va?  Très bien!  ', 'ca-va-tres-bien'],
-        ['Año 2025 — ¿Qué pasó?', 'ano-2025-que-paso'],
-        ['---', ''],
-    ])('slugifies %j', (input, expected) => {
-        expect(slugify(input)).toBe(expected)
-    })
-
-    it('validates slugs', () => {
-        expect(isSlug('hello-world-2')).toBe(true)
-        expect(isSlug('Hello')).toBe(false)
-        expect(isSlug('a--b')).toBe(false)
-        expect(isSlug('-a')).toBe(false)
-    })
-})
 
 describe('embed', () => {
     const hosts = ['aprograma.com', 'editor.test', 'aprograma.com']
@@ -277,8 +258,6 @@ describe('folderLabel', () => {
 describe('draft', () => {
     const story: Story = {
         id: 1,
-        name: 'Post',
-        slug: 'post',
         status: 'draft',
         url: 'https://example.test/blog/post',
         updatedAt: '2025-01-01T00:00:00.000Z',
@@ -286,12 +265,12 @@ describe('draft', () => {
         content: { component: 'Post', title: 'Title', categories: ['vue'] },
     }
 
-    it('keeps only the editable parts of a story', () => {
-        expect(toDraft(story)).toEqual({ name: 'Post', slug: 'post', content: story.content })
+    it('keeps only the editable content of a story', () => {
+        expect(toDraft(story)).toEqual(story.content)
     })
 
     it('detaches the draft from the story content', () => {
-        const categories = toDraft(story).content.categories as string[]
+        const categories = toDraft(story).categories as string[]
         categories.push('rust')
         expect(story.content.categories).toEqual(['vue'])
     })
@@ -300,16 +279,14 @@ describe('draft', () => {
         const draft = toDraft(story)
         const clone = cloneDraft(draft)
         expect(clone).not.toBe(draft)
-        expect(clone.content).not.toBe(draft.content)
+        expect(clone.categories).not.toBe(draft.categories)
         expect(snapshot(clone)).toBe(snapshot(draft))
     })
 
-    it('titles a draft by its title field, then its name', () => {
+    it('titles a draft by its title field', () => {
         const draft = toDraft(story)
         expect(draftTitle(draft)).toBe('Title')
-        expect(
-            draftTitle({ ...draft, name: 'Named', content: { ...draft.content, title: '   ' } })
-        ).toBe('Named')
+        expect(draftTitle({ ...draft, title: '   ' })).toBe('Post')
         expect(draftTitle(null)).toBe('Post')
     })
 })
@@ -386,7 +363,7 @@ describe('navigation', () => {
 })
 
 describe('validateContent', () => {
-    const base = { label: 'Field', translatable: false, description: '' }
+    const base = { label: 'Field', description: '' }
     const fields: Field[] = [
         { ...base, key: 'title', type: 'text', required: true, maxLength: 5 },
         { ...base, key: 'body', type: 'markdown', required: true, maxLength: 4 },

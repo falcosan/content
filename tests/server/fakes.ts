@@ -68,6 +68,7 @@ export const storyFixture = (overrides: Partial<StoryblokStory> = {}): Storyblok
     name: 'Hello world',
     slug: 'hello-world',
     full_slug: 'blog/hello-world',
+    parent_id: 100,
     published: true,
     unpublished_changes: false,
     updated_at: '2025-01-02T10:00:00.000Z',

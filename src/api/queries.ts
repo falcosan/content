@@ -11,7 +11,6 @@ export const keys = {
     stories: ['stories'],
     story: (id: number) => ['story', id],
     versions: (id: number) => ['story', id, 'versions'],
-    languages: ['schema', 'languages'],
     assets: ['assets'],
     folders: ['folders'],
 } as const
@@ -86,13 +85,6 @@ export const versionsQuery = (id: number) =>
         queryFn: () =>
             parseResponse(api.stories[':id'].versions.$get({ param: { id: String(id) } })),
         staleTime: 0,
-    })
-
-export const languagesQuery = () =>
-    queryOptions({
-        queryKey: keys.languages,
-        queryFn: () => parseResponse(api.schema.languages.$get()),
-        staleTime: Infinity,
     })
 
 export const foldersQuery = () =>

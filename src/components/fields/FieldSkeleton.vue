@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { blocks, hint = false } = defineProps<{ blocks: string[]; hint?: boolean }>()
+const { blocks } = defineProps<{ blocks: string[] }>()
 </script>
 
 <template>
@@ -12,6 +12,5 @@ const { blocks, hint = false } = defineProps<{ blocks: string[]; hint?: boolean 
                 :class="['block rounded-md bg-text/10', block]"
             />
         </span>
-        <span v-if="hint" class="hint block"><span class="skeleton-text">blog/post</span></span>
     </div>
 </template>

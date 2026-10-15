@@ -89,10 +89,10 @@ const components = (): StoryblokComponent[] => [
             },
             author: { type: 'option', pos: 2, options: options(['Daniele']) },
             align_text: { type: 'option', pos: 3, options: options(['Left', 'Center']) },
-            title: { type: 'text', pos: 4, required: true, max_length: '48', translatable: true },
+            title: { type: 'text', pos: 4, required: true, max_length: '48' },
             date: { type: 'datetime', pos: 5, required: true, disable_time: true },
-            intro: { type: 'textarea', pos: 6, required: true, translatable: true },
-            long_text: { type: 'markdown', pos: 7, required: true, translatable: true },
+            intro: { type: 'textarea', pos: 6, required: true },
+            long_text: { type: 'markdown', pos: 7, required: true },
             text_color: { type: 'custom', pos: 8 },
         },
     },
@@ -175,10 +175,12 @@ const cdnStories = (response: ServerResponse, query: URLSearchParams) => {
 
 const listStories = (query: URLSearchParams) => {
     const withSlug = query.get('with_slug')
+    const bySlugs = query.get('by_slugs')?.split(',')
     const search = query.get('text_search')?.toLowerCase()
     const published = query.get('is_published')
     let stories = state.stories.filter((story) => {
         if (withSlug !== null) return story.full_slug === withSlug
+        if (bySlugs) return bySlugs.includes(story.full_slug)
         if (!story.full_slug.startsWith(query.get('starts_with') ?? '')) return false
         if (query.get('story_only') && story.is_folder) return false
         if (
@@ -268,18 +270,6 @@ const handleStories = async (
     const story = state.stories.find((candidate) => candidate.id === Number(id))
     if (!story) return notFound(response)
 
-    if (action === 'ai_translate') {
-        const { code, lang } = (await readJson(request)) as { code: string; lang: string }
-        const translated = Object.fromEntries(
-            ['title', 'intro', 'long_text'].map((key) => [
-                `${key}__i18n__${code}`,
-                `[${lang}] ${String(story.content[key])}`,
-            ])
-        )
-        return send(response, 200, {
-            story: { ...story, content: { ...story.content, ...translated } },
-        })
-    }
     if (action === 'restore_with') {
         const version = state.versions.find(
             ({ id: versionId }) => versionId === Number(query.get('version'))
@@ -293,24 +283,6 @@ const handleStories = async (
         story.published = false
         story.unpublished_changes = false
         return send(response, 200, { story })
-    }
-    if (action === 'duplicate') {
-        const { story: input } = (await readJson(request)) as { story: Partial<MockStory> }
-        if (slugTaken(String(input.slug), story.parent_id)) {
-            return send(response, 422, { slug: ['has already been taken'] })
-        }
-        const copy: MockStory = {
-            ...structuredClone(story),
-            id: state.nextId++,
-            name: String(input.name),
-            slug: String(input.slug),
-            full_slug: fullSlug(String(input.slug), story.parent_id),
-            published: false,
-            unpublished_changes: false,
-            first_published_at: null,
-        }
-        state.stories.push(copy)
-        return send(response, 200, { story: copy })
     }
     if (request.method === 'GET') return send(response, 200, { story })
     if (request.method === 'DELETE') {
@@ -484,11 +456,7 @@ const route = async (request: IncomingMessage, response: ServerResponse) => {
     switch (resource) {
         case undefined:
             return send(response, 200, {
-                space: {
-                    first_token: PREVIEW_TOKEN,
-                    default_lang_name: 'English',
-                    languages: [{ code: 'es', name: 'Spanish', ai_translation_code: 'es' }],
-                },
+                space: { first_token: PREVIEW_TOKEN },
             })
         case 'stories':
             return handleStories(request, response, parts, url.searchParams)

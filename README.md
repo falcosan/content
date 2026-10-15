@@ -3,7 +3,7 @@
 Editor for the Aprograma blog on Storyblok.
 
 - Posts: search, filter by status, create, edit the fields of the `Post` schema (except those in `BLOG.hiddenFields`), cover from the library or an image URL, new options for multi-option fields such as categories (saved sorted in the schema), autosave drafts, publish, unpublish, duplicate, delete, version history with restore.
-- Translations: when the space has languages, a language switcher edits the translatable fields of each language and fills them with Storyblok's AI translation for review.
+- Story name and slug: the server sets the story name to the title on every save and generates the slug from it (no accents, English stopwords dropped, at most six words and 60 characters, `-2`, `-3`… when taken). The slug follows the title until the post is first published and stays fixed afterwards so its URL never breaks.
 - Rich text: headings, marks, lists, quotes, code blocks with language, links, video embeds and images (upload by drop or paste, or pick from the library). Copy as Markdown.
 - Media library: upload with progress, drag and drop, edit alt text, title, copyright and source, folders, bulk move and delete, trash with restore.
 - Unsaved changes protection, `⌘S` / `Ctrl+S` to save, light and dark themes.

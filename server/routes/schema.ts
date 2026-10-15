@@ -85,12 +85,3 @@ export const schemaRoutes = (storyblok: Storyblok) =>
                 return c.json({ option: { name, value }, created: true }, 201)
             }
         )
-        .get('/languages', async (c) => {
-            const space = await storyblok.getSpace()
-            return c.json({
-                defaultName: space.default_lang_name || 'Default',
-                languages: (space.languages ?? []).flatMap(({ code, name }) =>
-                    code ? [{ code, name: name || code }] : []
-                ),
-            })
-        })

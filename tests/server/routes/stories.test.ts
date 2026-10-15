@@ -2,10 +2,22 @@ import { describe, expect, it } from 'vitest'
 import { createSignedInApp, json, storyFixture } from '../fakes'
 
 const validBody = {
-    name: 'Hello world',
-    slug: 'hello-world',
     content: { component: 'Post', title: 'Hello', long_text: '<p>Body</p>' },
 }
+
+const candidates = (folder: string, base: string) =>
+    [base, ...Array.from({ length: 49 }, (_, index) => `${base}-${index + 2}`)]
+        .map((slug) => `${folder}/${slug}`)
+        .join(',')
+
+const blogFolder = () => json({ stories: [{ id: 100, full_slug: 'blog' }] })
+
+const created = (id = 55) => json({ story: storyFixture({ id }) }, { status: 201 })
+
+const slugTaken = () => json({ slug: ['has already been taken'] }, { status: 422 })
+
+const draftFixture = (overrides: Parameters<typeof storyFixture>[0] = {}) =>
+    storyFixture({ published: false, first_published_at: null, ...overrides })
 
 describe('story routes', () => {
     it('lists blog posts with their full content and status', async () => {
@@ -103,67 +115,127 @@ describe('story routes', () => {
         expect(calls).toHaveLength(0)
     })
 
-    it('creates posts inside the blog folder', async () => {
-        const { request, calls } = await createSignedInApp(({ method }) =>
-            method === 'GET'
-                ? json({ stories: [{ id: 100, full_slug: 'blog' }] })
-                : json({ story: storyFixture({ id: 55 }) }, { status: 201 })
-        )
+    it('creates posts inside the blog folder, named after the title and with its slug', async () => {
+        const { request, calls } = await createSignedInApp(({ method, query }) => {
+            if (method === 'POST') return created()
+            return query.by_slugs ? json({ stories: [] }) : blogFolder()
+        })
         const response = await request('/api/stories', {
             method: 'POST',
-            body: JSON.stringify({ name: '  New post ', slug: 'new-post' }),
+            body: JSON.stringify({ title: '  The Year of the Rust Rewrite ' }),
         })
         expect(response.status).toBe(201)
         expect(await response.json()).toEqual({ id: 55 })
         expect(calls[0]?.query).toEqual({ with_slug: 'blog', folder_only: '1' })
-        expect(calls[1]).toMatchObject({
+        expect(calls[1]?.query).toEqual({
+            by_slugs: candidates('blog', 'year-rust-rewrite'),
+            per_page: '50',
+        })
+        expect(calls[2]).toMatchObject({
             method: 'POST',
             path: 'stories',
             body: {
                 story: {
-                    name: 'New post',
-                    slug: 'new-post',
+                    name: 'The Year of the Rust Rewrite',
+                    slug: 'year-rust-rewrite',
                     parent_id: 100,
-                    content: { component: 'Post', title: 'New post' },
+                    content: { component: 'Post', title: 'The Year of the Rust Rewrite' },
                 },
             },
         })
-        const content = (calls[1]?.body as { story: { content: { date: string } } }).story.content
+        const content = (calls[2]?.body as { story: { content: { date: string } } }).story.content
         expect(content.date).toMatch(/^\d{4}-\d{2}-\d{2}$/)
+    })
+
+    it('numbers the slug after the ones already taken', async () => {
+        const { request, calls } = await createSignedInApp(({ method, query }) => {
+            if (method === 'POST') return created()
+            if (!query.by_slugs) return blogFolder()
+            return json({
+                stories: [
+                    storyFixture({ id: 1, slug: 'new-post' }),
+                    storyFixture({ id: 2, slug: 'new-post-2' }),
+                ],
+            })
+        })
+        await request('/api/stories', { method: 'POST', body: '{"title":"New post"}' })
+        expect(calls.filter(({ method }) => method === 'POST')).toHaveLength(1)
+        expect(calls[2]?.body).toMatchObject({ story: { slug: 'new-post-3' } })
+    })
+
+    it('moves on to the next slug when Storyblok reports the slug as taken', async () => {
+        let attempts = 0
+        const { request, calls } = await createSignedInApp(({ method, query }) => {
+            if (method === 'POST') return ++attempts === 1 ? slugTaken() : created()
+            return query.by_slugs ? json({ stories: [] }) : blogFolder()
+        })
+        const response = await request('/api/stories', {
+            method: 'POST',
+            body: '{"title":"New post"}',
+        })
+        expect(response.status).toBe(201)
+        expect(
+            calls
+                .filter(({ method }) => method === 'POST')
+                .map(({ body }) => (body as { story: { slug: string } }).story.slug)
+        ).toEqual(['new-post', 'new-post-2'])
+    })
+
+    it('gives up when every numbered slug is taken', async () => {
+        const { request, calls } = await createSignedInApp(({ query }) => {
+            if (!query.by_slugs) return blogFolder()
+            return json({
+                stories: query.by_slugs
+                    .split(',')
+                    .map((fullSlug, id) => storyFixture({ id, slug: fullSlug.slice(5) })),
+            })
+        })
+        const response = await request('/api/stories', {
+            method: 'POST',
+            body: '{"title":"New post"}',
+        })
+        expect(response.status).toBe(409)
+        expect(await response.json()).toEqual({ error: 'Too many posts share this title' })
+        expect(calls.some(({ method }) => method === 'POST')).toBe(false)
     })
 
     it('fails clearly when the blog folder is missing', async () => {
         const { request } = await createSignedInApp(() => json({ stories: [] }))
         const response = await request('/api/stories', {
             method: 'POST',
-            body: JSON.stringify({ name: 'New', slug: 'new' }),
+            body: JSON.stringify({ title: 'New' }),
         })
         expect(response.status).toBe(500)
         expect(await response.json()).toEqual({ error: 'Blog folder not found' })
     })
 
-    it.each(['Not A Slug', 'trailing-', 'double--hyphen', ''])('rejects slug %j', async (slug) => {
+    it.each([
+        { title: '' },
+        { title: '   ' },
+        { title: 'x'.repeat(256) },
+        { name: 'New', slug: 'new' },
+    ])('rejects %j', async (body) => {
         const { request, calls } = await createSignedInApp(() => json({}))
         const response = await request('/api/stories', {
             method: 'POST',
-            body: JSON.stringify({ name: 'New', slug }),
+            body: JSON.stringify(body),
         })
         expect(response.status).toBe(400)
         expect(calls).toHaveLength(0)
     })
 
-    it('forwards upstream validation errors', async () => {
-        const { request } = await createSignedInApp(({ method }) =>
-            method === 'GET'
-                ? json({ stories: [{ id: 100 }] })
-                : json({ slug: ['has already been taken'] }, { status: 422 })
-        )
+    it('forwards upstream validation errors that are not about the slug', async () => {
+        const { request, calls } = await createSignedInApp(({ method, query }) => {
+            if (method === 'POST') return json({ content: ['is invalid'] }, { status: 422 })
+            return query.by_slugs ? json({ stories: [] }) : blogFolder()
+        })
         const response = await request('/api/stories', {
             method: 'POST',
-            body: JSON.stringify({ name: 'New', slug: 'taken' }),
+            body: JSON.stringify({ title: 'New' }),
         })
         expect(response.status).toBe(422)
-        expect(await response.json()).toEqual({ error: 'slug has already been taken' })
+        expect(await response.json()).toEqual({ error: 'content is invalid' })
+        expect(calls.filter(({ method }) => method === 'POST')).toHaveLength(1)
     })
 
     it('returns a blog post with its public URL', async () => {
@@ -172,8 +244,6 @@ describe('story routes', () => {
         expect(calls[0]?.path).toBe('stories/7')
         expect(await response.json()).toEqual({
             id: 7,
-            name: 'Hello world',
-            slug: 'hello-world',
             status: 'published',
             url: 'https://example.com/blog/hello-world',
             updatedAt: '2025-01-02T10:00:00.000Z',
@@ -219,57 +289,6 @@ describe('story routes', () => {
         })
     })
 
-    it('returns only the AI translated fields of the requested language', async () => {
-        const { request, calls } = await createSignedInApp(({ path }) =>
-            path === ''
-                ? json({
-                      space: {
-                          languages: [
-                              { code: 'es-custom', name: 'Spanish', ai_translation_code: 'es' },
-                          ],
-                      },
-                  })
-                : json({
-                      story: storyFixture({
-                          content: {
-                              component: 'Post',
-                              title: 'Hello',
-                              'title__i18n__es-custom': 'Hola',
-                              'intro__i18n__es-custom': 'Intro ES',
-                              title__i18n__it: 'Ciao',
-                          },
-                      }),
-                  })
-        )
-        const response = await request('/api/stories/7/translate', {
-            method: 'POST',
-            body: JSON.stringify({ language: 'es-custom' }),
-        })
-        expect(await response.json()).toEqual({
-            content: { 'title__i18n__es-custom': 'Hola', 'intro__i18n__es-custom': 'Intro ES' },
-        })
-        expect(calls[2]).toMatchObject({
-            method: 'PUT',
-            path: 'stories/7/ai_translate',
-            body: { code: 'es-custom', lang: 'es', overwrite: true },
-        })
-    })
-
-    it('rejects translations into unknown languages', async () => {
-        const { request, calls } = await createSignedInApp(({ path }) =>
-            path === '' ? json({ space: { languages: [] } }) : json({ story: storyFixture() })
-        )
-        const response = await request('/api/stories/7/translate', {
-            method: 'POST',
-            body: JSON.stringify({ language: 'fr' }),
-        })
-        expect(response.status).toBe(404)
-        expect(calls.map(({ method, path }) => `${method} ${path}`)).toEqual([
-            'GET stories/7',
-            'GET ',
-        ])
-    })
-
     it('hides stories outside the blog folder', async () => {
         const { request } = await createSignedInApp(() =>
             json({ story: storyFixture({ full_slug: 'home' }) })
@@ -288,11 +307,7 @@ describe('story routes', () => {
             ['/api/stories/7/unpublish', { method: 'POST' }],
             ['/api/stories/7/versions', {}],
             ['/api/stories/7/versions/2/restore', { method: 'POST' }],
-            ['/api/stories/7/translate', { method: 'POST', body: '{"language":"es"}' }],
-            [
-                '/api/stories/7/duplicate',
-                { method: 'POST', body: JSON.stringify({ name: 'Copy', slug: 'copy' }) },
-            ],
+            ['/api/stories/7/duplicate', { method: 'POST', body: '{"title":"Copy"}' }],
         ]
         for (const [url, init] of attempts) {
             expect((await request(url, init)).status).toBe(404)
@@ -355,7 +370,7 @@ describe('story routes', () => {
         expect(calls[0]).toMatchObject({ method: 'GET', path: 'stories/7' })
         expect(calls[1]).toMatchObject({ method: 'PUT', path: 'stories/7' })
         expect(calls[1]?.body).toEqual({
-            story: { name: 'Hello world', slug: 'hello-world', content: validBody.content },
+            story: { name: 'Hello', slug: 'hello-world', content: validBody.content },
             publish: false,
         })
 
@@ -364,6 +379,82 @@ describe('story routes', () => {
             body: JSON.stringify({ ...validBody, publish: true }),
         })
         expect(calls[3]?.body).toMatchObject({ publish: true })
+    })
+
+    it('regenerates the slug from the title until the post is first published', async () => {
+        const { request, calls } = await createSignedInApp(({ query }) =>
+            query.by_slugs
+                ? json({ stories: [] })
+                : json({ story: draftFixture({ slug: 'old-title' }) })
+        )
+        const content = { component: 'Post', title: 'Café Culture in the Age of AI' }
+        await request('/api/stories/7', { method: 'PUT', body: JSON.stringify({ content }) })
+        expect(calls.map(({ method, path }) => `${method} ${path}`)).toEqual([
+            'GET stories/7',
+            'GET stories',
+            'PUT stories/7',
+        ])
+        expect(calls[1]?.query.by_slugs).toBe(candidates('blog', 'cafe-culture-age-ai'))
+        expect(calls[2]?.body).toEqual({
+            story: { name: 'Café Culture in the Age of AI', slug: 'cafe-culture-age-ai', content },
+            publish: false,
+        })
+    })
+
+    it('keeps its own numbered slug while another post holds the plain one', async () => {
+        const { request, calls } = await createSignedInApp(({ query }) =>
+            query.by_slugs
+                ? json({
+                      stories: [
+                          storyFixture({ id: 8, slug: 'hello' }),
+                          storyFixture({ id: 7, slug: 'hello-2' }),
+                      ],
+                  })
+                : json({ story: draftFixture({ slug: 'hello-2' }) })
+        )
+        await request('/api/stories/7', { method: 'PUT', body: JSON.stringify(validBody) })
+        expect(calls[2]?.body).toMatchObject({ story: { name: 'Hello', slug: 'hello-2' } })
+    })
+
+    it('skips the slug lookup when the slug already matches the title', async () => {
+        const { request, calls } = await createSignedInApp(() =>
+            json({ story: draftFixture({ slug: 'hello' }) })
+        )
+        await request('/api/stories/7', { method: 'PUT', body: JSON.stringify(validBody) })
+        expect(calls.map(({ method, path }) => `${method} ${path}`)).toEqual([
+            'GET stories/7',
+            'PUT stories/7',
+        ])
+        expect(calls[1]?.body).toMatchObject({ story: { name: 'Hello', slug: 'hello' } })
+    })
+
+    it('keeps the published slug when the title changes', async () => {
+        const { request, calls } = await createSignedInApp(() =>
+            json({ story: storyFixture({ published: false }) })
+        )
+        const content = { component: 'Post', title: 'A brand new title' }
+        await request('/api/stories/7', {
+            method: 'PUT',
+            body: JSON.stringify({ content, publish: true }),
+        })
+        expect(calls.map(({ method, path }) => `${method} ${path}`)).toEqual([
+            'GET stories/7',
+            'PUT stories/7',
+        ])
+        expect(calls[1]?.body).toEqual({
+            story: { name: 'A brand new title', slug: 'hello-world', content },
+            publish: true,
+        })
+    })
+
+    it('keeps the name and slug while the title is blank', async () => {
+        const { request, calls } = await createSignedInApp(() =>
+            json({ story: draftFixture({ slug: 'kept' }) })
+        )
+        const content = { component: 'Post', title: '   ' }
+        await request('/api/stories/7', { method: 'PUT', body: JSON.stringify({ content }) })
+        expect(calls).toHaveLength(2)
+        expect(calls[1]?.body).toMatchObject({ story: { name: 'Hello world', slug: 'kept' } })
     })
 
     it('only accepts post content', async () => {
@@ -377,16 +468,15 @@ describe('story routes', () => {
     })
 
     it('deletes, unpublishes and duplicates', async () => {
-        const { request, calls } = await createSignedInApp(({ path }) =>
-            path.endsWith('duplicate')
-                ? json({ story: storyFixture({ id: 77 }) })
-                : json({ story: storyFixture() })
-        )
+        const { request, calls } = await createSignedInApp(({ method, query }) => {
+            if (method === 'POST') return created(77)
+            return query.by_slugs ? json({ stories: [] }) : json({ story: storyFixture() })
+        })
         expect((await request('/api/stories/7', { method: 'DELETE' })).status).toBe(204)
         expect((await request('/api/stories/7/unpublish', { method: 'POST' })).status).toBe(204)
         const duplicate = await request('/api/stories/7/duplicate', {
             method: 'POST',
-            body: JSON.stringify({ name: 'Copy', slug: 'copy' }),
+            body: JSON.stringify({ title: 'Hello (copy)' }),
         })
         expect(duplicate.status).toBe(201)
         expect(await duplicate.json()).toEqual({ id: 77 })
@@ -396,8 +486,28 @@ describe('story routes', () => {
             'GET stories/7',
             'GET stories/7/unpublish',
             'GET stories/7',
-            'PUT stories/7/duplicate',
+            'GET stories',
+            'POST stories',
         ])
-        expect(calls[5]?.body).toEqual({ story: { name: 'Copy', slug: 'copy' } })
+        expect(calls[5]?.query.by_slugs).toBe(candidates('blog', 'hello-copy'))
+        expect(calls[6]?.body).toEqual({
+            story: {
+                name: 'Hello (copy)',
+                slug: 'hello-copy',
+                parent_id: 100,
+                content: { ...storyFixture().content, title: 'Hello (copy)' },
+            },
+        })
+    })
+
+    it('duplicates next to the original inside subfolders', async () => {
+        const source = storyFixture({ full_slug: 'blog/archive/hello-world', parent_id: 300 })
+        const { request, calls } = await createSignedInApp(({ method, query }) => {
+            if (method === 'POST') return created(77)
+            return query.by_slugs ? json({ stories: [] }) : json({ story: source })
+        })
+        await request('/api/stories/7/duplicate', { method: 'POST', body: '{"title":"Copy"}' })
+        expect(calls[1]?.query.by_slugs).toBe(candidates('blog/archive', 'copy'))
+        expect(calls[2]?.body).toMatchObject({ story: { slug: 'copy', parent_id: 300 } })
     })
 })

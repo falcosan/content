@@ -21,7 +21,6 @@ describe('schema routes', () => {
                                 type: 'text',
                                 pos: 4,
                                 required: true,
-                                translatable: true,
                                 max_length: '48',
                             },
                             intro: { type: 'textarea', pos: 6, description: ' Teaser ' },
@@ -56,7 +55,7 @@ describe('schema routes', () => {
             })
         )
         const fields = await (await request('/api/schema/fields')).json()
-        const base = { required: false, translatable: false, description: '' }
+        const base = { required: false, description: '' }
         expect(fields).toEqual([
             {
                 ...base,
@@ -95,7 +94,6 @@ describe('schema routes', () => {
                 label: 'Title',
                 type: 'text',
                 required: true,
-                translatable: true,
                 maxLength: 48,
             },
             { ...base, key: 'date', label: 'Date', type: 'datetime', withTime: false },
@@ -232,35 +230,5 @@ describe('schema routes', () => {
         const response = await request('/api/schema/fields')
         expect(response.status).toBe(500)
         expect(await response.json()).toEqual({ error: 'Component Post not found' })
-    })
-
-    it('lists the configured languages', async () => {
-        const { request } = await createSignedInApp(() =>
-            json({
-                space: {
-                    default_lang_name: 'English',
-                    languages: [
-                        { code: 'es', name: 'Spanish', ai_translation_code: 'es' },
-                        { code: 'it' },
-                        { name: 'Without code' },
-                    ],
-                },
-            })
-        )
-        expect(await (await request('/api/schema/languages')).json()).toEqual({
-            defaultName: 'English',
-            languages: [
-                { code: 'es', name: 'Spanish' },
-                { code: 'it', name: 'it' },
-            ],
-        })
-    })
-
-    it('handles spaces without languages', async () => {
-        const { request } = await createSignedInApp(() => json({ space: {} }))
-        expect(await (await request('/api/schema/languages')).json()).toEqual({
-            defaultName: 'Default',
-            languages: [],
-        })
     })
 })

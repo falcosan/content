@@ -8,7 +8,7 @@ import NewOption from '@/components/fields/NewOption.vue'
 import OptionsField from '@/components/fields/OptionsField.vue'
 import { emptyAssetValue } from '@/lib/assets'
 
-const base = { label: 'Field', required: false, translatable: false, description: '' }
+const base = { label: 'Field', required: false, description: '' }
 
 const mountField = (field: Field, modelValue: unknown) =>
     mount(FieldControl, { props: { field, modelValue } })

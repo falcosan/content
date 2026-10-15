@@ -147,31 +147,45 @@ test('never scrolls sideways on a 320px screen', async ({ page }) => {
     }
 })
 
-test('creates a post with an automatic slug', async ({ page, mock }) => {
+test('creates a post named after its title with an automatic slug', async ({ page, mock }) => {
     await page.getByRole('button', { name: 'New post' }).click()
     const dialog = page.getByRole('dialog', { name: 'New post' })
-    await dialog.getByLabel('Title').fill('Señales del Año')
-    await expect(dialog.getByLabel('Slug')).toHaveValue('senales-del-ano')
+    await expect(dialog.getByRole('textbox')).toHaveCount(1)
+    await dialog.getByLabel('Title').fill('Notes on Café Culture')
     await dialog.getByRole('button', { name: 'Create' }).click()
     await expect(page).toHaveURL(/\/stories\/1000$/)
-    await expect(page.getByLabel('Title *')).toHaveValue('Señales del Año')
+    await expect(page.getByLabel('Title *')).toHaveValue('Notes on Café Culture')
     await expect(page.getByText('Draft', { exact: true })).toBeVisible()
     const created = await mock.story(1000)
     expect(created).toMatchObject({
-        name: 'Señales del Año',
-        slug: 'senales-del-ano',
-        content: { component: 'Post', title: 'Señales del Año' },
+        name: 'Notes on Café Culture',
+        slug: 'notes-cafe-culture',
+        content: { component: 'Post', title: 'Notes on Café Culture' },
     })
     expect(created.content.date).toMatch(/^\d{4}-\d{2}-\d{2}$/)
 })
 
-test('reports a taken slug and keeps the dialog open', async ({ page }) => {
+test('numbers the slug when another post already uses it', async ({ page, mock }) => {
+    await page.getByRole('button', { name: 'New post' }).click()
+    const dialog = page.getByRole('dialog', { name: 'New post' })
+    await dialog.getByLabel('Title').fill('First post')
+    await dialog.getByRole('button', { name: 'Create' }).click()
+    await expect(page).toHaveURL(/\/stories\/1000$/)
+    expect(await mock.story(1000)).toMatchObject({ name: 'First post', slug: 'first-post-2' })
+})
+
+test('reports a failed creation and keeps the dialog open', async ({ page }) => {
+    await page.route('**/api/stories', (route) =>
+        route.request().method() === 'POST'
+            ? route.fulfill({ status: 409, json: { error: 'Too many posts share this title' } })
+            : route.continue()
+    )
     await page.getByRole('button', { name: 'New post' }).click()
     const dialog = page.getByRole('dialog', { name: 'New post' })
     await dialog.getByLabel('Title').fill('First post')
     await dialog.getByRole('button', { name: 'Create' }).click()
     const alert = dialog.getByRole('alert')
-    await expect(alert).toContainText('slug has already been taken')
+    await expect(alert).toContainText('Too many posts share this title')
     await alert.getByRole('button', { name: 'Dismiss' }).click()
     await expect(alert).toBeHidden()
     await expect(dialog).toBeVisible()
@@ -214,15 +228,6 @@ test('keeps toasts visible after a dialog disappears while open', async ({ page 
     await expect(toast).toBeHidden()
 })
 
-test('shows the editor while the languages are still loading', async ({ page }) => {
-    const release = await hold(page, '**/api/schema/languages')
-    await page.goto('/stories/101')
-    await expect(page.getByLabel('Title *')).toHaveValue('First post')
-    await expect(page.getByRole('radiogroup', { name: 'Language' })).toBeHidden()
-    release()
-    await expect(page.getByRole('radiogroup', { name: 'Language' })).toBeVisible()
-})
-
 test('titles the tab after the post and then after the next page', async ({ page }) => {
     await page.getByRole('link', { name: /First post/ }).click()
     await expect(page).toHaveTitle('First post · AP | Editor')
@@ -241,8 +246,11 @@ test('edits every field and saves with the keyboard shortcut', async ({ page, mo
     await page.getByRole('button', { name: 'Rust' }).click()
     await expect(page.getByRole('button', { name: 'Design' })).toBeDisabled()
     await page.getByLabel('Author').selectOption('daniele')
-    await page.getByLabel('Slug').fill('first-post-revised')
     await expect(page.getByText('Align text')).toHaveCount(0)
+    await expect(page.getByLabel('Story name')).toHaveCount(0)
+    await expect(page.getByLabel('Slug')).toHaveCount(0)
+    await expect(page.getByRole('radiogroup', { name: 'Language' })).toHaveCount(0)
+    await expect(page.getByRole('button', { name: 'Translate with AI' })).toHaveCount(0)
 
     const text = editor(page)
     await placeCaretAtEnd(page)
@@ -263,7 +271,8 @@ test('edits every field and saves with the keyboard shortcut', async ({ page, mo
 
     const saved = await mock.story(101)
     expect(saved).toMatchObject({
-        slug: 'first-post-revised',
+        name: 'First post, revised',
+        slug: 'first-post',
         published: true,
         unpublished_changes: true,
         content: {
@@ -323,15 +332,18 @@ test('duplicates a post', async ({ page, mock }) => {
     await page.goto('/stories/101')
     await page.getByRole('button', { name: 'Duplicate' }).click()
     const dialog = page.getByRole('dialog', { name: 'Duplicate post' })
+    await expect(dialog.getByRole('textbox')).toHaveCount(1)
     await expect(dialog.getByLabel('Title')).toHaveValue('First post (copy)')
-    await expect(dialog.getByLabel('Slug')).toHaveValue('first-post-copy')
     await dialog.getByRole('button', { name: 'Duplicate' }).click()
     await expect(page).toHaveURL(/\/stories\/1000$/)
     await expect(page.getByText('Post duplicated')).toBeVisible()
+    await expect(page.getByLabel('Title *')).toHaveValue('First post (copy)')
     expect(await mock.story(1000)).toMatchObject({
         name: 'First post (copy)',
         slug: 'first-post-copy',
-        content: { title: 'First post' },
+        parent_id: 1,
+        published: false,
+        content: { title: 'First post (copy)', intro: 'Intro of First post' },
     })
 })
 
@@ -383,21 +395,36 @@ test('never saves changes the user discarded', async ({ page, mock }) => {
     expect((await mock.story(101)).content.title).toBe('First post')
 })
 
-test('asks for a story name before saving', async ({ page }) => {
-    const puts: string[] = []
-    page.on('request', (request) => {
-        if (request.method() === 'PUT') puts.push(request.url())
-    })
-    await page.clock.install()
-    await page.goto('/stories/101')
-    const name = page.getByLabel('Story name')
-    await name.fill('')
-    await page.clock.runFor(5000)
+test('keeps the slug in step with the title until the post is published', async ({
+    page,
+    mock,
+}) => {
+    await page.goto('/stories/102')
+    const title = page.getByLabel('Title *')
+    await title.fill('The Draft, Renamed')
     await page.getByRole('button', { name: 'Save' }).click()
-    await expect(page.getByText('Add a story name first')).toBeVisible()
-    await expect(name).toBeFocused()
-    await expect(name).toHaveAttribute('aria-invalid', 'true')
-    expect(puts).toEqual([])
+    await expect(page.getByText('Changes saved')).toBeVisible()
+    expect(await mock.story(102)).toMatchObject({
+        name: 'The Draft, Renamed',
+        slug: 'draft-renamed',
+    })
+
+    await page.getByRole('button', { name: 'Publish' }).click()
+    await expect(page.getByText('Post published')).toBeVisible()
+    await expect(page.getByRole('link', { name: 'View on website' })).toHaveAttribute(
+        'href',
+        `${E2E.siteUrl}blog/draft-renamed`
+    )
+
+    await title.fill('Renamed Once More')
+    await page.getByRole('button', { name: 'Save' }).click()
+    await expect(page.getByText('Unsaved changes')).toBeHidden()
+    await expect
+        .poll(async () => {
+            const { name, slug } = await mock.story(102)
+            return { name, slug }
+        })
+        .toEqual({ name: 'Renamed Once More', slug: 'draft-renamed' })
 })
 
 test('ignores the save shortcut when nothing changed', async ({ page }) => {
@@ -413,16 +440,6 @@ test('ignores the save shortcut when nothing changed', async ({ page }) => {
     await page.keyboard.press('ControlOrMeta+s')
     await expect(page.getByText('Changes saved')).toBeVisible()
     expect(puts).toHaveLength(1)
-})
-
-test('shows the missing fields when publishing from a translation', async ({ page }) => {
-    await page.goto('/stories/102')
-    await page.getByLabel('Intro *').fill('')
-    await page.getByText('Spanish', { exact: true }).click()
-    await page.getByRole('button', { name: 'Publish' }).click()
-    await expect(page.getByText('Complete the required fields before publishing')).toBeVisible()
-    await expect(page.getByRole('radio', { name: 'English' })).toBeChecked()
-    await expect(page.getByLabel('Intro *')).toBeFocused()
 })
 
 test('keeps the editor when a background refresh fails', async ({ page }) => {
@@ -750,39 +767,5 @@ test('autosaves drafts after a pause in typing', async ({ page, mock }) => {
     expect(await mock.story(102)).toMatchObject({
         published: false,
         content: { intro: 'Saved without pressing anything' },
-    })
-})
-
-test('edits translations and translates with AI', async ({ page, mock }) => {
-    await page.goto('/stories/101')
-    await page.getByText('Spanish', { exact: true }).click()
-    await expect(page.getByText('Editing the Spanish version.')).toBeVisible()
-    await expect(page.getByLabel('Date *')).toBeHidden()
-    await expect(page.getByLabel('Title *')).toHaveValue('')
-
-    await page.getByRole('button', { name: 'Translate with AI' }).click()
-    await page
-        .getByRole('dialog', { name: 'Translate with AI' })
-        .getByRole('button', { name: 'Translate' })
-        .click()
-    await expect(page.getByText('Translation added. Review it and save.')).toBeVisible()
-    await expect(page.getByLabel('Title *')).toHaveValue('[es] First post')
-    const translate = page.getByRole('button', { name: 'Translate with AI' })
-    await expect(translate).toBeDisabled()
-    await expect(translate).toHaveAccessibleDescription('Save your changes before translating.')
-    await expect(translate).toHaveCSS('pointer-events', 'auto')
-
-    await page.getByLabel('Title *').fill('Primera entrada')
-    await page.getByText('English', { exact: true }).click()
-    await expect(page.getByLabel('Title *')).toHaveValue('First post')
-    await expect(page.getByLabel('Date *')).toBeVisible()
-
-    await page.getByRole('button', { name: 'Save' }).click()
-    await expect(page.getByText('Changes saved')).toBeVisible()
-    expect((await mock.story(101)).content).toMatchObject({
-        title: 'First post',
-        title__i18n__es: 'Primera entrada',
-        intro__i18n__es: '[es] Intro of First post',
-        long_text__i18n__es: '[es] <p>Hello <strong>world</strong></p>',
     })
 })

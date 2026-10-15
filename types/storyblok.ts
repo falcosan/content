@@ -7,6 +7,7 @@ export interface StoryblokStory {
     name: string
     slug: string
     full_slug: string
+    parent_id: number | null
     published: boolean | null
     unpublished_changes: boolean | null
     updated_at: string
@@ -18,7 +19,7 @@ export interface StoryblokStory {
 export interface StoryblokStoryInput {
     name?: string
     slug?: string
-    parent_id?: number
+    parent_id?: number | null
     content?: StoryContent
 }
 
@@ -95,7 +96,6 @@ type StoryblokFieldType =
 export type StoryblokSchemaField = {
     type?: StoryblokFieldType
     pos?: number
-    translatable?: boolean
     display_name?: string
     description?: string
     required?: boolean
@@ -119,15 +119,7 @@ export interface StoryblokComponentInput {
     schema: StoryblokComponent['schema']
 }
 
-interface StoryblokLanguage {
-    code?: string
-    name?: string
-    ai_translation_code?: string | null
-}
-
 export interface StoryblokSpace {
-    languages?: StoryblokLanguage[]
-    default_lang_name?: string | null
     first_token?: string | null
 }
 

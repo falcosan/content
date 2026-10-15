@@ -1,4 +1,4 @@
-<script setup lang="ts" generic="Value extends string | null">
+<script setup lang="ts" generic="Value extends string">
 import { useId } from 'vue'
 
 const { options, label } = defineProps<{
@@ -19,7 +19,7 @@ const name = useId()
     >
         <label
             v-for="option in options"
-            :key="option.value ?? ''"
+            :key="option.value"
             class="cursor-pointer rounded px-3 py-1.5 text-sm font-medium text-text-light transition-colors has-checked:bg-accent has-checked:text-accent-text has-focus-visible:outline-2 has-focus-visible:outline-accent"
         >
             <input v-model="model" type="radio" class="sr-only" :name :value="option.value" />
