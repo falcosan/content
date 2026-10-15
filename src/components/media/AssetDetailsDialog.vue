@@ -22,8 +22,6 @@ const { data: folders } = useQuery(foldersQuery())
 const update = useUpdateAsset()
 const remove = useDeleteAssets()
 const formId = useId()
-const altId = useId()
-const altHintId = useId()
 
 const form = reactive<AssetMetadata>({
     alt: '',
@@ -124,19 +122,10 @@ const destroy = async () => {
                 </div>
             </div>
             <form :id="formId" class="flex flex-col gap-4" @submit.prevent="save">
-                <div>
-                    <label class="label" :for="altId">Alt text</label>
-                    <input
-                        :id="altId"
-                        v-model="form.alt"
-                        class="control"
-                        :maxlength="MAX_LENGTH.assetText"
-                        :aria-describedby="altHintId"
-                    />
-                    <p :id="altHintId" class="hint">
-                        Describes the image for screen readers and search engines.
-                    </p>
-                </div>
+                <label class="block">
+                    <span class="label">Alt text</span>
+                    <input v-model="form.alt" class="control" :maxlength="MAX_LENGTH.assetText" />
+                </label>
                 <label class="block">
                     <span class="label">Title</span>
                     <input v-model="form.title" class="control" :maxlength="MAX_LENGTH.assetText" />
