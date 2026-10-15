@@ -3,6 +3,7 @@ import { expect, signIn, submitCredentials, test } from './fixtures'
 test('redirects anonymous visitors to sign in and back', async ({ page }) => {
     await page.goto('/media')
     await expect(page).toHaveURL(/\/login\?redirect=\/media$/)
+    await expect(page.getByRole('heading', { name: 'Sign in' })).toBeVisible()
     await submitCredentials(page)
     await expect(page).toHaveURL(/\/media$/)
     await expect(page.getByRole('heading', { name: 'Media' })).toBeVisible()
@@ -19,6 +20,7 @@ test('rejects wrong credentials and clears the password', async ({ page }) => {
 test('keeps the session in an HttpOnly cookie and signs out', async ({ page, context }) => {
     await signIn(page)
     await expect(page.getByRole('heading', { name: 'Posts' })).toBeVisible()
+    await expect(page.getByRole('banner').getByRole('link')).toHaveText(['Posts', 'Media'])
     const [cookie] = await context.cookies()
     expect(cookie).toMatchObject({
         name: 'session',

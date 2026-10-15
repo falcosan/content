@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { LogOut } from '@lucide/vue'
 import { useRouter } from 'vue-router'
-import { APP_TITLE } from '@/lib/navigation'
 import UiButton from './ui/UiButton.vue'
 
 const LINKS = [
@@ -17,12 +16,6 @@ const router = useRouter()
         <div
             class="mx-auto flex h-header max-w-7xl items-center gap-2 px-4 sm:gap-6 sm:px-6 lg:px-8"
         >
-            <RouterLink
-                :to="{ name: 'stories' }"
-                class="shrink-0 text-sm font-bold tracking-tight whitespace-nowrap"
-            >
-                {{ APP_TITLE }}
-            </RouterLink>
             <nav aria-label="Main" class="flex items-center gap-1">
                 <RouterLink
                     v-for="link in LINKS"
