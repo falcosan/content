@@ -13,6 +13,8 @@ import UiButton from '@/components/ui/UiButton.vue'
 import UiSegmentedControl from '@/components/ui/UiSegmentedControl.vue'
 import { SEARCH_DEBOUNCE_MS, STATUS_OPTIONS, storyFilters } from '@/lib/filters'
 
+const LIST = 'grid gap-3 divide-border/40 sm:gap-0 sm:divide-y'
+
 const route = useRoute()
 const router = useRouter()
 
@@ -97,7 +99,7 @@ watch(
 
         <ul
             v-if="stories.isPending.value"
-            class="divide-y divide-border/40"
+            :class="LIST"
             aria-busy="true"
             aria-label="Loading posts"
         >
@@ -106,11 +108,7 @@ watch(
             </li>
         </ul>
 
-        <ul
-            v-else-if="items.length"
-            class="divide-y divide-border/40"
-            :aria-busy="stories.isFetching.value"
-        >
+        <ul v-else-if="items.length" :class="LIST" :aria-busy="stories.isFetching.value">
             <li v-for="story in items" :key="story.id">
                 <StoryRow :story />
             </li>

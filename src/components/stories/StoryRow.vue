@@ -7,11 +7,9 @@ import { formatDate, formatRelative } from '@/lib/format'
 const { story } = defineProps<{ story?: StorySummary }>()
 
 const ROW =
-    'grid grid-cols-[5rem_minmax(0,1fr)] gap-x-4 gap-y-2 py-4 sm:grid-cols-[7rem_minmax(0,1fr)_minmax(10rem,auto)] sm:items-center'
-const THUMBNAIL =
-    'row-span-2 aspect-video self-start overflow-hidden rounded bg-text/10 sm:row-span-1 sm:self-auto'
-const BADGE_SLOT =
-    'col-start-2 justify-self-start sm:col-start-3 sm:row-start-1 sm:justify-self-end'
+    'grid grid-cols-1 gap-x-4 gap-y-3 rounded-lg max-sm:border max-sm:border-border/40 max-sm:p-3 sm:grid-cols-[7rem_minmax(0,1fr)_minmax(10rem,auto)] sm:items-center sm:py-4'
+const THUMBNAIL = 'aspect-video overflow-hidden rounded bg-text/10'
+const BADGE_SLOT = 'justify-self-start sm:col-start-3 sm:row-start-1 sm:justify-self-end'
 const TITLE = 'font-semibold wrap-break-word'
 const INTRO = 'min-h-5 text-sm wrap-break-word'
 const META = 'mt-1 text-xs'
@@ -23,13 +21,15 @@ const META = 'mt-1 text-xs'
         :to="{ name: 'story', params: { id: story.id } }"
         :class="[
             ROW,
-            'group -mx-3 rounded-lg px-3 transition-colors hover:bg-text/5 focus-visible:outline-offset-0',
+            'group transition-colors hover:bg-text/5 focus-visible:outline-offset-0 sm:-mx-3 sm:px-3',
         ]"
     >
         <div :class="THUMBNAIL">
             <img
                 v-if="story.cover"
                 :src="thumbnailUrl(story.cover, 320)"
+                :srcset="`${thumbnailUrl(story.cover, 320)} 320w, ${thumbnailUrl(story.cover, 640)} 640w`"
+                sizes="(width >= 40rem) 7rem, 100vw"
                 alt=""
                 loading="lazy"
                 class="size-full object-cover"

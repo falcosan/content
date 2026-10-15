@@ -26,17 +26,20 @@ import { BLOG } from '../../shared/blog'
 
 const { id } = defineProps<{ id: number }>()
 
-const MAIN_FIELDS = new Set<Field['type']>(['text', 'textarea', 'markdown'])
+const HEAD_FIELDS = new Set<Field['type']>(['text', 'textarea'])
+
+const BODY_FIELDS = new Set<Field['type']>(['markdown'])
 
 const AUTOSAVE_DELAY_MS = 4000
 
 const BAR =
     'bleed-border-b sticky top-header z-20 -mx-4 -mt-6 flex flex-wrap items-center gap-2 bg-bg/95 px-4 py-2.5 backdrop-blur sm:-mx-6 sm:gap-3 sm:px-6 lg:-mx-8 lg:px-8'
 const BADGE_SLOT = 'flex items-center gap-2 max-sm:order-last max-sm:basis-full sm:gap-3'
-const COLUMNS = 'grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]'
+const COLUMNS = 'grid gap-x-8 gap-y-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:grid-rows-[auto_1fr]'
 const MAIN = 'flex min-w-0 flex-col gap-6'
-const SIDE = 'flex flex-col gap-6'
-const MAIN_SKELETON = [['h-9.5'], ['h-24'], ['h-115']]
+const SIDE = 'flex flex-col gap-6 lg:row-span-2'
+const HEAD_SKELETON = [['h-9.5'], ['h-24']]
+const BODY_SKELETON = [['h-115']]
 const SIDE_SKELETON = [['aspect-video', 'h-9.5'], ['h-7', 'h-8'], ['h-9.5'], ['h-9.5']]
 
 const queryClient = useQueryClient()
@@ -113,8 +116,11 @@ const autosave = useDebounceFn(() => {
 const current = computed(() => draft.value && snapshot(draft.value))
 const dirty = computed(() => !!current.value && current.value !== savedSnapshot.value)
 
-const mainFields = computed(() => fields.data.value?.filter((f) => MAIN_FIELDS.has(f.type)))
-const sideFields = computed(() => fields.data.value?.filter((f) => !MAIN_FIELDS.has(f.type)))
+const headFields = computed(() => fields.data.value?.filter((f) => HEAD_FIELDS.has(f.type)))
+const bodyFields = computed(() => fields.data.value?.filter((f) => BODY_FIELDS.has(f.type)))
+const sideFields = computed(() =>
+    fields.data.value?.filter((f) => !HEAD_FIELDS.has(f.type) && !BODY_FIELDS.has(f.type))
+)
 
 const loadError = computed(() => {
     if (story.isLoadingError.value) return story.error.value
@@ -278,11 +284,14 @@ const confirmDiscard = async () => {
         </div>
         <div :class="COLUMNS">
             <div :class="MAIN">
-                <FieldSkeleton v-for="(blocks, index) in MAIN_SKELETON" :key="index" :blocks />
+                <FieldSkeleton v-for="(blocks, index) in HEAD_SKELETON" :key="index" :blocks />
             </div>
             <div :class="SIDE">
                 <FieldSkeleton v-for="(blocks, index) in SIDE_SKELETON" :key="index" :blocks />
                 <p class="text-xs"><span class="skeleton-text">Updated 2 years ago</span></p>
+            </div>
+            <div :class="MAIN">
+                <FieldSkeleton v-for="(blocks, index) in BODY_SKELETON" :key="index" :blocks />
             </div>
         </div>
     </div>
@@ -351,7 +360,7 @@ const confirmDiscard = async () => {
         <div :class="COLUMNS">
             <div :class="MAIN">
                 <FieldControl
-                    v-for="field in mainFields"
+                    v-for="field in headFields"
                     :key="field.key"
                     v-model="draft[field.key]"
                     :field
@@ -375,6 +384,16 @@ const confirmDiscard = async () => {
                     </template>
                 </p>
             </aside>
+
+            <div :class="MAIN">
+                <FieldControl
+                    v-for="field in bodyFields"
+                    :key="field.key"
+                    v-model="draft[field.key]"
+                    :field
+                    :error="visibleErrors[field.key]"
+                />
+            </div>
         </div>
 
         <VersionHistoryDialog v-model:open="historyOpen" :story-id="id" :locked="dirty" />

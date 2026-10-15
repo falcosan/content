@@ -166,6 +166,15 @@ test('never scrolls sideways on a 320px screen', async ({ page }) => {
     }
 })
 
+test('shows the posts as cards on small screens', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 })
+    const card = page.getByRole('link', { name: /First post/ })
+    const thumbnail = (await card.locator('div').first().boundingBox())!
+    const title = (await card.getByText('First post', { exact: true }).boundingBox())!
+    expect(thumbnail.width).toBe(title.width)
+    expect(thumbnail.y + thumbnail.height).toBeLessThanOrEqual(title.y)
+})
+
 test('creates a post named after its title with an automatic slug', async ({ page, mock }) => {
     await page.getByRole('button', { name: 'New post' }).click()
     const dialog = page.getByRole('dialog', { name: 'New post' })
@@ -870,6 +879,26 @@ test('uses an image URL as the cover', async ({ page, mock }) => {
     await expect(page.getByRole('button', { name: 'Choose from library' })).toBeVisible()
 })
 
+test('puts the long text after the other fields on small screens', async ({ page }) => {
+    await page.goto('/stories/101')
+    const file = page.getByRole('group', { name: 'File' })
+    const box = async (locator: Locator) => (await locator.boundingBox())!
+    expect((await box(editor(page))).x).toBeLessThan((await box(file)).x)
+
+    await page.setViewportSize({ width: 390, height: 844 })
+    const tops: number[] = []
+    for (const field of [
+        page.getByLabel('Title *'),
+        page.getByLabel('Intro *'),
+        file,
+        page.getByLabel('Date *'),
+        editor(page),
+    ]) {
+        tops.push((await box(field)).y)
+    }
+    expect(tops).toEqual([...tops].sort((a, b) => a - b))
+})
+
 test('offers the post actions in a menu on small screens', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 })
     await page.goto('/stories/101')
@@ -905,8 +934,8 @@ test('keeps one tab stop in the toolbar and moves inside it with the arrow keys'
 }) => {
     await page.goto('/stories/101')
     const toolbar = page.getByRole('toolbar', { name: 'Formatting' })
-    await page.getByLabel('Intro *').focus()
-    await page.keyboard.press('Tab')
+    await editor(page).focus()
+    await page.keyboard.press('Shift+Tab')
     await expect(toolbar.getByLabel('Text style')).toBeFocused()
     await page.keyboard.press('ArrowRight')
     const bold = toolbar.getByRole('button', { name: 'Bold', exact: true })
