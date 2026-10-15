@@ -99,7 +99,7 @@ const setAlt = (alt: string) => {
     <div role="group" :aria-labelledby="labelledBy" class="flex flex-col gap-2">
         <div
             :class="[
-                'grid aspect-video place-items-center overflow-hidden rounded-md border bg-text/5',
+                'grid aspect-video grid-cols-1 grid-rows-1 place-items-center overflow-hidden rounded-md border bg-text/5',
                 invalid ? 'border-2 border-text' : 'border-dashed border-border',
             ]"
         >

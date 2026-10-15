@@ -1,4 +1,4 @@
-import type { Page } from '@playwright/test'
+import type { Locator, Page } from '@playwright/test'
 import type { Editor } from '@tiptap/core'
 import type { Asset } from '#types/api'
 import { E2E } from './config'
@@ -734,6 +734,34 @@ test('picks a cover asset with alt text', async ({ page, mock }) => {
     await expect
         .poll(async () => ((await mock.story(102)).content.file as { filename: string }).filename)
         .toBe('')
+})
+
+test('crops tall covers inside their frames', async ({ page }) => {
+    await page.route('https://a.storyblok.com/**', (route) =>
+        route.fulfill({
+            status: 200,
+            contentType: 'image/svg+xml',
+            body: '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="1600"/>',
+        })
+    )
+    const fitsFrame = (image: Locator) =>
+        image.evaluate(
+            (element: HTMLImageElement) =>
+                element.naturalHeight > 0 &&
+                element.getBoundingClientRect().height <=
+                    element.parentElement!.getBoundingClientRect().height
+        )
+    await page.goto('/stories/102')
+    await page.getByRole('button', { name: 'Choose from library' }).click()
+    const card = page
+        .getByRole('dialog', { name: 'Media library' })
+        .getByRole('button', { name: 'Choose cover.png' })
+    await expect.poll(() => fitsFrame(card.locator('img'))).toBe(true)
+
+    await card.click()
+    await expect
+        .poll(() => fitsFrame(page.getByRole('group', { name: 'File' }).locator('img')))
+        .toBe(true)
 })
 
 test('keeps looking past library pages without matching files', async ({ page }) => {

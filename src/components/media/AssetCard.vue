@@ -19,7 +19,8 @@ const {
 
 const emit = defineEmits<{ open: []; toggle: [] }>()
 
-const FRAME = 'grid aspect-square place-items-center overflow-hidden rounded-md border bg-text/5'
+const FRAME =
+    'grid aspect-square grid-cols-1 grid-rows-1 place-items-center overflow-hidden rounded-md border bg-text/5'
 
 const detailsId = useId()
 
