@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Editor } from '@tiptap/core'
-import { computed, ref, watch } from 'vue'
+import { computed, ref, useId, watch } from 'vue'
 import UiButton from '@/components/ui/UiButton.vue'
 import UiDialog from '@/components/ui/UiDialog.vue'
 import { useSession } from '@/composables/useSession'
@@ -10,6 +10,9 @@ const { editor } = defineProps<{ editor: Editor }>()
 
 const open = defineModel<boolean>('open', { required: true })
 
+const formId = useId()
+const urlId = useId()
+const hintId = useId()
 const { data: session } = useSession()
 
 const url = ref('')
@@ -43,32 +46,36 @@ const remove = () => {
 
 <template>
     <UiDialog v-model:open="open" :title="editing ? 'Edit embed' : 'Embed video'">
-        <form id="embed-form" class="flex flex-col gap-4" @submit.prevent="save">
-            <label class="block">
-                <span class="label">Video URL</span>
+        <form :id="formId" class="flex flex-col gap-4" @submit.prevent="save">
+            <div>
+                <label class="label" :for="urlId">Video URL</label>
                 <input
+                    :id="urlId"
                     v-model="url"
                     class="control"
                     inputmode="url"
                     placeholder="https://www.youtube.com/watch?v=…"
                     autofocus
                     :aria-invalid="(!!url && !src) || undefined"
+                    :aria-describedby="hintId"
                 />
-                <p class="hint">YouTube, Vimeo, Dailymotion, Twitch or any embeddable URL.</p>
-            </label>
+                <p :id="hintId" class="hint">
+                    YouTube, Vimeo, Dailymotion, Twitch or any embeddable URL.
+                </p>
+            </div>
             <iframe
                 v-if="src"
                 :src
                 title="Embed preview"
-                class="aspect-video w-full rounded-md border border-ink/15"
+                class="aspect-video w-full rounded-md border border-border/40"
                 allow="encrypted-media; picture-in-picture"
                 allowfullscreen
             />
         </form>
         <template #footer>
-            <UiButton v-if="editing" class="mr-auto" @click="remove">Remove</UiButton>
+            <UiButton v-if="editing" class="mr-auto" @click="remove">Remove video</UiButton>
             <UiButton @click="open = false">Cancel</UiButton>
-            <UiButton type="submit" form="embed-form" variant="solid" :disabled="!src">
+            <UiButton type="submit" :form="formId" variant="solid" :disabled="!src">
                 {{ editing ? 'Update' : 'Insert' }}
             </UiButton>
         </template>

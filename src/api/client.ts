@@ -1,20 +1,7 @@
 import { DetailedError, hc } from 'hono/client'
-import type { AppType } from '../../server/app'
+import type { AppType } from '#types/api'
 
 export { parseResponse } from 'hono/client'
-
-export type {
-    Asset,
-    AssetFolder,
-    Field,
-    FieldOption,
-    Story,
-    StoryContent,
-    StoryStatus,
-    StorySummary,
-    StoryVersion,
-    WorkflowStage,
-} from '../../server/dto'
 
 export const api = hc<AppType>('/').api
 

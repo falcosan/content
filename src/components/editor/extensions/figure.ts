@@ -1,20 +1,6 @@
 import { Node } from '@tiptap/core'
+import type { FigureAttributes } from '#types/editor'
 import { moveCursorAfterNode } from './selection'
-
-export interface FigureAttributes {
-    src: string
-    alt: string
-    title: string
-    caption: string
-}
-
-declare module '@tiptap/core' {
-    interface Commands<ReturnType> {
-        figure: {
-            setFigure: (attributes: FigureAttributes) => ReturnType
-        }
-    }
-}
 
 const imageOf = (element: HTMLElement) =>
     element.tagName === 'IMG' ? element : element.querySelector('img')

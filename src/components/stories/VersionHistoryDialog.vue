@@ -14,9 +14,6 @@ const { storyId, locked = false } = defineProps<{ storyId: number; locked?: bool
 
 const open = defineModel<boolean>('open', { required: true })
 
-const queryClient = useQueryClient()
-const versions = useQuery(computed(() => ({ ...versionsQuery(storyId), enabled: open.value })))
-
 const STATUS: Record<string, string> = {
     draft: 'Saved',
     published: 'Published',
@@ -26,6 +23,9 @@ const STATUS: Record<string, string> = {
     released: 'Released',
 }
 
+const queryClient = useQueryClient()
+const versions = useQuery(computed(() => ({ ...versionsQuery(storyId), enabled: open.value })))
+
 const restore = useMutation({
     mutationFn: (versionId: number) =>
         parseResponse(
@@ -34,8 +34,8 @@ const restore = useMutation({
             })
         ),
     onSuccess: async () => {
+        void queryClient.invalidateQueries({ queryKey: keys.stories })
         await queryClient.invalidateQueries({ queryKey: keys.story(storyId) })
-        await queryClient.invalidateQueries({ queryKey: keys.stories })
         notify('Version restored')
         open.value = false
     },
@@ -53,20 +53,20 @@ const askRestore = async (versionId: number, createdAt: string) => {
 
 <template>
     <UiDialog v-model:open="open" title="Version history">
-        <p v-if="locked" class="mb-4 rounded-md border border-ink px-3 py-2 text-sm">
+        <p v-if="locked" class="mb-4 rounded-md border border-border px-3 py-2 text-sm">
             Save or discard your changes before restoring a version.
         </p>
         <p v-if="versions.isError.value" role="alert" class="text-sm">
             {{ errorMessage(versions.error.value) }}
         </p>
-        <p v-else-if="versions.isPending.value" class="text-sm text-ink/60" aria-busy="true">
+        <p v-else-if="versions.isPending.value" class="text-sm text-text-light" aria-busy="true">
             Loading versions…
         </p>
-        <p v-else-if="!versions.data.value?.length" class="text-sm text-ink/60">
+        <p v-else-if="!versions.data.value?.length" class="text-sm text-text-light">
             No versions are available. Storyblok keeps them for a limited time depending on your
             plan.
         </p>
-        <ol v-else class="divide-y divide-ink/10">
+        <ol v-else class="divide-y divide-border/40">
             <li
                 v-for="version in versions.data.value"
                 :key="version.id"
@@ -74,7 +74,7 @@ const askRestore = async (versionId: number, createdAt: string) => {
             >
                 <div class="min-w-0">
                     <p class="text-sm font-medium">{{ formatDateTime(version.createdAt) }}</p>
-                    <p class="text-xs text-ink/60">
+                    <p class="text-xs text-text-light">
                         {{ STATUS[version.status] ?? version.status }}
                         <template v-if="version.author"> · {{ version.author }}</template>
                     </p>

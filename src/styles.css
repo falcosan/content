@@ -2,8 +2,20 @@
 
 @theme {
     --color-*: initial;
-    --color-ink: light-dark(#0a0a0a, #fafafa);
-    --color-paper: light-dark(#fafafa, #0a0a0a);
+    --color-bg: light-dark(#f0f0f0, #1d1e20);
+    --color-accent-bg: light-dark(#e0e0e0, #2d2d2d);
+    --color-text: light-dark(#333, #e0e0e0);
+    --color-text-light: light-dark(#636363, #b0b0b0);
+    --color-border: light-dark(#656565, #777);
+    --color-accent: light-dark(#007336, #66bb6a);
+    --color-accent-hover: light-dark(#006630, #4caf50);
+    --color-accent-text: light-dark(#fff, #1d1e20);
+    --color-code: light-dark(#a81e14, #ff8a65);
+    --color-preformatted: light-dark(#555, #bdbdbd);
+    --color-marked: #ffc700;
+    --color-disabled: light-dark(#e0e0e0, #424242);
+    --color-black: #000;
+    --spacing-header: 3.5rem;
 }
 
 @layer base {
@@ -12,32 +24,42 @@
     }
 
     body {
-        @apply min-h-dvh bg-paper font-sans text-ink antialiased;
+        @apply min-h-dvh bg-bg font-sans text-text antialiased;
     }
 
     ::selection {
-        @apply bg-ink text-paper;
+        @apply bg-accent text-accent-text;
     }
 
     :focus-visible {
-        @apply outline-2 outline-offset-2 outline-ink;
+        @apply outline-2 outline-offset-2 outline-accent;
     }
 
     dialog::backdrop {
-        @apply bg-ink/40 backdrop-blur-[2px];
+        @apply bg-bg/80 backdrop-blur-[2px];
     }
 }
 
 @utility control {
-    @apply block w-full rounded-md border border-ink/25 bg-paper px-3 py-2 text-sm text-ink transition-colors outline-none placeholder:text-ink/60 hover:border-ink/50 focus:border-ink disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-2 aria-invalid:border-ink;
+    @apply block w-full rounded-md border border-border bg-bg px-3 py-2 text-sm text-text transition-colors outline-none placeholder:text-text-light hover:border-text-light focus:border-accent disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-2 aria-invalid:border-text;
 }
 
 @utility label {
-    @apply mb-1.5 flex items-baseline justify-between gap-2 text-xs font-semibold tracking-wide text-ink uppercase;
+    @apply mb-1.5 flex items-baseline justify-between gap-2 text-xs font-semibold tracking-wide text-text uppercase;
 }
 
 @utility hint {
-    @apply mt-1.5 text-xs text-ink/60;
+    @apply mt-1.5 text-xs text-text-light;
+}
+
+@utility skeleton-text {
+    @apply rounded bg-text/10 text-transparent select-none;
+}
+
+@utility bleed-border-b {
+    border-bottom: 1px solid;
+    border-image: linear-gradient(--alpha(var(--color-border) / 40%) 0 0) 0 0 1 0 / 0 0 1px 0 / 0
+        100vmax;
 }
 
 @utility prose-content {
@@ -72,7 +94,7 @@
     }
 
     & a {
-        @apply underline decoration-1 underline-offset-2;
+        @apply text-accent underline decoration-1 underline-offset-2;
     }
 
     & ul {
@@ -88,27 +110,27 @@
     }
 
     & blockquote {
-        @apply border-l-4 border-ink pl-4 italic;
+        @apply border-l-4 border-accent pl-4 text-text-light italic;
     }
 
     & code {
-        @apply rounded bg-ink/10 px-1 py-0.5 font-mono text-[0.875em];
+        @apply font-mono text-[0.875em] text-code;
     }
 
     & pre {
-        @apply overflow-x-auto rounded-md bg-ink p-4 font-mono text-sm leading-6 text-paper;
+        @apply overflow-x-auto rounded-md bg-accent-bg p-4 font-mono text-sm leading-6 text-preformatted;
 
         & code {
-            @apply bg-transparent p-0 text-inherit;
+            @apply text-inherit;
         }
     }
 
     & mark {
-        @apply rounded-sm bg-ink px-0.5 text-paper;
+        @apply rounded-sm bg-marked px-0.5 text-black;
     }
 
     & hr {
-        @apply mx-auto my-8 w-40 border-ink/25;
+        @apply mx-auto my-8 w-40 border-border;
     }
 
     & img {
@@ -116,7 +138,7 @@
     }
 
     & figcaption {
-        @apply mt-2 text-center text-sm text-ink/60 italic;
+        @apply mt-2 text-center text-sm text-text-light italic;
     }
 
     & iframe {
@@ -124,10 +146,25 @@
     }
 
     & .ProseMirror-selectednode {
-        @apply outline-2 outline-offset-4 outline-ink;
+        @apply outline-2 outline-offset-4 outline-accent;
     }
 
     & .is-editor-empty:first-child::before {
-        @apply pointer-events-none float-left h-0 text-ink/60 content-[attr(data-placeholder)];
+        @apply pointer-events-none float-left h-0 text-text-light content-[attr(data-placeholder)];
+    }
+}
+
+@layer components {
+    .anchored-popover {
+        margin: auto;
+    }
+
+    @supports (position-area: bottom) {
+        .anchored-popover {
+            inset: auto;
+            margin: 0.25rem 0 0;
+            position-area: bottom span-left;
+            position-try-fallbacks: flip-block, bottom, top;
+        }
     }
 }

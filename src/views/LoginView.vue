@@ -11,9 +11,9 @@ const enter = () => router.replace(safeRedirect(route.query.redirect))
 
 <template>
     <div class="flex min-h-[calc(100dvh-3rem)] items-center justify-center">
-        <section class="w-full max-w-sm rounded-lg border border-ink p-8">
+        <section class="w-full max-w-sm rounded-lg border border-border p-8">
             <h1 class="mb-1 text-xl font-bold tracking-tight">{{ APP_TITLE }}</h1>
-            <p class="mb-6 text-sm text-ink/60">Sign in to manage posts and media.</p>
+            <p class="mb-6 text-sm text-text-light">Sign in to manage posts and media.</p>
             <LoginForm @success="enter" />
         </section>
     </div>

@@ -2,7 +2,7 @@ import { Hono } from 'hono'
 import { HTTPException } from 'hono/http-exception'
 import { csrf } from 'hono/csrf'
 import type { ContentfulStatusCode } from 'hono/utils/http-status'
-import type { Env } from './env'
+import type { Env } from '#types/server'
 import { assetRoutes } from './routes/assets'
 import { folderRoutes } from './routes/folders'
 import { schemaRoutes } from './routes/schema'
@@ -18,6 +18,7 @@ const upstreamStatus = (status: number): ContentfulStatusCode =>
 export const createApp = (env: Env, fetch: typeof globalThis.fetch = globalThis.fetch) => {
     const storyblok = createStoryblok({
         apiUrl: env.STORY_API_URL,
+        cdnUrl: env.STORY_CDN_URL,
         spaceId: env.STORY_ID_SPACE,
         token: env.STORY_OAUTH_TOKEN,
         fetch,
@@ -25,7 +26,7 @@ export const createApp = (env: Env, fetch: typeof globalThis.fetch = globalThis.
 
     const session = createSession(env)
 
-    const app = new Hono()
+    const app = new Hono({ getPath: (request) => new URL(request.url).pathname })
         .basePath('/api')
         .use(csrf())
         .route('/session', session.routes)
@@ -39,10 +40,7 @@ export const createApp = (env: Env, fetch: typeof globalThis.fetch = globalThis.
 
     app.onError((error, c) => {
         if (error instanceof HTTPException) {
-            return c.json(
-                { error: error.message || 'Request rejected' },
-                error.status as ContentfulStatusCode
-            )
+            return c.json({ error: error.message || 'Request rejected' }, error.status)
         }
         if (error instanceof StoryblokError) {
             return c.json({ error: error.message }, upstreamStatus(error.status))
@@ -53,5 +51,3 @@ export const createApp = (env: Env, fetch: typeof globalThis.fetch = globalThis.
 
     return app
 }
-
-export type AppType = ReturnType<typeof createApp>

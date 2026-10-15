@@ -6,7 +6,9 @@
         "module": "preserve",
         "moduleResolution": "bundler",
         "verbatimModuleSyntax": true,
-        "lib": ["ES2024", "DOM", "DOM.Iterable"]
+        "lib": ["ES2024", "DOM", "DOM.Iterable"],
+        "noUncheckedIndexedAccess": true,
+        "allowImportingTsExtensions": true
     },
-    "include": ["vite.config.ts", "eslint.config.ts", "playwright.config.ts", "e2e/**/*.ts"]
+    "include": ["vite.config.ts", "eslint.config.ts", "playwright.config.ts", "tests/e2e/**/*.ts"]
 }

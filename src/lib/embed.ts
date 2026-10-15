@@ -1,4 +1,11 @@
-type Provider = [pattern: RegExp, toEmbed: (match: RegExpExecArray, url: URL) => string]
+import type { Provider } from '#types/app'
+
+const TIMESTAMP = /^(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s?)?$/
+
+const toSeconds = (timestamp: string) => {
+    const [, hours = 0, minutes = 0, seconds = 0] = TIMESTAMP.exec(timestamp) ?? []
+    return Number(hours) * 3600 + Number(minutes) * 60 + Number(seconds)
+}
 
 const providers = (parents: string): Provider[] => [
     [/^(?:www\.)?vimeo\.com\/(\d+)/, ([, id]) => `https://player.vimeo.com/video/${id}`],
@@ -17,10 +24,10 @@ const providers = (parents: string): Provider[] => [
     [
         /^(?:www\.|m\.)?(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|v\/|shorts\/))([\w-]{11})/,
         ([, id], url) => {
-            const start = /^(\d+)/.exec(
+            const start = toSeconds(
                 url.searchParams.get('start') ?? url.searchParams.get('t') ?? ''
             )
-            return `https://www.youtube.com/embed/${id}${start ? `?start=${start[1]}` : ''}`
+            return `https://www.youtube.com/embed/${id}${start ? `?start=${start}` : ''}`
         },
     ],
 ]
@@ -29,6 +36,11 @@ export const parseHttpUrl = (value: string) => {
     if (!URL.canParse(value.trim())) return null
     const url = new URL(value.trim())
     return url.protocol === 'https:' || url.protocol === 'http:' ? url : null
+}
+
+export const parseHttpsUrl = (value: string) => {
+    const url = parseHttpUrl(value)
+    return url?.protocol === 'https:' ? url : null
 }
 
 export const toEmbedUrl = (value: string, hosts: string[]) => {
@@ -40,5 +52,5 @@ export const toEmbedUrl = (value: string, hosts: string[]) => {
         const match = pattern.exec(target)
         if (match) return toEmbed(match, url)
     }
-    return url.href
+    return url.protocol === 'https:' ? url.href : null
 }

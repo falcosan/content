@@ -4,10 +4,10 @@ import { createMiddleware } from 'hono/factory'
 import { HTTPException } from 'hono/http-exception'
 import { sign, verify } from 'hono/jwt'
 import { z } from 'zod'
-import type { Env } from './env'
+import type { Env } from '#types/server'
 import { validate } from './validate'
 
-export const SESSION_COOKIE = 'session'
+const SESSION_COOKIE = 'session'
 
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 7
 
@@ -28,7 +28,7 @@ const constantTimeEqual = (a: Uint8Array, b: Uint8Array) =>
 
 export const verifyCredentials = async (env: Env, user: string, password: string) => {
     const [givenUser, expectedUser, givenPassword] = await Promise.all([
-        sha256(user.trim().toLowerCase()),
+        sha256(user.toLowerCase()),
         sha256(env.STORY_AUTH_EMAIL.toLowerCase()),
         sha256(password),
     ])
@@ -71,42 +71,34 @@ const credentials = z.object({
     password: z.string().min(1).max(1024),
 })
 
-export type SessionVariables = { user: string }
-
 export const createSession = (env: Env) => {
     const key = deriveSessionKey(env)
 
-    const readUser = async (c: Context) => {
+    const requireSession = createMiddleware(async (c, next) => {
         const token = getCookie(c, SESSION_COOKIE)
         if (!token) throw new HTTPException(401, { message: 'Not signed in' })
-        const payload = await verify(token, await key, 'HS256').catch(() => null)
-        if (typeof payload?.sub !== 'string') {
+        await verify(token, await key, 'HS256').catch(() => {
             throw new HTTPException(401, { message: 'Session expired' })
-        }
-        return payload.sub
-    }
-
-    const requireSession = createMiddleware<{ Variables: SessionVariables }>(async (c, next) => {
-        c.set('user', await readUser(c))
+        })
         await next()
     })
 
-    const view = (user: string) => ({ user, siteUrl: env.STORY_DOMAIN_PRO })
+    const view = { siteUrl: env.STORY_DOMAIN_PRO }
 
-    const routes = new Hono<{ Variables: SessionVariables }>()
-        .get('/', requireSession, (c) => c.json(view(c.get('user'))))
+    const routes = new Hono()
+        .get('/', requireSession, (c) => c.json(view))
         .post('/', validate('json', credentials), async (c) => {
             const { user, password } = c.req.valid('json')
             if (!(await verifyCredentials(env, user, password))) {
                 return c.json({ error: 'Invalid credentials' }, 401)
             }
             const exp = Math.floor(Date.now() / 1000) + SESSION_TTL_SECONDS
-            const token = await sign({ sub: env.STORY_AUTH_EMAIL, exp }, await key, 'HS256')
+            const token = await sign({ exp }, await key, 'HS256')
             setCookie(c, SESSION_COOKIE, token, {
                 ...cookieOptions(c),
                 maxAge: SESSION_TTL_SECONDS,
             })
-            return c.json(view(env.STORY_AUTH_EMAIL))
+            return c.json(view)
         })
         .delete('/', (c) => {
             deleteCookie(c, SESSION_COOKIE, cookieOptions(c))

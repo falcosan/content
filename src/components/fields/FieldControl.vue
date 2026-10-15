@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { CircleAlert } from '@lucide/vue'
 import { computed, useId } from 'vue'
-import type { Field } from '@/api/client'
+import type { Field } from '#types/api'
 import RichEditor from '@/components/editor/RichEditor.vue'
 import AssetField from './AssetField.vue'
 import OptionsField from './OptionsField.vue'
@@ -10,12 +10,12 @@ const { field, error } = defineProps<{ field: Field; error?: string }>()
 
 const model = defineModel<unknown>()
 
+const NATIVE = new Set<Field['type']>(['text', 'textarea', 'datetime', 'option', 'number'])
+
 const id = useId()
 const labelId = `${id}-label`
 const hintId = `${id}-hint`
 const errorId = `${id}-error`
-
-const NATIVE = new Set(['text', 'textarea', 'datetime', 'option', 'number'])
 
 const native = computed(() => NATIVE.has(field.type))
 const invalid = computed(() => !!error)
@@ -24,7 +24,6 @@ const describedBy = computed(
 )
 
 const maxLength = computed(() => ('maxLength' in field ? field.maxLength : null))
-const options = computed(() => ('options' in field ? field.options : []))
 const withTime = computed(() => 'withTime' in field && field.withTime)
 
 const text = computed({
@@ -86,6 +85,7 @@ const checked = computed({
             v-else-if="field.type === 'markdown'"
             v-model="text"
             :max-length="maxLength"
+            :required="field.required"
             :invalid
             :labelled-by="labelId"
             :described-by="describedBy"
@@ -109,23 +109,29 @@ const checked = computed({
             :aria-invalid="invalid || undefined"
             :aria-describedby="describedBy"
         >
-            <option v-if="'allowEmpty' in field && field.allowEmpty" value="">—</option>
-            <option v-for="option in options" :key="option.value" :value="option.value">
+            <option v-if="field.allowEmpty" value="">—</option>
+            <option v-for="option in field.options" :key="option.value" :value="option.value">
                 {{ option.name }}
             </option>
         </select>
         <OptionsField
             v-else-if="field.type === 'options'"
             v-model="model"
-            :options
-            :max-options="'maxOptions' in field ? field.maxOptions : null"
+            :options="field.options"
+            :max-options="field.maxOptions"
             :labelled-by="labelId"
+            :described-by="describedBy"
+            :invalid
+            :field-key="field.key"
+            :allow-new="field.allowNewOptions"
         />
         <AssetField
             v-else-if="field.type === 'asset'"
             v-model="model"
-            :filetypes="'filetypes' in field ? field.filetypes : []"
+            :filetypes="field.filetypes"
+            :allow-external-url="field.allowExternalUrl"
             :labelled-by="labelId"
+            :described-by="describedBy"
             :invalid
         />
         <label v-else-if="field.type === 'boolean'" class="flex items-center gap-2 text-sm">
@@ -133,7 +139,7 @@ const checked = computed({
                 :id
                 v-model="checked"
                 type="checkbox"
-                class="size-4 accent-ink"
+                class="size-4 accent-accent"
                 :aria-describedby="describedBy"
             />
             {{ field.label }}
@@ -141,12 +147,13 @@ const checked = computed({
         <input
             v-else-if="field.type === 'number'"
             :id
-            v-model="text"
+            :value="text"
             type="number"
             class="control"
             :required="field.required"
             :aria-invalid="invalid || undefined"
             :aria-describedby="describedBy"
+            @input="text = ($event.target as HTMLInputElement).value"
         />
 
         <p v-if="field.description" :id="hintId" class="hint">{{ field.description }}</p>

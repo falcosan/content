@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { X } from '@lucide/vue'
-import { onMounted, useId, useTemplateRef, watch } from 'vue'
+import { onBeforeUnmount, useId, useTemplateRef, watch } from 'vue'
+import { forgetModal, showModal } from '@/composables/useModals'
 import UiButton from './UiButton.vue'
 
 const { title, size = 'md' } = defineProps<{
@@ -10,9 +11,6 @@ const { title, size = 'md' } = defineProps<{
 
 const open = defineModel<boolean>('open', { required: true })
 
-const dialog = useTemplateRef('dialog')
-const titleId = useId()
-
 const SIZES = {
     sm: 'max-w-sm',
     md: 'max-w-lg',
@@ -20,15 +18,43 @@ const SIZES = {
     xl: 'max-w-6xl',
 }
 
-const sync = (value: boolean) => {
-    const element = dialog.value
-    if (!element) return
-    if (value && !element.open) element.showModal()
-    if (!value && element.open) element.close()
+const titleId = useId()
+
+const dialog = useTemplateRef('dialog')
+
+let pressedOnBackdrop = false
+let releasedOnBackdrop = false
+
+watch(
+    [open, dialog],
+    ([isOpen, element]) => {
+        if (!element) return
+        if (isOpen && !element.open) showModal(element)
+        if (!isOpen && element.open) element.close()
+    },
+    { flush: 'post' }
+)
+
+onBeforeUnmount(() => dialog.value && forgetModal(dialog.value))
+
+const onClose = (event: Event) => {
+    forgetModal(event.currentTarget as HTMLDialogElement)
+    open.value = false
 }
 
-onMounted(() => sync(open.value))
-watch(open, sync, { flush: 'post' })
+const onPointerdown = (event: PointerEvent) => {
+    pressedOnBackdrop = event.target === event.currentTarget
+}
+
+const onPointerup = (event: PointerEvent) => {
+    releasedOnBackdrop = event.target === event.currentTarget
+}
+
+const onClick = (event: MouseEvent) => {
+    if (pressedOnBackdrop && releasedOnBackdrop && event.target === event.currentTarget) {
+        open.value = false
+    }
+}
 </script>
 
 <template>
@@ -36,17 +62,21 @@ watch(open, sync, { flush: 'post' })
         ref="dialog"
         :aria-labelledby="titleId"
         :class="[
-            'm-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] overflow-hidden rounded-lg border border-ink bg-paper p-0 text-ink opacity-0 transition-all transition-discrete duration-150 open:opacity-100 starting:open:opacity-0 backdrop:transition-all backdrop:transition-discrete backdrop:duration-150',
+            'm-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] overflow-hidden rounded-lg border border-border bg-bg p-0 text-text opacity-0 transition-opacity duration-150 open:opacity-100 starting:open:opacity-0',
             SIZES[size],
         ]"
-        @close="open = false"
-        @click.self="open = false"
+        @close="onClose"
+        @pointerdown="onPointerdown"
+        @pointerup="onPointerup"
+        @click="onClick"
     >
         <div v-if="open" class="flex max-h-[calc(100dvh-2rem)] flex-col">
             <header
-                class="flex items-center justify-between gap-4 border-b border-ink/15 px-5 py-3"
+                class="flex items-center justify-between gap-4 border-b border-border/40 px-5 py-3"
             >
-                <h2 :id="titleId" class="text-base font-semibold">{{ title }}</h2>
+                <h2 :id="titleId" class="min-w-0 text-base font-semibold wrap-break-word">
+                    {{ title }}
+                </h2>
                 <UiButton
                     variant="ghost"
                     size="sm"
@@ -60,7 +90,7 @@ watch(open, sync, { flush: 'post' })
             </div>
             <footer
                 v-if="$slots.footer"
-                class="flex flex-wrap items-center justify-end gap-2 border-t border-ink/15 px-5 py-3"
+                class="flex flex-wrap items-center justify-end gap-2 border-t border-border/40 px-5 py-3"
             >
                 <slot name="footer" />
             </footer>

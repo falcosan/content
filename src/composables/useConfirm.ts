@@ -1,14 +1,5 @@
 import { readonly, shallowRef } from 'vue'
-
-export interface ConfirmOptions {
-    title: string
-    message: string
-    action: string
-}
-
-interface ConfirmRequest extends ConfirmOptions {
-    resolve: (confirmed: boolean) => void
-}
+import type { ConfirmOptions, ConfirmRequest } from '#types/app'
 
 const pending = shallowRef<ConfirmRequest | null>(null)
 

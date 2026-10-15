@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
-import type { AssetFolder } from '@/api/client'
+import { ref, useId, watch } from 'vue'
+import type { AssetFolder } from '#types/api'
 import UiButton from '@/components/ui/UiButton.vue'
 import UiDialog from '@/components/ui/UiDialog.vue'
 import { useSaveFolder } from '@/composables/useMedia'
+import { MAX_LENGTH } from '../../../shared/validation'
 
 const { folder, parentId = null } = defineProps<{
     folder?: AssetFolder
@@ -12,8 +13,10 @@ const { folder, parentId = null } = defineProps<{
 
 const open = defineModel<boolean>('open', { required: true })
 
-const name = ref('')
 const save = useSaveFolder()
+const formId = useId()
+
+const name = ref('')
 
 watch(open, (isOpen) => {
     if (isOpen) name.value = folder?.name ?? ''
@@ -31,17 +34,23 @@ const submit = () => {
 
 <template>
     <UiDialog v-model:open="open" :title="folder ? 'Rename folder' : 'New folder'" size="sm">
-        <form id="folder-form" @submit.prevent="submit">
+        <form :id="formId" @submit.prevent="submit">
             <label class="block">
                 <span class="label">Name</span>
-                <input v-model="name" class="control" required maxlength="100" autofocus />
+                <input
+                    v-model="name"
+                    class="control"
+                    required
+                    :maxlength="MAX_LENGTH.folderName"
+                    autofocus
+                />
             </label>
         </form>
         <template #footer>
             <UiButton @click="open = false">Cancel</UiButton>
             <UiButton
                 type="submit"
-                form="folder-form"
+                :form="formId"
                 variant="solid"
                 :disabled="!name.trim()"
                 :loading="save.isPending.value"

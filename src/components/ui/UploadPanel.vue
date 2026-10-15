@@ -8,7 +8,7 @@ const { items } = useUploads()
 <template>
     <section
         v-if="items.length"
-        class="fixed bottom-4 left-4 z-40 w-[min(20rem,calc(100%-2rem))] rounded-lg border border-ink bg-paper p-3"
+        class="pointer-events-auto rounded-lg border border-border bg-bg p-3"
         aria-label="Uploads"
     >
         <ul class="flex max-h-64 flex-col gap-3 overflow-y-auto">
@@ -25,21 +25,21 @@ const { items } = useUploads()
                         aria-hidden="true"
                     />
                     <CircleAlert v-else class="size-4 shrink-0" aria-hidden="true" />
-                    <span class="min-w-0 flex-1 truncate font-medium">{{ item.name }}</span>
+                    <span class="min-w-0 flex-1 font-medium wrap-break-word">{{ item.name }}</span>
                     <button
                         v-if="item.status === 'failed'"
                         type="button"
                         class="rounded p-0.5 opacity-70 hover:opacity-100"
-                        aria-label="Dismiss"
+                        :aria-label="`Dismiss ${item.name}`"
                         @click="dismissUpload(item.id)"
                     >
                         <X class="size-3.5" aria-hidden="true" />
                     </button>
                 </div>
-                <p v-if="item.status === 'failed'" class="mt-1 text-ink/70">{{ item.error }}</p>
+                <p v-if="item.status === 'failed'" class="mt-1 text-text-light">{{ item.error }}</p>
                 <div
                     v-else
-                    class="mt-1.5 h-1 overflow-hidden rounded-full bg-ink/15"
+                    class="mt-1.5 h-1 overflow-hidden rounded-full bg-accent-bg"
                     role="progressbar"
                     :aria-label="`Uploading ${item.name}`"
                     :aria-valuenow="Math.round(item.progress * 100)"
@@ -47,7 +47,7 @@ const { items } = useUploads()
                     aria-valuemax="100"
                 >
                     <div
-                        class="h-full bg-ink transition-[width]"
+                        class="h-full bg-accent transition-[width]"
                         :style="{ width: `${item.progress * 100}%` }"
                     />
                 </div>

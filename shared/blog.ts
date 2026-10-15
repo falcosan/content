@@ -7,4 +7,5 @@ export const BLOG = {
         date: 'date',
         cover: 'file',
     },
+    hiddenFields: ['align_text'],
 } as const

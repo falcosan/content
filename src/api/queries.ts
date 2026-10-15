@@ -1,37 +1,20 @@
-import { infiniteQueryOptions, keepPreviousData, queryOptions } from '@tanstack/vue-query'
-import { api, parseResponse, type Story } from './client'
-
-export type StatusFilter = 'all' | 'published' | 'draft'
-
-export interface StoryFilters {
-    search: string
-    status: StatusFilter
-}
-
-export interface AssetFilters {
-    search: string
-    folder: number | null
-    trash: boolean
-}
+import { infiniteQueryOptions, queryOptions } from '@tanstack/vue-query'
+import type { Story } from '#types/api'
+import type { AssetFilters, Page, StoryFilters } from '#types/app'
+import { keepWhileSearching } from '@/lib/filters'
+import { flattenFolders } from '@/lib/folders'
+import { api, parseResponse } from './client'
 
 export const keys = {
     session: ['session'],
     fields: ['schema', 'fields'],
-    tags: ['schema', 'tags'],
     stories: ['stories'],
     story: (id: number) => ['story', id],
     versions: (id: number) => ['story', id, 'versions'],
-    workflowStages: ['schema', 'workflow-stages'],
     languages: ['schema', 'languages'],
     assets: ['assets'],
     folders: ['folders'],
 } as const
-
-interface Page {
-    page: number
-    perPage: number
-    total: number
-}
 
 const nextPage = ({ page, perPage, total }: Page) => (page * perPage < total ? page + 1 : undefined)
 
@@ -50,16 +33,9 @@ export const fieldsQuery = () =>
         staleTime: Infinity,
     })
 
-export const tagsQuery = () =>
-    queryOptions({
-        queryKey: keys.tags,
-        queryFn: () => parseResponse(api.schema.tags.$get()),
-        staleTime: 5 * 60_000,
-    })
-
 export const storiesQuery = (filters: StoryFilters) =>
     infiniteQueryOptions({
-        queryKey: [...keys.stories, filters],
+        queryKey: [...keys.stories, filters] as const,
         queryFn: ({ pageParam }) =>
             parseResponse(
                 api.stories.$get({
@@ -72,7 +48,7 @@ export const storiesQuery = (filters: StoryFilters) =>
             ),
         initialPageParam: 1,
         getNextPageParam: nextPage,
-        placeholderData: keepPreviousData,
+        placeholderData: keepWhileSearching(filters),
     })
 
 export const storyQuery = (id: number) =>
@@ -84,21 +60,24 @@ export const storyQuery = (id: number) =>
 
 export const assetsQuery = (filters: AssetFilters) =>
     infiniteQueryOptions({
-        queryKey: [...keys.assets, filters],
+        queryKey: [...keys.assets, filters] as const,
         queryFn: ({ pageParam }) =>
             parseResponse(
                 api.assets.$get({
                     query: {
                         page: String(pageParam),
                         search: filters.search,
-                        folder: filters.folder === null ? undefined : String(filters.folder),
-                        trash: filters.trash ? '1' : undefined,
+                        folder:
+                            typeof filters.location === 'number'
+                                ? String(filters.location)
+                                : undefined,
+                        trash: filters.location === 'trash' ? '1' : undefined,
                     },
                 })
             ),
         initialPageParam: 1,
         getNextPageParam: nextPage,
-        placeholderData: keepPreviousData,
+        placeholderData: keepWhileSearching(filters),
     })
 
 export const versionsQuery = (id: number) =>
@@ -107,13 +86,6 @@ export const versionsQuery = (id: number) =>
         queryFn: () =>
             parseResponse(api.stories[':id'].versions.$get({ param: { id: String(id) } })),
         staleTime: 0,
-    })
-
-export const workflowStagesQuery = () =>
-    queryOptions({
-        queryKey: keys.workflowStages,
-        queryFn: () => parseResponse(api.schema['workflow-stages'].$get()),
-        staleTime: Infinity,
     })
 
 export const languagesQuery = () =>
@@ -128,4 +100,5 @@ export const foldersQuery = () =>
         queryKey: keys.folders,
         queryFn: () => parseResponse(api.folders.$get()),
         staleTime: 5 * 60_000,
+        select: flattenFolders,
     })

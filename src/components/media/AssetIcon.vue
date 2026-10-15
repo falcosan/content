@@ -1,15 +1,20 @@
 <script setup lang="ts">
-import { File, FileText, Music, Video } from '@lucide/vue'
-import { computed } from 'vue'
+import { File, FileText, Image, Music, Video } from '@lucide/vue'
+import { computed, type Component } from 'vue'
+import type { AssetKind } from '#types/app'
+import { assetKind } from '@/lib/assets'
 
 const { contentType } = defineProps<{ contentType: string }>()
 
-const icon = computed(() => {
-    if (contentType.startsWith('video/')) return Video
-    if (contentType.startsWith('audio/')) return Music
-    if (contentType.startsWith('text/') || contentType === 'application/pdf') return FileText
-    return File
-})
+const ICONS: Record<AssetKind, Component> = {
+    image: Image,
+    video: Video,
+    audio: Music,
+    document: FileText,
+    file: File,
+}
+
+const icon = computed(() => ICONS[assetKind(contentType)])
 </script>
 
 <template>

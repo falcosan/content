@@ -5,8 +5,8 @@
         "noEmit": true,
         "module": "preserve",
         "moduleResolution": "bundler",
-        "verbatimModuleSyntax": true
+        "verbatimModuleSyntax": true,
+        "noUncheckedIndexedAccess": true
     },
-    "include": ["server/**/*.ts", "shared/**/*.ts", "netlify/**/*.ts"],
-    "exclude": ["server/**/*.test.ts", "server/test/**"]
+    "include": ["server/**/*.ts", "shared/**/*.ts", "netlify/**/*.ts"]
 }

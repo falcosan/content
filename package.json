@@ -4,17 +4,19 @@
     "version": "3.0.0",
     "type": "module",
     "engines": {
-        "node": ">=22"
+        "node": "^22.22.2 || ^24.15.0 || >=26"
+    },
+    "imports": {
+        "#types/*": "./types/*.ts"
     },
     "scripts": {
         "dev": "vite",
         "test": "vitest run",
         "build": "vite build",
-        "preview": "vite preview",
         "test:e2e": "playwright test",
         "typecheck": "vue-tsc --build",
         "format": "prettier --write . && eslint . --fix",
-        "verify": "npm run typecheck && npm run lint && npm run format:check && npm test && npm run build && npm run test:e2e"
+        "verify": "npm run typecheck && eslint . && prettier --check . && npm test && npm run build && npm run test:e2e"
     },
     "dependencies": {
         "@hono/zod-validator": "^0.9.1",

@@ -1,12 +1,5 @@
 import { readonly, shallowReactive } from 'vue'
-
-export type ToastTone = 'info' | 'error'
-
-export interface Toast {
-    id: number
-    message: string
-    tone: ToastTone
-}
+import type { Toast, ToastTone } from '#types/app'
 
 const MAX_TOASTS = 4
 

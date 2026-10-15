@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { LoaderCircle } from '@lucide/vue'
-import { computed, useSlots, type Component } from 'vue'
+import { computed, type Component } from 'vue'
 
 const {
     variant = 'outline',
@@ -20,24 +20,20 @@ const {
     disabled?: boolean
 }>()
 
-const slots = useSlots()
+const BASE =
+    'inline-flex shrink-0 items-center justify-center rounded-md font-medium whitespace-nowrap transition-colors select-none disabled:cursor-not-allowed'
 
 const VARIANTS = {
-    solid: 'border border-ink bg-ink text-paper hover:bg-ink/85',
-    outline: 'border border-ink/25 text-ink hover:border-ink hover:bg-ink/5',
-    ghost: 'border border-transparent text-ink hover:bg-ink/10',
+    solid: 'border border-accent bg-accent text-accent-text hover:not-disabled:border-accent-hover hover:not-disabled:bg-accent-hover disabled:border-disabled disabled:bg-disabled disabled:text-text-light',
+    outline:
+        'border border-border text-text hover:not-disabled:border-text hover:not-disabled:bg-text/5 disabled:opacity-50',
+    ghost: 'border border-transparent text-text hover:not-disabled:bg-text/10 disabled:opacity-50',
 }
 
 const SIZES = {
     sm: { text: 'h-8 gap-1.5 px-2.5 text-xs', square: 'size-8' },
     md: { text: 'h-9 gap-2 px-3.5 text-sm', square: 'size-9' },
 }
-
-const classes = computed(() => [
-    'inline-flex shrink-0 items-center justify-center rounded-md font-medium whitespace-nowrap transition-colors select-none disabled:pointer-events-none disabled:opacity-50',
-    VARIANTS[variant],
-    slots.default ? SIZES[size].text : SIZES[size].square,
-])
 
 const attributes = computed(() =>
     href
@@ -50,7 +46,7 @@ const attributes = computed(() =>
     <component
         :is="href ? 'a' : 'button'"
         v-bind="attributes"
-        :class="classes"
+        :class="[BASE, VARIANTS[variant], $slots.default ? SIZES[size].text : SIZES[size].square]"
         :aria-busy="loading || undefined"
     >
         <LoaderCircle v-if="loading" class="size-4 animate-spin" aria-hidden="true" />

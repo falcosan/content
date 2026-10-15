@@ -4,12 +4,6 @@ import { notify } from '@/composables/useToasts'
 import { errorMessage, statusOf } from './client'
 import { keys } from './queries'
 
-declare module '@tanstack/vue-query' {
-    interface Register {
-        mutationMeta: { silent?: boolean }
-    }
-}
-
 export const sessionExpired = ref(false)
 
 const isUnauthorized = (error: unknown) => statusOf(error) === 401

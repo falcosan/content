@@ -1,22 +1,9 @@
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
+import type { AssetMetadata, FolderInput } from '#types/app'
 import { api, parseResponse } from '@/api/client'
 import { keys } from '@/api/queries'
+import { BULK_LIMIT } from '../../shared/validation'
 import { notify } from './useToasts'
-
-export interface AssetMetadata {
-    alt: string
-    title: string
-    copyright: string
-    source: string
-    folderId: number | null
-}
-
-export interface FolderInput {
-    name: string
-    parentId: number | null
-}
-
-const BULK_LIMIT = 100
 
 const inBatches = async (ids: number[], run: (batch: number[]) => Promise<unknown>) => {
     for (let index = 0; index < ids.length; index += BULK_LIMIT) {
@@ -49,9 +36,9 @@ export const useMoveAssets = () => {
             inBatches(ids, (batch) =>
                 parseResponse(api.assets.move.$post({ json: { ids: batch, folderId } }))
             ),
-        onSuccess: async (_result, { ids }) => {
+        onSettled: async (_result, error, { ids }) => {
             await invalidate(keys.assets)
-            notify(ids.length === 1 ? 'Asset moved' : `${ids.length} assets moved`)
+            if (!error) notify(ids.length === 1 ? 'Asset moved' : `${ids.length} assets moved`)
         },
     })
 }
@@ -63,9 +50,9 @@ export const useDeleteAssets = () => {
             inBatches(ids, (batch) =>
                 parseResponse(api.assets.delete.$post({ json: { ids: batch } }))
             ),
-        onSuccess: async (_result, ids) => {
+        onSettled: async (_result, error, ids) => {
             await invalidate(keys.assets)
-            notify(ids.length === 1 ? 'Asset deleted' : `${ids.length} assets deleted`)
+            if (!error) notify(ids.length === 1 ? 'Asset deleted' : `${ids.length} assets deleted`)
         },
     })
 }
@@ -77,9 +64,10 @@ export const useRestoreAssets = () => {
             inBatches(ids, (batch) =>
                 parseResponse(api.assets.restore.$post({ json: { ids: batch } }))
             ),
-        onSuccess: async (_result, ids) => {
+        onSettled: async (_result, error, ids) => {
             await invalidate(keys.assets)
-            notify(ids.length === 1 ? 'Asset restored' : `${ids.length} assets restored`)
+            if (!error)
+                notify(ids.length === 1 ? 'Asset restored' : `${ids.length} assets restored`)
         },
     })
 }

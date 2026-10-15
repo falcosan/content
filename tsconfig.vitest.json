@@ -4,6 +4,5 @@
         "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.vitest.tsbuildinfo",
         "types": ["node"]
     },
-    "include": ["src/**/*.test.ts", "server/**/*.test.ts", "server/test/**/*.ts"],
-    "exclude": []
+    "include": ["tests/server/**/*.ts", "tests/web/**/*.ts"]
 }

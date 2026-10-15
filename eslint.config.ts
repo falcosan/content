@@ -5,12 +5,7 @@ import pluginVue from 'eslint-plugin-vue'
 import tseslint from 'typescript-eslint'
 
 export default defineConfig(
-    globalIgnores([
-        '**/dist/**',
-        '**/coverage/**',
-        '**/playwright-report/**',
-        '**/test-results/**',
-    ]),
+    globalIgnores(['**/dist/**', '**/.netlify/**', '**/test-results/**']),
     {
         files: ['**/*.{ts,vue}'],
         extends: [

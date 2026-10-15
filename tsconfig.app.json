@@ -6,8 +6,8 @@
         "paths": {
             "@/*": ["./src/*"]
         },
-        "types": ["vite/client"]
+        "types": ["vite/client"],
+        "noUncheckedIndexedAccess": true
     },
-    "include": ["src/**/*.ts", "src/**/*.vue"],
-    "exclude": ["src/**/*.test.ts"]
+    "include": ["src/**/*.ts", "src/**/*.vue"]
 }

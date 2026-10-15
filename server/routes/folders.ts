@@ -1,11 +1,12 @@
 import { Hono } from 'hono'
 import { z } from 'zod'
+import type { Storyblok } from '#types/storyblok'
+import { MAX_LENGTH } from '../../shared/validation'
 import { toAssetFolder } from '../dto'
-import type { Storyblok } from '../storyblok'
 import { idParam, validate } from '../validate'
 
 const folderBody = z.object({
-    name: z.string().trim().min(1).max(100),
+    name: z.string().trim().min(1).max(MAX_LENGTH.folderName),
     parentId: z.number().int().positive().nullable().default(null),
 })
 

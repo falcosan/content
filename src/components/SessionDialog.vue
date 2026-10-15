@@ -6,9 +6,9 @@ import UiDialog from './ui/UiDialog.vue'
 
 <template>
     <UiDialog v-model:open="sessionExpired" title="Session expired" size="sm">
-        <p class="mb-4 text-sm text-ink/70">
+        <p class="mb-4 text-sm text-text-light">
             Sign in again to continue. Your unsaved work stays on this page.
         </p>
-        <LoginForm @success="sessionExpired = false" />
+        <LoginForm />
     </UiDialog>
 </template>

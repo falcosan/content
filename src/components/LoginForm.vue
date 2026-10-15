@@ -7,10 +7,11 @@ import UiButton from './ui/UiButton.vue'
 
 const emit = defineEmits<{ success: [] }>()
 
+const signIn = useSignIn()
+const errorId = useId()
+
 const user = ref('')
 const password = ref('')
-const errorId = useId()
-const signIn = useSignIn()
 
 const error = computed(() => {
     const failure = signIn.error.value

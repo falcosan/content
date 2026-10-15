@@ -73,7 +73,6 @@ export default defineConfig(({ mode }) => {
             },
         },
         server: { headers: SECURITY_HEADERS },
-        preview: { headers: SECURITY_HEADERS },
         test: {
             projects: [
                 {
@@ -81,7 +80,7 @@ export default defineConfig(({ mode }) => {
                     test: {
                         name: 'server',
                         environment: 'node',
-                        include: ['server/**/*.test.ts'],
+                        include: ['tests/server/**/*.test.ts'],
                     },
                 },
                 {
@@ -89,7 +88,7 @@ export default defineConfig(({ mode }) => {
                     test: {
                         name: 'web',
                         environment: 'jsdom',
-                        include: ['src/**/*.test.ts'],
+                        include: ['tests/web/**/*.test.ts'],
                     },
                 },
             ],

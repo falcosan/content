@@ -1,7 +1,8 @@
 import { Hono } from 'hono'
 import { z } from 'zod'
+import type { Storyblok } from '#types/storyblok'
+import { BULK_LIMIT, MAX_LENGTH } from '../../shared/validation'
 import { toAsset } from '../dto'
-import type { Storyblok } from '../storyblok'
 import { idParam, pageQuery, searchQuery, validate } from '../validate'
 
 const ASSETS_PER_PAGE = 48
@@ -21,10 +22,10 @@ const uploadBody = z.object({
     filename: z.string().trim().min(1).max(255),
     width: id.optional(),
     height: id.optional(),
-    folderId: id.nullable().default(null),
+    folderId: id.nullish(),
 })
 
-const metadata = z.string().trim().max(1000)
+const metadata = z.string().trim().max(MAX_LENGTH.assetText)
 
 const assetBody = z.object({
     alt: metadata,
@@ -34,7 +35,7 @@ const assetBody = z.object({
     folderId: id.nullable(),
 })
 
-const ids = z.array(id).min(1).max(100)
+const ids = z.array(id).min(1).max(BULK_LIMIT)
 
 const moveBody = z.object({ ids, folderId: id })
 

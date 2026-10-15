@@ -1,18 +1,10 @@
 import { useQueryClient } from '@tanstack/vue-query'
 import { reactive, readonly } from 'vue'
-import { errorMessage, type Asset } from '@/api/client'
+import type { Asset } from '#types/api'
+import type { UploadItem } from '#types/app'
+import { errorMessage } from '@/api/client'
 import { keys } from '@/api/queries'
 import { uploadAsset } from '@/lib/upload'
-
-export type UploadStatus = 'uploading' | 'done' | 'failed'
-
-export interface UploadItem {
-    id: number
-    name: string
-    progress: number
-    status: UploadStatus
-    error: string
-}
 
 const CONCURRENCY = 2
 const DONE_VISIBLE_MS = 2500
@@ -32,15 +24,12 @@ const track = (name: string) => {
 }
 
 const runPool = async <T, R>(values: T[], limit: number, task: (value: T) => Promise<R>) => {
-    const results: PromiseSettledResult<R>[] = []
+    const results: R[] = []
     let cursor = 0
     const worker = async () => {
         while (cursor < values.length) {
             const index = cursor++
-            results[index] = await task(values[index]!).then(
-                (value) => ({ status: 'fulfilled', value }) as const,
-                (reason: unknown) => ({ status: 'rejected', reason }) as const
-            )
+            results[index] = await task(values[index]!)
         }
     }
     await Promise.all(Array.from({ length: Math.min(limit, values.length) }, worker))
@@ -68,11 +57,11 @@ export const useUploads = () => {
             } catch (error) {
                 item.status = 'failed'
                 item.error = errorMessage(error)
-                throw error
+                return null
             }
         })
         await queryClient.invalidateQueries({ queryKey: keys.assets })
-        return results.flatMap((result) => (result.status === 'fulfilled' ? [result.value] : []))
+        return results.filter((asset) => asset !== null)
     }
 
     return { items: readonly(items), upload }

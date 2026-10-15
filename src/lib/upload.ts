@@ -1,13 +1,10 @@
-import { api, parseResponse, type Asset } from '@/api/client'
-
-export interface UploadOptions {
-    folderId: number | null
-    onProgress?: (ratio: number) => void
-}
+import type { Asset } from '#types/api'
+import type { UploadOptions } from '#types/app'
+import { api, parseResponse } from '@/api/client'
 
 const RASTER_IMAGE = /^image\/(?!svg)/
 
-export const imageSize = async (file: Blob) => {
+const imageSize = async (file: Blob) => {
     if (!RASTER_IMAGE.test(file.type)) return {}
     const bitmap = await createImageBitmap(file)
     try {

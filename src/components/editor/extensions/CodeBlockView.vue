@@ -12,12 +12,12 @@ const language = computed({
 </script>
 
 <template>
-    <NodeViewWrapper class="relative">
+    <NodeViewWrapper class="flex flex-col gap-2">
         <select
             v-model="language"
             contenteditable="false"
             aria-label="Code language"
-            class="absolute top-2 right-2 z-10 rounded border border-paper/30 bg-ink px-2 py-1 font-sans text-xs text-paper"
+            class="self-end rounded border border-border bg-bg px-2 py-1 font-sans text-xs text-text"
         >
             <option v-for="option in LANGUAGES" :key="option.value" :value="option.value">
                 {{ option.label }}

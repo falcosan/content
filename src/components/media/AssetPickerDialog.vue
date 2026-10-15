@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Asset } from '@/api/client'
+import type { Asset } from '#types/api'
 import UiDialog from '@/components/ui/UiDialog.vue'
 import MediaLibrary from './MediaLibrary.vue'
 

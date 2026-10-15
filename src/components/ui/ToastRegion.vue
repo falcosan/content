@@ -6,10 +6,7 @@ const toasts = useToasts()
 </script>
 
 <template>
-    <div
-        class="pointer-events-none fixed right-4 bottom-4 z-50 flex w-[min(24rem,calc(100%-2rem))] flex-col gap-2"
-        aria-live="polite"
-    >
+    <div class="flex flex-col gap-2" aria-live="polite">
         <TransitionGroup
             enter-from-class="translate-y-2 opacity-0"
             leave-to-class="opacity-0"
@@ -21,8 +18,10 @@ const toasts = useToasts()
                 :key="toast.id"
                 :role="toast.tone === 'error' ? 'alert' : 'status'"
                 :class="[
-                    'pointer-events-auto flex items-start gap-3 rounded-lg border-2 border-ink px-4 py-3 text-sm',
-                    toast.tone === 'error' ? 'bg-paper text-ink' : 'bg-ink text-paper',
+                    'pointer-events-auto flex items-start gap-3 rounded-lg border-2 px-4 py-3 text-sm',
+                    toast.tone === 'error'
+                        ? 'border-text bg-bg text-text'
+                        : 'border-accent bg-accent text-accent-text',
                 ]"
             >
                 <CircleAlert
@@ -33,7 +32,7 @@ const toasts = useToasts()
                 <p class="min-w-0 flex-1 wrap-break-word">{{ toast.message }}</p>
                 <button
                     type="button"
-                    class="-m-1 rounded p-1 opacity-70 hover:opacity-100"
+                    class="-m-1 rounded p-1 hover:bg-current/15"
                     aria-label="Dismiss"
                     @click="dismissToast(toast.id)"
                 >

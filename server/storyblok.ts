@@ -1,140 +1,21 @@
-export type StoryContent = { component: string; _uid?: string } & Record<string, unknown>
-
-export interface StoryblokStory {
-    id: number
-    name: string
-    slug: string
-    full_slug: string
-    published: boolean | null
-    unpublished_changes: boolean | null
-    created_at: string
-    updated_at: string
-    deleted_at?: string | null
-    first_published_at: string | null
-    tag_list: string[]
-    stage?: { workflow_stage_id: number } | null
-    content?: Record<string, unknown>
-    content_summary?: Record<string, unknown>
-}
-
-export interface StoryblokStoryInput {
-    name?: string
-    slug?: string
-    parent_id?: number
-    tag_list?: string[]
-    content?: StoryContent
-}
-
-export interface StoryblokAsset {
-    id: number
-    filename: string
-    short_filename?: string
-    content_type?: string | null
-    content_length?: number | null
-    alt?: string | null
-    title?: string | null
-    copyright?: string | null
-    source?: string | null
-    asset_folder_id?: number | null
-    created_at: string
-    updated_at: string
-    deleted_at?: string | null
-}
-
-export interface StoryblokAssetInput {
-    alt?: string
-    title?: string
-    copyright?: string
-    source?: string
-    asset_folder_id?: number | null
-}
-
-export interface StoryblokSignedUpload {
-    id: number
-    post_url: string
-    fields: Record<string, string>
-}
-
-export interface StoryblokSignRequest {
-    filename: string
-    size?: string
-    asset_folder_id?: number
-}
-
-export interface StoryblokAssetFolder {
-    id: number
-    name: string
-    parent_id: number | null
-}
-
-export interface StoryblokSchemaField {
-    type?: string
-    pos?: number
-    translatable?: boolean
-    display_name?: string | null
-    description?: string | null
-    required?: boolean
-    max_length?: string | number | null
-    options?: { name: string; value: string }[]
-    max_options?: string | number | null
-    filetypes?: string[]
-    disable_time?: boolean
-    exclude_empty_option?: boolean
-}
-
-export interface StoryblokComponent {
-    name: string
-    schema: Record<string, StoryblokSchemaField | undefined>
-}
-
-export interface StoryblokTag {
-    name: string
-    taggings_count: number
-}
-
-export interface StoryblokLanguage {
-    code: string
-    name: string
-    ai_translation_code?: string | null
-}
-
-export interface StoryblokSpace {
-    languages?: StoryblokLanguage[]
-    default_lang_name?: string | null
-}
-
-export interface StoryblokStoryVersion {
-    id: number
-    created_at: string
-    status: string
-    user?: { friendly_name?: string | null } | null
-}
-
-export interface StoryblokWorkflow {
-    id: number
-    is_default: boolean
-    content_types: string[]
-}
-
-export interface StoryblokWorkflowStage {
-    id: number
-    name: string
-    position: number
-    workflow_id: number
-}
-
-export interface StoryblokOptions {
-    apiUrl: string
-    spaceId: number
-    token: string
-    fetch?: typeof fetch
-    retries?: number
-    requestsPerSecond?: number
-}
-
-type Method = 'GET' | 'POST' | 'PUT' | 'DELETE'
-
-type Query = Record<string, string | number | boolean | undefined>
+import type {
+    Method,
+    Query,
+    StoryblokAsset,
+    StoryblokAssetFolder,
+    StoryblokAssetFolderInput,
+    StoryblokAssetInput,
+    StoryblokCdnStory,
+    StoryblokComponent,
+    StoryblokComponentInput,
+    StoryblokOptions,
+    StoryblokSignRequest,
+    StoryblokSignedUpload,
+    StoryblokSpace,
+    StoryblokStory,
+    StoryblokStoryInput,
+    StoryblokStoryVersion,
+} from '#types/storyblok'
 
 export class StoryblokError extends Error {
     constructor(
@@ -166,13 +47,19 @@ const readBody = async (response: Response): Promise<unknown> => {
 
 const RATE_WINDOW_MS = 1000
 
+const RETRIES = 5
+
+const BACKOFF_MS = 300
+
+const VERSIONS_PER_PAGE = 100
+
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
 const retryDelay = (response: Response, attempt: number) => {
     const header = response.headers.get('retry-after')
     const seconds = header === null ? Number.NaN : Number(header)
     if (Number.isFinite(seconds) && seconds >= 0) return seconds * 1000
-    return 2 ** attempt * 300 + Math.random() * 300
+    return 2 ** attempt * BACKOFF_MS + Math.random() * BACKOFF_MS
 }
 
 export const createRateLimiter = (limit: number) => {
@@ -190,37 +77,29 @@ export const createRateLimiter = (limit: number) => {
     return acquire
 }
 
+const withQuery = (url: URL, query: Query) => {
+    for (const [key, value] of Object.entries(query)) {
+        if (value !== undefined) url.searchParams.set(key, String(value))
+    }
+    return url
+}
+
 export const createStoryblok = ({
     apiUrl,
+    cdnUrl,
     spaceId,
     token,
-    fetch = globalThis.fetch,
-    retries = 5,
+    fetch,
     requestsPerSecond = 5,
 }: StoryblokOptions) => {
     const acquire = createRateLimiter(requestsPerSecond)
 
-    const request = async <T>(
-        method: Method,
-        path: string,
-        { query = {}, body }: { query?: Query; body?: unknown } = {}
-    ): Promise<{ data: T; total: number }> => {
-        const url = new URL(`${apiUrl}/spaces/${spaceId}/${path}`)
-        for (const [key, value] of Object.entries(query)) {
-            if (value !== undefined) url.searchParams.set(key, String(value))
-        }
+    const send = async <T>(url: URL, init: RequestInit): Promise<{ data: T; total: number }> => {
         for (let attempt = 0; ; attempt++) {
             await acquire()
-            const response = await fetch(url, {
-                method,
-                headers: {
-                    Authorization: token,
-                    Accept: 'application/json',
-                    ...(body !== undefined && { 'Content-Type': 'application/json' }),
-                },
-                body: body === undefined ? undefined : JSON.stringify(body),
-            })
-            if (response.status === 429 && attempt < retries) {
+            const response = await fetch(url, init)
+            if (response.status === 429 && attempt < RETRIES) {
+                await response.body?.cancel()
                 await wait(retryDelay(response, attempt))
                 continue
             }
@@ -232,7 +111,54 @@ export const createStoryblok = ({
         }
     }
 
+    const request = <T>(
+        method: Method,
+        path: string,
+        { query = {}, body }: { query?: Query; body?: unknown } = {}
+    ) =>
+        send<T>(withQuery(new URL(`${apiUrl}/spaces/${spaceId}/${path}`), query), {
+            method,
+            headers: {
+                Authorization: token,
+                Accept: 'application/json',
+                ...(body !== undefined && { 'Content-Type': 'application/json' }),
+            },
+            body: body === undefined ? undefined : JSON.stringify(body),
+        })
+
     const data = async <T>(...args: Parameters<typeof request>) => (await request<T>(...args)).data
+
+    const getSpace = async () => (await data<{ space: StoryblokSpace }>('GET', '')).space
+
+    let previewToken: Promise<string> | undefined
+
+    const readPreviewToken = () =>
+        (previewToken ??= getSpace().then(({ first_token }) => {
+            if (!first_token) throw new StoryblokError(502, 'The space has no preview token')
+            return first_token
+        }))
+
+    const listStoryContents = async (ids: number[]) => {
+        if (!ids.length) return []
+        const pendingToken = readPreviewToken()
+        try {
+            const query = {
+                by_ids: ids.join(','),
+                version: 'draft',
+                per_page: ids.length,
+                token: await pendingToken,
+            }
+            return (
+                await send<{ stories: StoryblokCdnStory[] }>(
+                    withQuery(new URL(`${cdnUrl}/stories`), query),
+                    { headers: { Accept: 'application/json' } }
+                )
+            ).data.stories
+        } catch (error) {
+            if (previewToken === pendingToken) previewToken = undefined
+            throw error
+        }
+    }
 
     return {
         listStories: (query: Query) =>
@@ -265,20 +191,19 @@ export const createStoryblok = ({
                     body: { story },
                 })
             ).story,
-        getSpace: async () => (await data<{ space: StoryblokSpace }>('GET', '')).space,
-        translateStory: async (id: number, language: StoryblokLanguage) =>
+        getSpace,
+        listStoryContents,
+        translateStory: async (id: number, code: string, lang: string) =>
             (
                 await data<{ story: StoryblokStory }>('PUT', `stories/${id}/ai_translate`, {
-                    body: {
-                        code: language.code,
-                        lang: language.ai_translation_code ?? language.code,
-                        overwrite: true,
-                    },
+                    body: { code, lang, overwrite: true },
                 })
             ).story,
         listComponents: async () =>
             (await data<{ components: StoryblokComponent[] }>('GET', 'components')).components,
-        listTags: async () => (await data<{ tags: StoryblokTag[] }>('GET', 'tags')).tags,
+        updateComponent: async (id: number, component: StoryblokComponentInput) => {
+            await request('PUT', `components/${id}`, { body: { component } })
+        },
         listAssets: (query: Query) =>
             request<{ assets: StoryblokAsset[] }>('GET', 'assets', { query }),
         getAsset: (id: number) => data<StoryblokAsset>('GET', `assets/${id}`),
@@ -306,7 +231,7 @@ export const createStoryblok = ({
         listStoryVersions: async (storyId: number) =>
             (
                 await data<{ story_versions: StoryblokStoryVersion[] }>('GET', 'story_versions', {
-                    query: { by_story_id: storyId, per_page: 100 },
+                    query: { by_story_id: storyId, per_page: VERSIONS_PER_PAGE },
                 })
             ).story_versions,
         restoreStoryVersion: async (storyId: number, versionId: number) => {
@@ -314,29 +239,16 @@ export const createStoryblok = ({
                 query: { version: versionId, versions_v2: true },
             })
         },
-        listWorkflows: async () =>
-            (await data<{ workflows: StoryblokWorkflow[] }>('GET', 'workflows')).workflows,
-        listWorkflowStages: async () =>
-            (await data<{ workflow_stages: StoryblokWorkflowStage[] }>('GET', 'workflow_stages'))
-                .workflow_stages,
-        changeWorkflowStage: async (storyId: number, stageId: number) => {
-            await request('POST', 'workflow_stage_changes', {
-                body: { workflow_stage_change: { story_id: storyId, workflow_stage_id: stageId } },
-            })
-        },
         listAssetFolders: async () =>
             (await data<{ asset_folders: StoryblokAssetFolder[] }>('GET', 'asset_folders'))
                 .asset_folders,
-        createAssetFolder: async (folder: { name: string; parent_id: number | null }) =>
+        createAssetFolder: async (folder: StoryblokAssetFolderInput) =>
             (
                 await data<{ asset_folder: StoryblokAssetFolder }>('POST', 'asset_folders', {
                     body: { asset_folder: folder },
                 })
             ).asset_folder,
-        updateAssetFolder: async (
-            id: number,
-            folder: { name: string; parent_id: number | null }
-        ) => {
+        updateAssetFolder: async (id: number, folder: StoryblokAssetFolderInput) => {
             await request('PUT', `asset_folders/${id}`, { body: { asset_folder: folder } })
         },
         deleteAssetFolder: async (id: number) => {
@@ -344,5 +256,3 @@ export const createStoryblok = ({
         },
     }
 }
-
-export type Storyblok = ReturnType<typeof createStoryblok>

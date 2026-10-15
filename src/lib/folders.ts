@@ -1,8 +1,5 @@
-import type { AssetFolder } from '@/api/client'
-
-export interface FolderNode extends AssetFolder {
-    depth: number
-}
+import type { AssetFolder } from '#types/api'
+import type { FolderNode } from '#types/app'
 
 export const flattenFolders = (folders: AssetFolder[]): FolderNode[] => {
     const ids = new Set(folders.map(({ id }) => id))
@@ -17,6 +14,6 @@ export const flattenFolders = (folders: AssetFolder[]): FolderNode[] => {
     return walk(null, 0)
 }
 
-export const folderLabel = ({ name, depth }: FolderNode) => `${'— '.repeat(depth)}${name}`
+export const folderIndent = (depth: number) => '— '.repeat(depth)
 
-export type MediaLocation = number | null | 'trash'
+export const folderLabel = ({ name, depth }: FolderNode) => `${folderIndent(depth)}${name}`

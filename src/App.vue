@@ -5,8 +5,10 @@ import SessionDialog from './components/SessionDialog.vue'
 import ConfirmDialog from './components/ui/ConfirmDialog.vue'
 import ToastRegion from './components/ui/ToastRegion.vue'
 import UploadPanel from './components/ui/UploadPanel.vue'
+import { useTopModal } from './composables/useModals'
 
 const route = useRoute()
+const topModal = useTopModal()
 </script>
 
 <template>
@@ -16,8 +18,14 @@ const route = useRoute()
             <component :is="Component" :key="current.path" />
         </RouterView>
     </main>
-    <ToastRegion />
-    <UploadPanel />
+    <Teleport :to="topModal" :disabled="!topModal">
+        <div
+            class="pointer-events-none fixed right-4 bottom-4 z-50 flex w-[min(24rem,calc(100%-2rem))] flex-col gap-2"
+        >
+            <UploadPanel />
+            <ToastRegion />
+        </div>
+    </Teleport>
     <ConfirmDialog />
     <SessionDialog />
 </template>

@@ -1,18 +1,5 @@
-import type { Asset } from '@/api/client'
-
-export interface AssetValue {
-    id: number | null
-    alt: string
-    name: string
-    focus: string
-    title: string
-    source: string
-    filename: string
-    copyright: string
-    fieldtype: 'asset'
-    meta_data: Record<string, unknown>
-    is_external_url: boolean
-}
+import type { Asset } from '#types/api'
+import type { AssetKind, AssetValue } from '#types/app'
 
 const FILETYPE_MIME: Record<string, string[]> = {
     images: ['image/'],
@@ -23,11 +10,21 @@ const FILETYPE_MIME: Record<string, string[]> = {
 
 const OPTIMIZABLE = /\.(jpe?g|png|webp|avif)$/i
 
+const STORYBLOK_ASSET = /^https:\/\/a(?:-[a-z]{2})?\.storyblok\.com\//
+
 const IMAGE_FILE = /\.(jpe?g|png|gif|webp|avif|svg)$/i
 
 export const isImage = (contentType: string) => contentType.startsWith('image/')
 
 export const isImageUrl = (url: string) => IMAGE_FILE.test(url)
+
+export const assetKind = (contentType: string): AssetKind => {
+    if (isImage(contentType)) return 'image'
+    if (contentType.startsWith('video/')) return 'video'
+    if (contentType.startsWith('audio/')) return 'audio'
+    if (contentType.startsWith('text/') || contentType === 'application/pdf') return 'document'
+    return 'file'
+}
 
 export const acceptFor = (filetypes: string[]) =>
     filetypes
@@ -41,22 +38,8 @@ export const matchesFiletypes = (contentType: string, filetypes: string[]) =>
         (FILETYPE_MIME[type] ?? []).some((prefix) => contentType.startsWith(prefix))
     )
 
-export const thumbnailUrl = (url: string, width = 480) =>
-    OPTIMIZABLE.test(url) ? `${url}/m/${width}x0` : url
-
-export const toAssetValue = (asset: Asset): AssetValue => ({
-    id: asset.id,
-    alt: asset.alt,
-    name: '',
-    focus: '',
-    title: asset.title,
-    source: asset.source,
-    filename: asset.url,
-    copyright: asset.copyright,
-    fieldtype: 'asset',
-    meta_data: {},
-    is_external_url: false,
-})
+export const thumbnailUrl = (url: string, width: number) =>
+    STORYBLOK_ASSET.test(url) && OPTIMIZABLE.test(url) ? `${url}/m/${width}x0` : url
 
 export const emptyAssetValue = (): AssetValue => ({
     id: null,
@@ -70,6 +53,23 @@ export const emptyAssetValue = (): AssetValue => ({
     fieldtype: 'asset',
     meta_data: {},
     is_external_url: false,
+})
+
+export const toAssetValue = ({ id, alt, title, source, url, copyright }: Asset): AssetValue => ({
+    ...emptyAssetValue(),
+    id,
+    alt,
+    title,
+    source,
+    filename: url,
+    copyright,
+})
+
+export const toExternalAssetValue = (url: string, alt = ''): AssetValue => ({
+    ...emptyAssetValue(),
+    alt,
+    filename: url,
+    is_external_url: true,
 })
 
 export const isAssetValue = (value: unknown): value is AssetValue =>

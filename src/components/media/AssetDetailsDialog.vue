@@ -1,30 +1,29 @@
 <script setup lang="ts">
 import { Copy, ExternalLink, Trash2 } from '@lucide/vue'
 import { useQuery } from '@tanstack/vue-query'
-import { computed, reactive, watch } from 'vue'
-import type { Asset } from '@/api/client'
+import { computed, reactive, ref, useId, watch } from 'vue'
+import type { Asset } from '#types/api'
+import type { AssetMetadata } from '#types/app'
 import { foldersQuery } from '@/api/queries'
 import UiButton from '@/components/ui/UiButton.vue'
 import UiDialog from '@/components/ui/UiDialog.vue'
 import { confirmAction } from '@/composables/useConfirm'
-import { useDeleteAssets, useUpdateAsset, type AssetMetadata } from '@/composables/useMedia'
-import { notify } from '@/composables/useToasts'
-import { isImage, thumbnailUrl } from '@/lib/assets'
-import { flattenFolders, folderLabel } from '@/lib/folders'
+import { useDeleteAssets, useUpdateAsset } from '@/composables/useMedia'
+import { assetKind, thumbnailUrl } from '@/lib/assets'
+import { copyToClipboard } from '@/lib/clipboard'
+import { folderLabel } from '@/lib/folders'
 import { formatBytes, formatDate } from '@/lib/format'
+import { MAX_LENGTH } from '../../../shared/validation'
 import AssetIcon from './AssetIcon.vue'
 
 const asset = defineModel<Asset | null>('asset', { required: true })
 
-const open = computed({
-    get: () => asset.value !== null,
-    set: (value) => {
-        if (!value) asset.value = null
-    },
-})
-
-const { data: folderData } = useQuery(foldersQuery())
-const folders = computed(() => flattenFolders(folderData.value ?? []))
+const { data: folders } = useQuery(foldersQuery())
+const update = useUpdateAsset()
+const remove = useDeleteAssets()
+const formId = useId()
+const altId = useId()
+const altHintId = useId()
 
 const form = reactive<AssetMetadata>({
     alt: '',
@@ -33,10 +32,21 @@ const form = reactive<AssetMetadata>({
     source: '',
     folderId: null,
 })
+const broken = ref(false)
+
+const open = computed({
+    get: () => asset.value !== null,
+    set: (value) => {
+        if (!value) asset.value = null
+    },
+})
+
+const kind = computed(() => assetKind(asset.value?.contentType ?? ''))
 
 watch(
     () => asset.value?.id,
     () => {
+        broken.value = false
         if (!asset.value) return
         const { alt, title, copyright, source, folderId } = asset.value
         Object.assign(form, { alt, title, copyright, source, folderId })
@@ -44,26 +54,9 @@ watch(
     { immediate: true }
 )
 
-const update = useUpdateAsset()
-const remove = useDeleteAssets()
-
-const kind = computed(() => {
-    const type = asset.value?.contentType ?? ''
-    if (isImage(type)) return 'image'
-    if (type.startsWith('video/')) return 'video'
-    if (type.startsWith('audio/')) return 'audio'
-    return 'file'
-})
-
 const save = () => {
     if (!asset.value) return
     update.mutate({ id: asset.value.id, ...form }, { onSuccess: (saved) => (asset.value = saved) })
-}
-
-const copyUrl = async () => {
-    if (!asset.value) return
-    await navigator.clipboard.writeText(asset.value.url)
-    notify('URL copied to clipboard')
 }
 
 const destroy = async () => {
@@ -83,13 +76,14 @@ const destroy = async () => {
         <div v-if="asset" class="grid gap-6 md:grid-cols-[minmax(0,1fr)_18rem]">
             <div class="flex flex-col gap-3">
                 <div
-                    class="grid min-h-48 place-items-center overflow-hidden rounded-md border border-ink/15 bg-ink/5"
+                    class="grid min-h-48 place-items-center overflow-hidden rounded-md border border-border/40 bg-text/5"
                 >
                     <img
-                        v-if="kind === 'image'"
+                        v-if="kind === 'image' && !broken"
                         :src="thumbnailUrl(asset.url, 960)"
                         :alt="asset.alt"
                         class="max-h-[50dvh] w-full object-contain"
+                        @error="broken = true"
                     />
                     <video
                         v-else-if="kind === 'video'"
@@ -101,45 +95,67 @@ const destroy = async () => {
                     <AssetIcon
                         v-else
                         :content-type="asset.contentType"
-                        class="size-12 text-ink/50"
+                        class="size-12 text-text-light"
                     />
                 </div>
                 <dl class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-xs">
-                    <dt class="text-ink/60">Type</dt>
+                    <dt class="text-text-light">Type</dt>
                     <dd>{{ asset.contentType }}</dd>
                     <template v-if="asset.size !== null">
-                        <dt class="text-ink/60">Size</dt>
+                        <dt class="text-text-light">Size</dt>
                         <dd>{{ formatBytes(asset.size) }}</dd>
                     </template>
                     <template v-if="asset.width && asset.height">
-                        <dt class="text-ink/60">Dimensions</dt>
+                        <dt class="text-text-light">Dimensions</dt>
                         <dd>{{ asset.width }} × {{ asset.height }}</dd>
                     </template>
-                    <dt class="text-ink/60">Uploaded</dt>
+                    <dt class="text-text-light">Uploaded</dt>
                     <dd>{{ formatDate(asset.createdAt) }}</dd>
                 </dl>
                 <div class="flex flex-wrap gap-2">
-                    <UiButton size="sm" :icon="Copy" @click="copyUrl">Copy URL</UiButton>
+                    <UiButton
+                        size="sm"
+                        :icon="Copy"
+                        @click="copyToClipboard(asset.url, 'URL copied to clipboard')"
+                    >
+                        Copy URL
+                    </UiButton>
                     <UiButton size="sm" :icon="ExternalLink" :href="asset.url">Open</UiButton>
                 </div>
             </div>
-            <form id="asset-form" class="flex flex-col gap-4" @submit.prevent="save">
-                <label class="block">
-                    <span class="label">Alt text</span>
-                    <input v-model="form.alt" class="control" maxlength="1000" />
-                    <p class="hint">Describes the image for screen readers and search engines.</p>
-                </label>
+            <form :id="formId" class="flex flex-col gap-4" @submit.prevent="save">
+                <div>
+                    <label class="label" :for="altId">Alt text</label>
+                    <input
+                        :id="altId"
+                        v-model="form.alt"
+                        class="control"
+                        :maxlength="MAX_LENGTH.assetText"
+                        :aria-describedby="altHintId"
+                    />
+                    <p :id="altHintId" class="hint">
+                        Describes the image for screen readers and search engines.
+                    </p>
+                </div>
                 <label class="block">
                     <span class="label">Title</span>
-                    <input v-model="form.title" class="control" maxlength="1000" />
+                    <input v-model="form.title" class="control" :maxlength="MAX_LENGTH.assetText" />
                 </label>
                 <label class="block">
                     <span class="label">Copyright</span>
-                    <input v-model="form.copyright" class="control" maxlength="1000" />
+                    <input
+                        v-model="form.copyright"
+                        class="control"
+                        :maxlength="MAX_LENGTH.assetText"
+                    />
                 </label>
                 <label class="block">
                     <span class="label">Source</span>
-                    <input v-model="form.source" class="control" maxlength="1000" />
+                    <input
+                        v-model="form.source"
+                        class="control"
+                        :maxlength="MAX_LENGTH.assetText"
+                    />
                 </label>
                 <label class="block">
                     <span class="label">Folder</span>
@@ -164,7 +180,7 @@ const destroy = async () => {
             <UiButton @click="open = false">Close</UiButton>
             <UiButton
                 type="submit"
-                form="asset-form"
+                :form="formId"
                 variant="solid"
                 :loading="update.isPending.value"
             >

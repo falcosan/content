@@ -1,24 +1,26 @@
 <script setup lang="ts">
 import { Images } from '@lucide/vue'
 import type { Editor } from '@tiptap/core'
-import { computed, reactive, ref, watch } from 'vue'
-import type { Asset } from '@/api/client'
+import { computed, reactive, ref, useId, watch } from 'vue'
+import type { Asset } from '#types/api'
+import type { FigureAttributes } from '#types/editor'
 import AssetPickerDialog from '@/components/media/AssetPickerDialog.vue'
 import UiButton from '@/components/ui/UiButton.vue'
 import UiDialog from '@/components/ui/UiDialog.vue'
-import { parseHttpUrl } from '@/lib/embed'
 import { thumbnailUrl } from '@/lib/assets'
-import type { FigureAttributes } from './extensions/figure'
+import { parseHttpsUrl } from '@/lib/embed'
 
 const { editor } = defineProps<{ editor: Editor }>()
 
 const open = defineModel<boolean>('open', { required: true })
 
+const formId = useId()
+
 const form = reactive<FigureAttributes>({ src: '', alt: '', title: '', caption: '' })
 const editing = ref(false)
 const picking = ref(false)
 
-const source = computed(() => parseHttpUrl(form.src)?.href ?? null)
+const source = computed(() => parseHttpsUrl(form.src)?.href ?? null)
 
 watch(open, (isOpen) => {
     if (!isOpen) return
@@ -57,9 +59,9 @@ const remove = () => {
 
 <template>
     <UiDialog v-model:open="open" :title="editing ? 'Edit image' : 'Insert image'">
-        <form id="image-form" class="flex flex-col gap-4" @submit.prevent="save">
+        <form :id="formId" class="flex flex-col gap-4" @submit.prevent="save">
             <div
-                class="grid min-h-40 place-items-center overflow-hidden rounded-md border border-dashed border-ink/30 bg-ink/5"
+                class="grid min-h-40 place-items-center overflow-hidden rounded-md border border-dashed border-border bg-text/5"
             >
                 <img
                     v-if="source"
@@ -100,7 +102,7 @@ const remove = () => {
         <template #footer>
             <UiButton v-if="editing" class="mr-auto" @click="remove">Remove image</UiButton>
             <UiButton @click="open = false">Cancel</UiButton>
-            <UiButton type="submit" form="image-form" variant="solid" :disabled="!source">
+            <UiButton type="submit" :form="formId" variant="solid" :disabled="!source">
                 {{ editing ? 'Update' : 'Insert' }}
             </UiButton>
         </template>

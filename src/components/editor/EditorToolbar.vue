@@ -19,43 +19,26 @@ import {
     Underline,
     Undo2,
 } from '@lucide/vue'
-import type { ChainedCommands, Editor } from '@tiptap/core'
-import { computed, useTemplateRef, type Component } from 'vue'
-import { notify } from '@/composables/useToasts'
+import type { Editor } from '@tiptap/core'
+import { computed, ref, useTemplateRef, type Component } from 'vue'
+import type { InsertKind, Tool } from '#types/editor'
+import { copyToClipboard } from '@/lib/clipboard'
 import { toMarkdown } from '@/lib/content'
-
-type InsertKind = 'link' | 'image' | 'embed'
+import { roveFocus } from '@/lib/focus'
+import { HEADING_LEVELS } from './extensions'
 
 const { editor } = defineProps<{ editor: Editor }>()
 
 const emit = defineEmits<{ insert: [kind: InsertKind] }>()
 
-interface Tool {
-    label: string
-    icon: Component
-    active?: string
-    disabled?: () => boolean
-    run: (chain: ChainedCommands) => ChainedCommands
-}
+const BLOCK_LABEL = 'Text style'
 
-const HEADING_LEVELS = [1, 2, 3, 4, 5] as const
+const COPY_LABEL = 'Copy as Markdown'
 
 const BLOCKS = [
-    { value: 'paragraph', label: 'Paragraph' },
-    ...HEADING_LEVELS.map((level) => ({ value: `h${level}`, label: `Heading ${level}` })),
+    { value: 0, label: 'Paragraph' },
+    ...HEADING_LEVELS.map((level) => ({ value: level, label: `Heading ${level}` })),
 ]
-
-const block = computed({
-    get: () => {
-        const level = HEADING_LEVELS.find((value) => editor.isActive('heading', { level: value }))
-        return level ? `h${level}` : 'paragraph'
-    },
-    set: (value: string) => {
-        const level = HEADING_LEVELS.find((candidate) => `h${candidate}` === value)
-        if (level) editor.chain().focus().setHeading({ level }).run()
-        else editor.chain().focus().setParagraph().run()
-    },
-})
 
 const GROUPS: Tool[][] = [
     [
@@ -137,28 +120,39 @@ const INSERTS: { label: string; icon: Component; kind: InsertKind; node: string 
     { label: 'Embed video', icon: MonitorPlay, kind: 'embed', node: 'embed' },
 ]
 
-const run = (tool: Tool) => tool.run(editor.chain().focus()).run()
+const BUTTON_CLASS =
+    'inline-flex size-8 items-center justify-center rounded transition-colors hover:not-disabled:bg-text/10 disabled:opacity-30 aria-pressed:bg-accent aria-pressed:text-accent-text aria-pressed:hover:not-disabled:bg-accent-hover data-active:bg-accent data-active:text-accent-text data-active:hover:not-disabled:bg-accent-hover'
 
 const toolbar = useTemplateRef('toolbar')
+const tabStop = ref(BLOCK_LABEL)
 
-const STEPS: Record<string, number> = { ArrowRight: 1, ArrowLeft: -1 }
+const block = computed({
+    get: () => HEADING_LEVELS.find((level) => editor.isActive('heading', { level })) ?? 0,
+    set: (level) => {
+        if (level) editor.chain().focus().setHeading({ level }).run()
+        else editor.chain().focus().setParagraph().run()
+    },
+})
 
-const moveFocus = (event: KeyboardEvent) => {
-    const step = STEPS[event.key]
-    if (!step || !toolbar.value || !(event.target instanceof HTMLButtonElement)) return
-    const buttons = [...toolbar.value.querySelectorAll<HTMLButtonElement>('button:enabled')]
-    const index = buttons.indexOf(event.target)
-    buttons[(index + step + buttons.length) % buttons.length]?.focus()
-    event.preventDefault()
-}
+const activeStop = computed(() =>
+    GROUPS.flat().some(({ label, disabled }) => label === tabStop.value && disabled?.())
+        ? BLOCK_LABEL
+        : tabStop.value
+)
 
-const copyMarkdown = async () => {
-    await navigator.clipboard.writeText(toMarkdown(editor.getHTML()))
-    notify('Markdown copied to clipboard')
-}
+const tabIndex = (label: string) => (label === activeStop.value ? 0 : -1)
 
-const buttonClass =
-    'inline-flex size-8 items-center justify-center rounded transition-colors hover:enabled:bg-ink/10 disabled:opacity-30 aria-pressed:bg-ink aria-pressed:text-paper data-active:bg-ink data-active:text-paper'
+const run = (tool: Tool) => tool.run(editor.chain().focus()).run()
+
+const moveFocus = (event: KeyboardEvent) =>
+    roveFocus(
+        event,
+        [...(toolbar.value?.querySelectorAll<HTMLElement>('button:enabled, select') ?? [])],
+        ['ArrowLeft', 'ArrowRight']
+    )
+
+const copyMarkdown = () =>
+    copyToClipboard(toMarkdown(editor.getHTML()), 'Markdown copied to clipboard')
 </script>
 
 <template>
@@ -166,15 +160,17 @@ const buttonClass =
         ref="toolbar"
         role="toolbar"
         aria-label="Formatting"
-        class="flex items-center gap-1 overflow-x-auto border-b border-ink/15 bg-paper px-2 py-1.5 md:flex-wrap"
+        class="flex items-center gap-1 overflow-x-auto border-b border-border/40 bg-bg px-2 py-1.5 md:flex-wrap"
         @keydown="moveFocus"
     >
         <template v-for="(group, index) in GROUPS" :key="index">
             <div v-if="index === 1" class="mx-1 flex items-center">
                 <select
                     v-model="block"
-                    aria-label="Text style"
-                    class="h-8 rounded border border-ink/25 bg-paper px-2 text-xs font-medium"
+                    :aria-label="BLOCK_LABEL"
+                    :tabindex="tabIndex(BLOCK_LABEL)"
+                    class="h-8 rounded border border-border bg-bg px-2 text-xs font-medium"
+                    @focus="tabStop = BLOCK_LABEL"
                 >
                     <option v-for="option in BLOCKS" :key="option.value" :value="option.value">
                         {{ option.label }}
@@ -186,28 +182,32 @@ const buttonClass =
                     v-for="tool in group"
                     :key="tool.label"
                     type="button"
-                    :class="buttonClass"
+                    :class="BUTTON_CLASS"
                     :title="tool.label"
                     :aria-label="tool.label"
                     :aria-pressed="tool.active ? editor.isActive(tool.active) : undefined"
                     :disabled="tool.disabled?.()"
+                    :tabindex="tabIndex(tool.label)"
+                    @focus="tabStop = tool.label"
                     @mousedown.prevent
                     @click="run(tool)"
                 >
                     <component :is="tool.icon" class="size-4" aria-hidden="true" />
                 </button>
             </div>
-            <span class="mx-1 h-5 w-px bg-ink/15" aria-hidden="true" />
+            <span class="mx-1 h-5 w-px bg-border/40" aria-hidden="true" />
         </template>
         <div class="flex items-center gap-0.5">
             <button
                 v-for="item in INSERTS"
                 :key="item.label"
                 type="button"
-                :class="buttonClass"
+                :class="BUTTON_CLASS"
                 :title="item.label"
                 :aria-label="item.label"
                 :data-active="editor.isActive(item.node) || undefined"
+                :tabindex="tabIndex(item.label)"
+                @focus="tabStop = item.label"
                 @mousedown.prevent
                 @click="emit('insert', item.kind)"
             >
@@ -216,9 +216,11 @@ const buttonClass =
         </div>
         <button
             type="button"
-            :class="[buttonClass, 'ml-auto']"
-            title="Copy as Markdown"
-            aria-label="Copy as Markdown"
+            :class="[BUTTON_CLASS, 'ml-auto']"
+            :title="COPY_LABEL"
+            :aria-label="COPY_LABEL"
+            :tabindex="tabIndex(COPY_LABEL)"
+            @focus="tabStop = COPY_LABEL"
             @mousedown.prevent
             @click="copyMarkdown"
         >

@@ -1,14 +1,6 @@
 import { Node } from '@tiptap/core'
 import { moveCursorAfterNode } from './selection'
 
-declare module '@tiptap/core' {
-    interface Commands<ReturnType> {
-        embed: {
-            setEmbed: (attributes: { src: string }) => ReturnType
-        }
-    }
-}
-
 const ALLOW =
     'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture'
 

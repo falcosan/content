@@ -1,8 +1,8 @@
-import type { Field, StoryContent } from '@/api/client'
+import type { Field } from '#types/api'
+import type { FieldErrors } from '#types/app'
+import type { StoryContent } from '#types/storyblok'
 import { isAssetValue } from './assets'
 import { isBlankHtml, plainText } from './content'
-
-export type FieldErrors = Record<string, string>
 
 const isBlank = (field: Field, value: unknown) => {
     switch (field.type) {
@@ -19,7 +19,7 @@ const isBlank = (field: Field, value: unknown) => {
     }
 }
 
-export const textLength = (field: Field, value: string) =>
+const textLength = (field: Field, value: string) =>
     field.type === 'markdown' ? plainText(value).length : value.length
 
 const fieldError = (field: Field, value: unknown) => {
