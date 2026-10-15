@@ -53,13 +53,6 @@ test('asks before signing out with unsaved changes', async ({ page, context }) =
     expect(await context.cookies()).toEqual([])
 })
 
-test('redirects legacy editor links to the post', async ({ page }) => {
-    await signIn(page)
-    await page.goto('/?id=101&type=post')
-    await expect(page).toHaveURL(/\/stories\/101$/)
-    await expect(page.getByLabel('Title *')).toHaveValue('First post')
-})
-
 test('shows a not found page for unknown routes', async ({ page }) => {
     await signIn(page)
     await page.goto('/nope')

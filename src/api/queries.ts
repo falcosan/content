@@ -10,6 +10,7 @@ export const keys = {
     fields: ['schema', 'fields'],
     stories: ['stories'],
     story: (id: number) => ['story', id],
+    preview: (token: string) => ['preview', token],
     versions: (id: number) => ['story', id, 'versions'],
     assets: ['assets'],
     folders: ['folders'],
@@ -55,6 +56,14 @@ export const storyQuery = (id: number) =>
         queryKey: keys.story(id),
         queryFn: (): Promise<Story> =>
             parseResponse(api.stories[':id'].$get({ param: { id: String(id) } })),
+    })
+
+export const previewQuery = (token: string) =>
+    queryOptions({
+        queryKey: keys.preview(token),
+        queryFn: (): Promise<Story> =>
+            parseResponse(api.preview[':token'].$get({ param: { token } })),
+        refetchOnWindowFocus: 'always',
     })
 
 export const assetsQuery = (filters: AssetFilters) =>

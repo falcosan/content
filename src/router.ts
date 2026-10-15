@@ -1,17 +1,10 @@
-import { createRouter, createWebHistory, type RouteLocationNormalized } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
 import { api, errorMessage, parseResponse } from './api/client'
 import { sessionQuery } from './api/queries'
 import { queryClient } from './api/queryClient'
 import { notify } from './composables/useToasts'
 import { APP_TITLE, safeRedirect } from './lib/navigation'
 import StoriesView from './views/StoriesView.vue'
-
-const legacyStoryRedirect = (to: RouteLocationNormalized) => {
-    const { id } = to.query
-    return typeof id === 'string' && /^\d+$/.test(id)
-        ? { name: 'story', params: { id }, query: {}, replace: true }
-        : true
-}
 
 const signOut = () =>
     parseResponse(api.session.$delete()).then(
@@ -46,7 +39,6 @@ export const router = createRouter({
             path: '/',
             name: 'stories',
             component: StoriesView,
-            beforeEnter: legacyStoryRedirect,
             meta: { title: 'Posts' },
         },
         {
@@ -54,6 +46,13 @@ export const router = createRouter({
             name: 'story',
             component: () => import('./views/StoryView.vue'),
             props: (route) => ({ id: Number(route.params.id) }),
+        },
+        {
+            path: '/preview/:token',
+            name: 'preview',
+            component: () => import('./views/PreviewView.vue'),
+            props: true,
+            meta: { public: true },
         },
         {
             path: '/media',

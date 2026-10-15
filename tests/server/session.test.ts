@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto'
 import { sign } from 'hono/jwt'
 import { describe, expect, it } from 'vitest'
 import { createApp } from '../../server/app'
-import { deriveSessionKey, verifyCredentials } from '../../server/session'
+import { deriveKey, verifyCredentials } from '../../server/session'
 import { createTestApp, PASSWORD, signIn, testEnv } from './fakes'
 
 const post = (body: unknown, url = '/api/session') => ({
@@ -105,7 +105,7 @@ describe('session routes', () => {
         )
         const expired = await sign(
             { exp: Math.floor(Date.now() / 1000) - 60 },
-            await deriveSessionKey(testEnv),
+            await deriveKey(testEnv, 'session'),
             'HS256'
         )
         const cases: HeadersInit[] = [
@@ -159,11 +159,11 @@ describe('session routes', () => {
     })
 
     it('derives a stable signing key that rotates with the credentials', async () => {
-        const key = await deriveSessionKey(testEnv)
+        const key = await deriveKey(testEnv, 'session')
         expect(key).toMatch(/^[a-f0-9]{64}$/)
-        await expect(deriveSessionKey({ ...testEnv })).resolves.toBe(key)
+        await expect(deriveKey({ ...testEnv }, 'session')).resolves.toBe(key)
         await expect(
-            deriveSessionKey({ ...testEnv, STORY_OAUTH_TOKEN: 'rotated-token' })
+            deriveKey({ ...testEnv, STORY_OAUTH_TOKEN: 'rotated-token' }, 'session')
         ).resolves.not.toBe(key)
     })
 

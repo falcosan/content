@@ -5,6 +5,7 @@ import type { Storyblok, StoryblokStory, StoryContent } from '#types/storyblok'
 import { BLOG } from '../../shared/blog'
 import { MAX_LENGTH } from '../../shared/validation'
 import { toStory, toStorySummary, toStoryVersion } from '../dto'
+import type { PreviewTokens } from '../preview'
 import { slugCandidates } from '../slug'
 import { StoryblokError } from '../storyblok'
 import { idParam, pageQuery, searchQuery, validate } from '../validate'
@@ -97,7 +98,15 @@ const findBlogStory = async (storyblok: Storyblok, id: number) => {
     return story
 }
 
-export const storyRoutes = (storyblok: Storyblok, siteUrl: string) =>
+export const previewRoutes = (storyblok: Storyblok, siteUrl: string, previews: PreviewTokens) =>
+    new Hono().get('/:token', async (c) => {
+        const token = c.req.param('token')
+        const id = await previews.read(token)
+        if (!id) throw new HTTPException(404, { message: 'Preview not found' })
+        return c.json(toStory(await findBlogStory(storyblok, id), siteUrl, token))
+    })
+
+export const storyRoutes = (storyblok: Storyblok, siteUrl: string, previews: PreviewTokens) =>
     new Hono()
         .get('/', validate('query', listQuery), async (c) => {
             const { page, search, status } = c.req.valid('query')
@@ -144,14 +153,14 @@ export const storyRoutes = (storyblok: Storyblok, siteUrl: string) =>
         })
         .get('/:id', validate('param', idParam), async (c) => {
             const story = await findBlogStory(storyblok, c.req.valid('param').id)
-            return c.json(toStory(story, siteUrl))
+            return c.json(toStory(story, siteUrl, await previews.issue(story.id)))
         })
         .put('/:id', validate('param', idParam), validate('json', storyBody), async (c) => {
             const { id } = c.req.valid('param')
             const { content, publish } = c.req.valid('json')
             const story = await findBlogStory(storyblok, id)
             const updated = await saveStory(storyblok, story, content, publish)
-            return c.json(toStory(updated, siteUrl))
+            return c.json(toStory(updated, siteUrl, await previews.issue(id)))
         })
         .delete('/:id', validate('param', idParam), async (c) => {
             const { id } = c.req.valid('param')

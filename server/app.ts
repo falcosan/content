@@ -6,7 +6,8 @@ import type { Env } from '#types/server'
 import { assetRoutes } from './routes/assets'
 import { folderRoutes } from './routes/folders'
 import { schemaRoutes } from './routes/schema'
-import { storyRoutes } from './routes/stories'
+import { previewRoutes, storyRoutes } from './routes/stories'
+import { createPreviewTokens } from './preview'
 import { createSession } from './session'
 import { createStoryblok, StoryblokError } from './storyblok'
 
@@ -26,12 +27,15 @@ export const createApp = (env: Env, fetch: typeof globalThis.fetch = globalThis.
 
     const session = createSession(env)
 
+    const previews = createPreviewTokens(env)
+
     const app = new Hono({ getPath: (request) => new URL(request.url).pathname })
         .basePath('/api')
         .use(csrf())
         .route('/session', session.routes)
+        .route('/preview', previewRoutes(storyblok, env.STORY_DOMAIN_PRO, previews))
         .use(session.requireSession)
-        .route('/stories', storyRoutes(storyblok, env.STORY_DOMAIN_PRO))
+        .route('/stories', storyRoutes(storyblok, env.STORY_DOMAIN_PRO, previews))
         .route('/assets', assetRoutes(storyblok))
         .route('/folders', folderRoutes(storyblok))
         .route('/schema', schemaRoutes(storyblok))

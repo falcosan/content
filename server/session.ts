@@ -37,7 +37,7 @@ export const verifyCredentials = async (env: Env, user: string, password: string
     return userMatches && passwordMatches
 }
 
-export const deriveSessionKey = async (env: Env) => {
+export const deriveKey = async (env: Env, purpose: 'session' | 'preview') => {
     const material = await crypto.subtle.importKey(
         'raw',
         encoder.encode(env.STORY_OAUTH_TOKEN),
@@ -50,7 +50,7 @@ export const deriveSessionKey = async (env: Env) => {
             name: 'HKDF',
             hash: 'SHA-256',
             salt: fromHex(env.STORY_AUTH_PASSWORD),
-            info: encoder.encode('aprograma-editor/session'),
+            info: encoder.encode(`aprograma-editor/${purpose}`),
         },
         material,
         256
@@ -72,7 +72,7 @@ const credentials = z.object({
 })
 
 export const createSession = (env: Env) => {
-    const key = deriveSessionKey(env)
+    const key = deriveKey(env, 'session')
 
     const requireSession = createMiddleware(async (c, next) => {
         const token = getCookie(c, SESSION_COOKIE)

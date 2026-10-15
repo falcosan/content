@@ -43,8 +43,9 @@ export const toStorySummary = (
     cover: assetUrl(content[BLOG.fields.cover]),
 })
 
-export const toStory = (story: StoryblokStory, siteUrl: string): Story => ({
+export const toStory = (story: StoryblokStory, siteUrl: string, previewToken: string): Story => ({
     id: story.id,
+    previewToken,
     status: statusOf(story),
     url: new URL(story.full_slug, siteUrl).href,
     updatedAt: story.updated_at,

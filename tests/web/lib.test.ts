@@ -388,6 +388,7 @@ describe('folderLabel', () => {
 describe('draft', () => {
     const story: Story = {
         id: 1,
+        previewToken: 'token',
         status: 'draft',
         url: 'https://example.test/blog/post',
         updatedAt: '2025-01-01T00:00:00.000Z',

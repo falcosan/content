@@ -333,6 +333,30 @@ test('validates required fields before publishing', async ({ page, mock }) => {
     })
 })
 
+test('previews unpublished posts publicly in a new tab', async ({ page, browser }) => {
+    await page.goto('/stories/102')
+    const popup = page.waitForEvent('popup')
+    await page.getByRole('link', { name: 'Preview' }).click()
+    const link = (await popup).url()
+    expect(new URL(link).pathname).toMatch(/^\/preview\/[\w-]+\.[\w-]+\.[\w-]+$/)
+
+    const visitor = await browser.newPage()
+    const release = await hold(visitor, '**/api/preview/*')
+    await visitor.goto(link)
+    await expect(visitor.getByRole('status', { name: 'Loading preview' })).toBeVisible()
+    release()
+    await expect(visitor).toHaveTitle('Draft post · Preview · AP | Editor')
+    await expect(visitor.getByRole('heading', { name: 'Draft post', level: 1 })).toBeVisible()
+    await expect(visitor.getByText('Intro of Draft post')).toBeVisible()
+    await expect(visitor.getByText('Hello world')).toBeVisible()
+    await expect(visitor.getByRole('button', { name: 'Sign out' })).toHaveCount(0)
+    await visitor.close()
+
+    await page.goto('/stories/101')
+    await expect(page.getByRole('link', { name: 'View on website' })).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Preview' })).toHaveCount(0)
+})
+
 test('unpublishes after confirmation', async ({ page, mock }) => {
     await page.goto('/stories/101')
     await page.getByRole('button', { name: 'Unpublish' }).click()

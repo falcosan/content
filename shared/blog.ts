@@ -6,6 +6,7 @@ export const BLOG = {
         intro: 'intro',
         date: 'date',
         cover: 'file',
+        body: 'long_text',
     },
     hiddenFields: ['align_text'],
 } as const

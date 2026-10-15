@@ -137,6 +137,18 @@ const actions = computed<MenuItem[]>(() => {
         ...(published
             ? [{ label: 'View on website', icon: ExternalLink, href: published.url }]
             : []),
+        ...(story.data.value && story.data.value.status !== 'published'
+            ? [
+                  {
+                      label: 'Preview',
+                      icon: ExternalLink,
+                      href: router.resolve({
+                          name: 'preview',
+                          params: { token: story.data.value.previewToken },
+                      }).href,
+                  },
+              ]
+            : []),
         { label: 'Version history', icon: History, run: () => (historyOpen.value = true) },
         {
             label: 'Duplicate',

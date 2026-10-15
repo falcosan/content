@@ -39,13 +39,14 @@ describe('dto', () => {
 
     it('always exposes a component name on story content', () => {
         expect(
-            toStory(storyFixture({ content: { title: 'x' } }), 'https://example.com/').content
+            toStory(storyFixture({ content: { title: 'x' } }), 'https://example.com/', 'token')
+                .content
         ).toEqual({
             title: 'x',
             component: '',
         })
         expect(
-            toStory(storyFixture({ content: undefined }), 'https://example.com/').content
+            toStory(storyFixture({ content: undefined }), 'https://example.com/', 'token').content
         ).toEqual({
             component: '',
         })

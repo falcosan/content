@@ -15,6 +15,7 @@ export interface StorySummary {
 
 export interface Story {
     id: number
+    previewToken: string
     status: StoryStatus
     url: string
     updatedAt: string

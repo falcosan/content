@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createSignedInApp, json, storyFixture } from '../fakes'
+import { createSignedInApp, createTestApp, json, storyFixture } from '../fakes'
 
 const validBody = {
     content: { component: 'Post', title: 'Hello', long_text: '<p>Body</p>' },
@@ -263,12 +263,45 @@ describe('story routes', () => {
         expect(calls[0]?.path).toBe('stories/7')
         expect(await response.json()).toEqual({
             id: 7,
+            previewToken: expect.any(String),
             status: 'published',
             url: 'https://example.com/blog/hello-world',
             updatedAt: '2025-01-02T10:00:00.000Z',
             firstPublishedAt: '2025-01-01T12:00:00.000Z',
             content: storyFixture().content,
         })
+    })
+
+    it('shows a post to anyone holding its preview link, and only that post', async () => {
+        const { request } = await createSignedInApp(() =>
+            json({ story: storyFixture({ published: false }) })
+        )
+        const { previewToken } = await (await request('/api/stories/7')).json()
+        const { app, calls } = createTestApp(() =>
+            json({ story: storyFixture({ published: false }) })
+        )
+
+        const preview = await app.request(`/api/preview/${previewToken}`)
+        expect(preview.status).toBe(200)
+        expect(await preview.json()).toMatchObject({ id: 7, status: 'draft', previewToken })
+        expect(calls.map(({ path }) => path)).toEqual(['stories/7'])
+
+        const forged = `${previewToken.slice(0, -2)}xx`
+        expect((await app.request(`/api/preview/${forged}`)).status).toBe(404)
+        expect((await app.request('/api/preview/7')).status).toBe(404)
+        expect(calls).toHaveLength(1)
+
+        const stories = await app.request('/api/stories/7', {
+            headers: { Cookie: `session=${previewToken}` },
+        })
+        expect(stories.status).toBe(401)
+    })
+
+    it('hides previews of stories outside the blog folder', async () => {
+        const { request } = await createSignedInApp(() => json({ story: storyFixture() }))
+        const { previewToken } = await (await request('/api/stories/7')).json()
+        const { app } = createTestApp(() => json({ story: storyFixture({ full_slug: 'home' }) }))
+        expect((await app.request(`/api/preview/${previewToken}`)).status).toBe(404)
     })
 
     it('lists versions newest first and restores one', async () => {
