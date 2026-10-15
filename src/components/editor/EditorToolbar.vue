@@ -1,27 +1,45 @@
 <script setup lang="ts">
 import {
+    BetweenHorizontalEnd,
+    BetweenHorizontalStart,
+    BetweenVerticalEnd,
+    BetweenVerticalStart,
     Bold,
     ClipboardCopy,
     Code,
+    Columns3,
+    Grid2x2X,
     Highlighter,
     Image,
     Italic,
+    Keyboard,
     Link,
     List,
+    ListCollapse,
     ListOrdered,
     Minus,
     MonitorPlay,
+    PanelLeft,
+    PanelTop,
     Quote,
     Redo2,
     RemoveFormatting,
+    Rows3,
     SquareCode,
     Strikethrough,
+    Subscript,
+    Superscript,
+    Table,
+    TableCellsMerge,
+    TableCellsSplit,
     Underline,
     Undo2,
 } from '@lucide/vue'
 import type { Editor } from '@tiptap/core'
 import { computed, ref, useTemplateRef, type Component } from 'vue'
+import type { MenuItem } from '#types/app'
 import type { InsertKind, Tool } from '#types/editor'
+import UiMenu from '@/components/ui/UiMenu.vue'
 import { copyToClipboard } from '@/lib/clipboard'
 import { toMarkdown } from '@/lib/content'
 import { roveFocus } from '@/lib/focus'
@@ -34,6 +52,8 @@ const emit = defineEmits<{ insert: [kind: InsertKind] }>()
 const BLOCK_LABEL = 'Text style'
 
 const COPY_LABEL = 'Copy as Markdown'
+
+const TABLE_LABEL = 'Table'
 
 const BLOCKS = [
     { value: 0, label: 'Paragraph' },
@@ -77,6 +97,19 @@ const GROUPS: Tool[][] = [
             run: (chain) => chain.toggleHighlight(),
         },
         { label: 'Inline code', icon: Code, active: 'code', run: (chain) => chain.toggleCode() },
+        { label: 'Keyboard key', icon: Keyboard, active: 'kbd', run: (chain) => chain.toggleKbd() },
+        {
+            label: 'Subscript',
+            icon: Subscript,
+            active: 'subscript',
+            run: (chain) => chain.toggleSubscript(),
+        },
+        {
+            label: 'Superscript',
+            icon: Superscript,
+            active: 'superscript',
+            run: (chain) => chain.toggleSuperscript(),
+        },
     ],
     [
         {
@@ -103,6 +136,13 @@ const GROUPS: Tool[][] = [
             active: 'codeBlock',
             run: (chain) => chain.toggleCodeBlock(),
         },
+        {
+            label: 'Collapsible section',
+            icon: ListCollapse,
+            active: 'details',
+            run: (chain) =>
+                editor.isActive('details') ? chain.unsetDetails() : chain.setDetails(),
+        },
         { label: 'Divider', icon: Minus, run: (chain) => chain.setHorizontalRule() },
     ],
     [
@@ -114,14 +154,40 @@ const GROUPS: Tool[][] = [
     ],
 ]
 
+const TABLE_TOOLS: Tool[] = [
+    {
+        label: 'Insert table',
+        icon: Table,
+        disabled: () => editor.isActive('table'),
+        run: (chain) => chain.insertTable({ rows: 3, cols: 3, withHeaderRow: true }),
+    },
+    { label: 'Add row above', icon: BetweenHorizontalStart, run: (chain) => chain.addRowBefore() },
+    { label: 'Add row below', icon: BetweenHorizontalEnd, run: (chain) => chain.addRowAfter() },
+    {
+        label: 'Add column before',
+        icon: BetweenVerticalStart,
+        run: (chain) => chain.addColumnBefore(),
+    },
+    { label: 'Add column after', icon: BetweenVerticalEnd, run: (chain) => chain.addColumnAfter() },
+    { label: 'Delete row', icon: Rows3, run: (chain) => chain.deleteRow() },
+    { label: 'Delete column', icon: Columns3, run: (chain) => chain.deleteColumn() },
+    { label: 'Toggle header row', icon: PanelTop, run: (chain) => chain.toggleHeaderRow() },
+    { label: 'Toggle header column', icon: PanelLeft, run: (chain) => chain.toggleHeaderColumn() },
+    { label: 'Merge cells', icon: TableCellsMerge, run: (chain) => chain.mergeCells() },
+    { label: 'Split cell', icon: TableCellsSplit, run: (chain) => chain.splitCell() },
+    { label: 'Delete table', icon: Grid2x2X, run: (chain) => chain.deleteTable() },
+]
+
 const INSERTS: { label: string; icon: Component; kind: InsertKind; node: string }[] = [
     { label: 'Link', icon: Link, kind: 'link', node: 'link' },
     { label: 'Image', icon: Image, kind: 'image', node: 'figure' },
     { label: 'Embed video', icon: MonitorPlay, kind: 'embed', node: 'embed' },
 ]
 
-const BUTTON_CLASS =
-    'inline-flex size-8 items-center justify-center rounded transition-colors hover:not-disabled:bg-text/10 disabled:opacity-30 aria-pressed:bg-accent aria-pressed:text-accent-text aria-pressed:hover:not-disabled:bg-accent-hover data-active:bg-accent data-active:text-accent-text data-active:hover:not-disabled:bg-accent-hover'
+const ACTIVE_CLASS =
+    'data-active:bg-accent data-active:text-accent-text data-active:hover:not-disabled:bg-accent-hover'
+
+const BUTTON_CLASS = `inline-flex size-8 items-center justify-center rounded-md transition-colors hover:not-disabled:bg-text/10 disabled:opacity-30 aria-pressed:bg-accent aria-pressed:text-accent-text aria-pressed:hover:not-disabled:bg-accent-hover ${ACTIVE_CLASS}`
 
 const toolbar = useTemplateRef('toolbar')
 const tabStop = ref(BLOCK_LABEL)
@@ -144,10 +210,23 @@ const tabIndex = (label: string) => (label === activeStop.value ? 0 : -1)
 
 const run = (tool: Tool) => tool.run(editor.chain().focus()).run()
 
+const tableItems = computed<MenuItem[]>(() =>
+    TABLE_TOOLS.map((tool) => ({
+        label: tool.label,
+        icon: tool.icon,
+        disabled: tool.disabled?.() || !tool.run(editor.can().chain()).run(),
+        run: () => run(tool),
+    }))
+)
+
 const moveFocus = (event: KeyboardEvent) =>
     roveFocus(
         event,
-        [...(toolbar.value?.querySelectorAll<HTMLElement>('button:enabled, select') ?? [])],
+        [
+            ...(toolbar.value?.querySelectorAll<HTMLElement>(
+                'button:enabled:not([role=menuitem]), select'
+            ) ?? []),
+        ],
         ['ArrowLeft', 'ArrowRight']
     )
 
@@ -213,6 +292,16 @@ const copyMarkdown = () =>
             >
                 <component :is="item.icon" class="size-4" aria-hidden="true" />
             </button>
+            <UiMenu
+                :items="tableItems"
+                :label="TABLE_LABEL"
+                :icon="Table"
+                :tabindex="tabIndex(TABLE_LABEL)"
+                :data-active="editor.isActive('table') || undefined"
+                :class="ACTIVE_CLASS"
+                @focus="tabStop = TABLE_LABEL"
+                @mousedown.prevent
+            />
         </div>
         <button
             type="button"

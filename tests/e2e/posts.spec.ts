@@ -20,6 +20,25 @@ const placeCaretAtEnd = async (page: Page) => {
         .toBe(true)
 }
 
+const pasteIntoEditor = (page: Page, data: Record<string, string>) =>
+    editor(page).evaluate((element, entries) => {
+        const clipboardData = new DataTransfer()
+        for (const [type, value] of Object.entries(entries)) clipboardData.setData(type, value)
+        element.dispatchEvent(
+            new ClipboardEvent('paste', { clipboardData, bubbles: true, cancelable: true })
+        )
+    }, data)
+
+const startNewParagraph = async (page: Page) => {
+    await placeCaretAtEnd(page)
+    await page.keyboard.press('Enter')
+}
+
+const ARTICLE_HTML = `<h2>What isn't true, or isn't settled</h2><p>With a difference-in-differences design on 1,820 listed US firms, they find that after ChatGPT the firms most exposed asked for less of four things.</p><table><thead><tr><th>Skill in the job posting</th><th>Change in demand</th></tr></thead><tbody><tr><td>Task division</td><td>-23%</td></tr><tr><td>Coordination</td><td>-21.3%</td></tr></tbody></table><h2>Who does what</h2><table><thead><tr><th>Role</th><th>Owns</th><th>Does not do</th></tr></thead><tbody><tr><td>Product owner and tech lead</td><td>The specification, as the single source of truth</td><td>Hand requirements over by word of mouth, to be reinterpreted downstream</td></tr><tr><td>CTO</td><td>Principles, the project constitution, the capability model</td><td>Launch agents into production over everyone's heads</td></tr></tbody></table>`
+
+const ARTICLE_TEXT =
+    'Skill in the job posting\tChange in demand\nTask division\t-23%\nCoordination\t-21.3%'
+
 test.beforeEach(async ({ page }) => {
     await signIn(page)
 })
@@ -347,6 +366,22 @@ test('duplicates a post', async ({ page, mock }) => {
     })
 })
 
+test('asks for a shorter title when the copy would exceed the limit', async ({ page }) => {
+    await page.goto('/stories/101')
+    await page.getByLabel('Title *').fill('A'.repeat(45))
+    await page.getByRole('button', { name: 'Save' }).click()
+    await expect(page.getByText('Changes saved')).toBeVisible()
+    await page.getByRole('button', { name: 'Duplicate' }).click()
+    const dialog = page.getByRole('dialog', { name: 'Duplicate post' })
+    const title = dialog.getByLabel('Title')
+    const duplicate = dialog.getByRole('button', { name: 'Duplicate' })
+    await expect(title).toHaveAttribute('aria-invalid', 'true')
+    await expect(duplicate).toBeDisabled()
+    await title.fill('A shorter copy')
+    await expect(title).not.toHaveAttribute('aria-invalid')
+    await expect(duplicate).toBeEnabled()
+})
+
 test('deletes a post after confirmation', async ({ page, mock }) => {
     await page.goto('/stories/102')
     await page.getByRole('button', { name: 'Delete', exact: true }).click()
@@ -467,6 +502,115 @@ test('explains when the post schema cannot be loaded', async ({ page }) => {
     await page.goto('/stories/101')
     await expect(page.getByRole('heading', { name: 'Could not load the post' })).toBeVisible()
     await expect(page.getByRole('alert')).toContainText('Component Post not found')
+})
+
+test('pastes articles with tables from rich sources', async ({ page, mock }) => {
+    await page.goto('/stories/102')
+    await startNewParagraph(page)
+    await pasteIntoEditor(page, { 'text/html': ARTICLE_HTML, 'text/plain': ARTICLE_TEXT })
+
+    const tables = editor(page).locator('table')
+    await expect(tables).toHaveCount(2)
+    await expect(tables.first().locator('th')).toHaveText([
+        'Skill in the job posting',
+        'Change in demand',
+    ])
+    await expect(tables.first().locator('tr').last().locator('td')).toHaveText([
+        'Coordination',
+        '-21.3%',
+    ])
+    await expect(tables.last().locator('tr')).toHaveCount(3)
+    await expect(editor(page).getByRole('heading', { name: 'Who does what' })).toBeVisible()
+
+    await page.setViewportSize({ width: 320, height: 640 })
+    const wrapper = editor(page).locator('.tableWrapper').last()
+    await expect(wrapper).toHaveCSS('overflow-x', 'auto')
+    await expect
+        .poll(() => wrapper.evaluate((element) => element.scrollWidth > element.clientWidth))
+        .toBe(true)
+
+    await page.getByRole('button', { name: 'Save' }).click()
+    await expect(page.getByText('Changes saved')).toBeVisible()
+    const saved = String((await mock.story(102)).content.long_text)
+    expect(saved.match(/<div class="tableWrapper"><table/g)).toHaveLength(2)
+    expect(saved).toContain(
+        '<tr><th><p>Role</p></th><th><p>Owns</p></th><th><p>Does not do</p></th></tr>'
+    )
+    expect(saved).toContain('<td><p>Coordination</p></td><td><p>-21.3%</p></td>')
+})
+
+test('turns pasted Markdown into tables, headings and lists', async ({ page }) => {
+    await page.goto('/stories/102')
+    await startNewParagraph(page)
+    await pasteIntoEditor(page, {
+        'text/plain':
+            '## Who does what\n\n| Role | Owns |\n| --- | --- |\n| CTO | Principles |\n\n- One merge gate',
+    })
+    await expect(editor(page).getByRole('heading', { name: 'Who does what' })).toBeVisible()
+    await expect(editor(page).locator('th')).toHaveText(['Role', 'Owns'])
+    await expect(editor(page).locator('td')).toHaveText(['CTO', 'Principles'])
+    await expect(editor(page).locator('li').last()).toHaveText('One merge gate')
+    await expect(editor(page)).not.toContainText('| Role |')
+})
+
+test('builds and edits tables from the toolbar', async ({ page, mock }) => {
+    await page.goto('/stories/102')
+    await startNewParagraph(page)
+    const menu = page.getByRole('menu', { name: 'Table' })
+    const open = () => page.getByRole('button', { name: 'Table', exact: true }).click()
+
+    await open()
+    await expect(menu.getByRole('menuitem', { name: 'Add row below' })).toBeDisabled()
+    await menu.getByRole('menuitem', { name: 'Insert table' }).click()
+    await expect(editor(page).locator('table tr')).toHaveCount(3)
+    await page.keyboard.type('Name')
+    await page.keyboard.press('Tab')
+    await page.keyboard.type('Value')
+
+    await open()
+    await expect(menu.getByRole('menuitem', { name: 'Insert table' })).toBeDisabled()
+    await menu.getByRole('menuitem', { name: 'Add row below' }).click()
+    await expect(editor(page).locator('table tr')).toHaveCount(4)
+    await open()
+    await menu.getByRole('menuitem', { name: 'Delete column' }).click()
+    await expect(editor(page).locator('table tr').first().locator('th')).toHaveText(['Name', ''])
+
+    await page.getByRole('button', { name: 'Save' }).click()
+    await expect(page.getByText('Changes saved')).toBeVisible()
+    expect(String((await mock.story(102)).content.long_text)).toMatch(
+        /<table[^>]*>.*<th><p>Name<\/p><\/th>.*<\/table>/
+    )
+
+    await open()
+    await menu.getByRole('menuitem', { name: 'Delete table' }).click()
+    await expect(editor(page).locator('table')).toHaveCount(0)
+})
+
+test('formats subscript, superscript, keys and collapsible sections', async ({ page, mock }) => {
+    await page.goto('/stories/102')
+    await startNewParagraph(page)
+    const toolbar = page.getByRole('toolbar', { name: 'Formatting' })
+    await page.keyboard.type('H')
+    await toolbar.getByRole('button', { name: 'Subscript' }).click()
+    await page.keyboard.type('2')
+    await toolbar.getByRole('button', { name: 'Subscript' }).click()
+    await page.keyboard.type('O, x')
+    await toolbar.getByRole('button', { name: 'Superscript' }).click()
+    await page.keyboard.type('2')
+    await toolbar.getByRole('button', { name: 'Superscript' }).click()
+    await page.keyboard.type(' ')
+    await toolbar.getByRole('button', { name: 'Keyboard key' }).click()
+    await page.keyboard.type('Ctrl')
+    await page.keyboard.press('Enter')
+    await toolbar.getByRole('button', { name: 'Collapsible section' }).click()
+    await page.keyboard.type('Details title')
+    await expect(editor(page).locator('[data-type="details"]')).toHaveCount(1)
+
+    await page.getByRole('button', { name: 'Save' }).click()
+    await expect(page.getByText('Changes saved')).toBeVisible()
+    const saved = String((await mock.story(102)).content.long_text)
+    expect(saved).toContain('H<sub>2</sub>O, x<sup>2</sup> <kbd>Ctrl</kbd>')
+    expect(saved).toMatch(/<details[^>]*><summary>Details title<\/summary>/)
 })
 
 test('inserts links, embeds and library images into rich text', async ({ page, mock }) => {

@@ -1,13 +1,19 @@
+import { Details, DetailsContent, DetailsSummary } from '@tiptap/extension-details'
 import FileHandler from '@tiptap/extension-file-handler'
 import Highlight from '@tiptap/extension-highlight'
+import { Subscript } from '@tiptap/extension-subscript'
+import { Superscript } from '@tiptap/extension-superscript'
 import { CharacterCount, Placeholder } from '@tiptap/extensions'
 import StarterKit from '@tiptap/starter-kit'
 import type { ExtensionOptions } from '#types/editor'
 import { CodeBlockWithLanguage } from './codeBlock'
 import { Embed } from './embed'
 import { Figure } from './figure'
+import { Kbd } from './kbd'
+import { MarkdownPaste } from './markdownPaste'
+import { FluidTable } from './table'
 
-export const HEADING_LEVELS = [1, 2, 3, 4, 5] as const
+export const HEADING_LEVELS = [1, 2, 3, 4, 5, 6] as const
 
 const IMAGE_TYPES = [
     'image/png',
@@ -28,8 +34,16 @@ export const editorExtensions = ({ onImages }: ExtensionOptions) => [
     }),
     CodeBlockWithLanguage,
     Highlight,
+    Subscript,
+    Superscript,
+    Kbd,
+    FluidTable,
+    Details,
+    DetailsSummary,
+    DetailsContent,
     Figure,
     Embed,
+    MarkdownPaste,
     Placeholder.configure({ placeholder: 'Start writing…' }),
     CharacterCount,
     FileHandler.configure({

@@ -44,7 +44,13 @@ const titleLimit = computed(() => {
     return field && 'maxLength' in field ? (field.maxLength ?? undefined) : undefined
 })
 
-const valid = computed(() => !!title.value.trim())
+const maxLength = computed(() =>
+    Math.min(titleLimit.value ?? MAX_LENGTH.storyName, MAX_LENGTH.storyName)
+)
+
+const tooLong = computed(() => title.value.length > maxLength.value)
+
+const valid = computed(() => !!title.value.trim() && !tooLong.value)
 
 watch(open, (isOpen) => {
     if (isOpen) title.value = source ? `${source.title} (copy)` : ''
@@ -70,7 +76,8 @@ const submit = () => {
                 class="control"
                 required
                 autofocus
-                :maxlength="titleLimit ?? MAX_LENGTH.storyName"
+                :maxlength="maxLength"
+                :aria-invalid="tooLong || undefined"
                 placeholder="A great title"
             />
         </form>

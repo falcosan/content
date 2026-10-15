@@ -12,7 +12,15 @@ import {
     toAssetValue,
     toExternalAssetValue,
 } from '@/lib/assets'
-import { fromEditorHtml, isBlankHtml, plainText, toEditorHtml, toMarkdown } from '@/lib/content'
+import {
+    fromEditorHtml,
+    isBlankHtml,
+    isMarkdown,
+    markdownToHtml,
+    plainText,
+    toEditorHtml,
+    toMarkdown,
+} from '@/lib/content'
 import { cloneDraft, draftTitle, snapshot, toDraft } from '@/lib/draft'
 import { parseHttpsUrl, parseHttpUrl, toEmbedUrl } from '@/lib/embed'
 import { keepWhileSearching } from '@/lib/filters'
@@ -110,6 +118,128 @@ describe('content', () => {
         expect(
             toMarkdown('<h2>Hi</h2><p><mark>key</mark> point</p><pre><code>x = 1</code></pre>')
         ).toBe('## Hi\n\n<mark>key</mark> point\n\n```\nx = 1\n```')
+    })
+
+    it('exports editor tables as GFM tables', () => {
+        expect(
+            toMarkdown(
+                '<div class="tableWrapper"><table style="min-width: 50px;"><colgroup><col style="min-width: 25px;"><col style="min-width: 25px;"></colgroup><tbody><tr><th><p>Skill</p></th><th style="text-align: right;"><p>Change | delta</p></th><th style="text-align: left;"><p>Note</p></th></tr><tr><td><p>Task <strong>division</strong></p></td><td style="text-align: right;"><p>-23%</p></td><td style="text-align: right;"><p>n</p></td></tr></tbody></table></div>'
+            )
+        ).toBe(
+            '| Skill | Change \\| delta | Note |\n| --- | ---: | --- |\n| Task **division** | \\-23% | n |'
+        )
+    })
+
+    it('keeps every pipe of table cells when exporting', () => {
+        const markdown = toMarkdown(
+            '<div class="tableWrapper"><table><tbody><tr><th><p>Operator</p></th><th><p>Meaning</p></th></tr><tr><td><p><code>a || b</code></p></td><td><p>x || y<br>z</p></td></tr></tbody></table></div>'
+        )
+        expect(markdown).toBe(
+            '| Operator | Meaning |\n| --- | --- |\n| `a \\|\\| b` | x \\|\\| y<br>z |'
+        )
+        const cells = new DOMParser()
+            .parseFromString(markdownToHtml(markdown), 'text/html')
+            .querySelectorAll('td')
+        expect([...cells].map(({ textContent }) => textContent)).toEqual(['a || b', 'x || yz'])
+    })
+
+    it.each([
+        [
+            'merged cells',
+            '<table><tbody><tr><th rowspan="2"><p>merged</p></th><th><p>a</p></th></tr><tr><td><p>b</p></td></tr></tbody></table>',
+        ],
+        [
+            'block content',
+            '<table><tbody><tr><th><p>Steps</p></th><th><p>Code</p></th></tr><tr><td><ul><li><p>one</p></li></ul></td><td><pre><code>x\ny</code></pre></td></tr></tbody></table>',
+        ],
+        [
+            'no header row',
+            '<table><tbody><tr><td><p>a</p></td><td><p>b</p></td></tr></tbody></table>',
+        ],
+        [
+            'merged columns',
+            '<table><tbody><tr><th colspan="2"><p>Merged</p></th></tr><tr><td><p>a</p></td><td><p>b</p></td></tr></tbody></table>',
+        ],
+        [
+            'an embed',
+            '<table><tbody><tr><th><p>Video</p></th><th><p>Notes</p></th></tr><tr><td><div><iframe src="https://www.youtube.com/embed/abc"></iframe></div></td><td><p>n</p></td></tr></tbody></table>',
+        ],
+        [
+            'an escaped pipe in code',
+            "<table><tbody><tr><th><p>Command</p></th><th><p>Means</p></th></tr><tr><td><p><code>grep 'a\\|b'</code></p></td><td><p>a or b</p></td></tr></tbody></table>",
+        ],
+        [
+            'a header column',
+            '<table><tbody><tr><th><p>A</p></th><th><p>B</p></th></tr><tr><th><p>Row</p></th><td><p>1</p></td></tr></tbody></table>',
+        ],
+    ])('keeps tables with %s as HTML', (_kind, html) => {
+        expect(toMarkdown(html)).toBe(html.replaceAll('\n', '&#10;'))
+    })
+
+    it('keeps blank lines inside HTML blocks from ending them early', () => {
+        const details =
+            '<details><summary>Code</summary><div data-type="detailsContent"><pre><code>a\n\nb</code></pre></div></details>'
+        const table =
+            '<table><tbody><tr><th><p>Step</p></th><th><p>Code</p></th></tr><tr><td><p>One</p></td><td><pre><code>a\n\nb</code></pre></td></tr></tbody></table>'
+        for (const html of [details, table]) {
+            const markdown = toMarkdown(html)
+            expect(markdown).not.toMatch(/\n\s*\n(?!$)/)
+            const roundTrip = new DOMParser().parseFromString(markdownToHtml(markdown), 'text/html')
+            expect(roundTrip.querySelector('pre code')?.textContent).toBe('a\n\nb')
+        }
+    })
+
+    it('renders fenced code without a trailing blank line', () => {
+        expect(markdownToHtml('```js\nconst a = 1\n```')).toBe(
+            '<pre><code class="language-js">const a = 1</code></pre>\n'
+        )
+    })
+
+    it('exports strikethrough, inline HTML and collapsible sections', () => {
+        expect(
+            toMarkdown(
+                '<p><s>old</s> H<sub>2</sub>O x<sup>2</sup> <kbd>Ctrl</kbd> <u>under <strong>bold</strong></u></p><details><summary>More</summary><div data-type="detailsContent"><p>Hidden</p></div></details>'
+            )
+        ).toBe(
+            '~~old~~ H<sub>2</sub>O x<sup>2</sup> <kbd>Ctrl</kbd> <u>under **bold**</u>\n\n<details><summary>More</summary><div data-type="detailsContent"><p>Hidden</p></div></details>'
+        )
+    })
+
+    it.each([
+        '# Title\n\nBody',
+        '> A quote',
+        '- one\n- two',
+        '1. one\n2. two',
+        '- one\n  - nested',
+        '```js\nconst a = 1\n```',
+        '| a | b |\n|---|:-:|\n| 1 | 2 |',
+        'See [the docs](https://example.com)',
+    ])('recognizes Markdown in %j', (text) => {
+        expect(isMarkdown(text)).toBe(true)
+    })
+
+    it.each([
+        'Just a sentence.',
+        'Line one\nLine two',
+        '5 * 3 * 2 = 30',
+        'snake_case, kebab-case and a-b',
+        'Skill in the job posting\tChange in demand',
+        '#hashtag',
+        'Call __init__ before use',
+        'A **strong** claim with `code`',
+        'Deploy with `npm run deploy`\nThen check the logs',
+        'Notes:\n1. first\nsecond line',
+        'Ana Pérez\nCalle Mayor 1\n- Madrid',
+        '# install deps\nnpm install',
+        '1984. A novel by Orwell',
+        '>>> 1 + 1',
+        'See [the docs](docs.md)',
+    ])('leaves plain text %j alone', (text) => {
+        expect(isMarkdown(text)).toBe(false)
+    })
+
+    it('renders GFM tables from Markdown', () => {
+        expect(markdownToHtml('| a | b |\n| --- | --- |\n| 1 | 2 |')).toContain('<th>a</th>')
     })
 })
 

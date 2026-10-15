@@ -11,6 +11,8 @@ import { idParam, pageQuery, searchQuery, validate } from '../validate'
 
 const STORIES_PER_PAGE = 24
 
+const SLUG_ATTEMPTS = 3
+
 const titleBody = z.object({ title: z.string().trim().min(1).max(MAX_LENGTH.storyName) })
 
 const listQuery = z.object({
@@ -28,16 +30,23 @@ const versionParam = idParam.extend({ versionId: z.coerce.number().int().positiv
 
 const today = () => new Date().toISOString().slice(0, 10)
 
-const titleOf = (content: StoryContent) => {
+const titleOf = (content: Record<string, unknown> = {}) => {
     const title = content[BLOG.fields.title]
-    return typeof title === 'string' ? title.trim().slice(0, MAX_LENGTH.storyName) : ''
+    return typeof title === 'string'
+        ? [...title.trim()].slice(0, MAX_LENGTH.storyName).join('')
+        : ''
 }
 
 const parentPath = (story: StoryblokStory) =>
     story.full_slug.slice(0, story.full_slug.lastIndexOf('/'))
 
+const isLive = (story: StoryblokStory) => !!(story.published || story.first_published_at)
+
+const followsTitle = (story: StoryblokStory, title: string) =>
+    story.name === title && (isLive(story) || slugCandidates(title).includes(story.slug))
+
 const isSlugTaken = (error: unknown) =>
-    error instanceof StoryblokError && error.status === 422 && /\bslug\b/.test(error.message)
+    error instanceof StoryblokError && error.status === 422 && /slug/i.test(error.message)
 
 const saveWithSlug = async (
     storyblok: Storyblok,
@@ -51,7 +60,8 @@ const saveWithSlug = async (
         per_page: candidates.length,
     })
     const taken = new Set(data.stories.filter(({ id }) => id !== story?.id).map(({ slug }) => slug))
-    for (const slug of candidates.filter((candidate) => !taken.has(candidate))) {
+    const free = candidates.filter((candidate) => !taken.has(candidate))
+    for (const slug of free.slice(0, SLUG_ATTEMPTS)) {
         try {
             return await save(slug)
         } catch (error) {
@@ -59,6 +69,20 @@ const saveWithSlug = async (
         }
     }
     throw new HTTPException(409, { message: 'Too many posts share this title' })
+}
+
+const saveStory = (
+    storyblok: Storyblok,
+    story: StoryblokStory,
+    content: StoryContent,
+    publish: boolean
+) => {
+    const title = titleOf(content)
+    const save = (slug: string) =>
+        storyblok.updateStory(story.id, { name: title || story.name, slug, content }, publish)
+    return title && !isLive(story)
+        ? saveWithSlug(storyblok, { title, folder: parentPath(story), story }, save)
+        : save(story.slug)
 }
 
 const findBlogStory = async (storyblok: Storyblok, id: number) => {
@@ -126,17 +150,7 @@ export const storyRoutes = (storyblok: Storyblok, siteUrl: string) =>
             const { id } = c.req.valid('param')
             const { content, publish } = c.req.valid('json')
             const story = await findBlogStory(storyblok, id)
-            const title = titleOf(content)
-            const save = (slug: string) =>
-                storyblok.updateStory(id, { name: title || story.name, slug, content }, publish)
-            const updated =
-                title && !story.first_published_at
-                    ? await saveWithSlug(
-                          storyblok,
-                          { title, folder: parentPath(story), story },
-                          save
-                      )
-                    : await save(story.slug)
+            const updated = await saveStory(storyblok, story, content, publish)
             return c.json(toStory(updated, siteUrl))
         })
         .delete('/:id', validate('param', idParam), async (c) => {
@@ -163,6 +177,12 @@ export const storyRoutes = (storyblok: Storyblok, siteUrl: string) =>
             const { id, versionId } = c.req.valid('param')
             await findBlogStory(storyblok, id)
             await storyblok.restoreStoryVersion(id, versionId)
+            const restored = await findBlogStory(storyblok, id)
+            const title = titleOf(restored.content)
+            if (title && !followsTitle(restored, title)) {
+                const content = { ...restored.content, component: BLOG.component }
+                await saveStory(storyblok, restored, content, false)
+            }
             return c.body(null, 204)
         })
         .post(

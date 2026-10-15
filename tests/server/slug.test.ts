@@ -23,6 +23,8 @@ describe('slugify', () => {
     it('joins possessives and contractions instead of splitting them', () => {
         expect(slugify("Bill Holt's Dreamies")).toBe('bill-holts-dreamies')
         expect(slugify('Don’t Panic')).toBe('dont-panic')
+        expect(slugify('Donʼt Panic')).toBe('dont-panic')
+        expect(slugify('Don‘t, don`t, don´t')).toBe('dont-dont-dont')
     })
 
     it('only drops stopwords that stand alone', () => {

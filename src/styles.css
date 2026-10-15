@@ -89,7 +89,11 @@
         @apply text-base font-semibold;
     }
 
-    & :is(h1, h2, h3, h4, h5) {
+    & h6 {
+        @apply text-sm font-semibold text-text-light;
+    }
+
+    & :is(h1, h2, h3, h4, h5, h6) {
         @apply mt-8 first:mt-0;
     }
 
@@ -107,6 +111,10 @@
 
     & li > p {
         @apply my-1;
+    }
+
+    & :is(blockquote, [data-type='detailsContent']) > * + * {
+        @apply mt-4;
     }
 
     & blockquote {
@@ -127,6 +135,58 @@
 
     & mark {
         @apply rounded-sm bg-marked px-0.5 text-black;
+    }
+
+    & kbd {
+        @apply rounded border border-b-2 border-preformatted px-1.5 font-mono text-[0.85em] text-preformatted;
+    }
+
+    & .tableWrapper {
+        @apply overflow-x-auto;
+    }
+
+    & table {
+        @apply border-collapse text-[0.9375rem] leading-6;
+    }
+
+    & :is(th, td) {
+        @apply relative min-w-24 border border-border/60 px-3 py-2 text-left;
+
+        & > * + * {
+            @apply mt-2;
+        }
+    }
+
+    & th {
+        @apply bg-accent-bg font-semibold;
+    }
+
+    & tr:nth-child(even) > td {
+        @apply bg-accent-bg/40;
+    }
+
+    & .selectedCell::after {
+        @apply pointer-events-none absolute inset-0 bg-accent/15 content-[''];
+    }
+
+    & [data-type='details'] {
+        @apply flex gap-2 rounded-md border border-border/60 bg-accent-bg/40 px-3 py-2;
+
+        & > button {
+            @apply mt-0.5 flex size-6 shrink-0 items-center justify-center rounded text-xs text-text-light transition-transform hover:bg-text/10 before:content-['▶'];
+        }
+
+        &.is-open > button {
+            @apply rotate-90;
+        }
+
+        & > div {
+            @apply flex min-w-0 flex-1 flex-col gap-2;
+        }
+    }
+
+    & summary {
+        @apply block list-none font-semibold;
     }
 
     & hr {
@@ -157,14 +217,23 @@
 @layer components {
     .anchored-popover {
         margin: auto;
+        max-height: 100%;
     }
 
     @supports (position-area: bottom) {
         .anchored-popover {
+            --popover-gap: 0.25rem;
             inset: auto;
-            margin: 0.25rem 0 0;
+            margin: var(--popover-gap) 0 0;
+            max-height: calc(100% - var(--popover-gap));
             position-area: bottom span-left;
-            position-try-fallbacks: flip-block, bottom, top;
+            position-try-order: most-height;
+            position-try-fallbacks:
+                flip-inline,
+                flip-block,
+                flip-block flip-inline,
+                bottom,
+                top;
         }
     }
 }

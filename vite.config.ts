@@ -24,6 +24,14 @@ const SECURITY_HEADERS = {
     'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
 }
 
+const VENDOR_CHUNKS = [
+    {
+        name: 'editor',
+        test: /[\\/]node_modules[\\/](?:@tiptap[\\/](?!vue-3)|prosemirror-|linkifyjs)/,
+    },
+    { name: 'markdown', test: /[\\/]node_modules[\\/](?:marked|turndown)[\\/]/ },
+]
+
 const headerRules = (rules: Record<string, Record<string, string>>) =>
     Object.entries(rules)
         .map(([path, headers]) =>
@@ -73,6 +81,15 @@ export default defineConfig(({ mode }) => {
             },
         },
         server: { headers: SECURITY_HEADERS },
+        build: {
+            rolldownOptions: {
+                output: {
+                    codeSplitting: {
+                        groups: VENDOR_CHUNKS,
+                    },
+                },
+            },
+        },
         test: {
             projects: [
                 {

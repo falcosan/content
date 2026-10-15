@@ -187,7 +187,9 @@ describe('story routes', () => {
             return json({
                 stories: query.by_slugs
                     .split(',')
-                    .map((fullSlug, id) => storyFixture({ id, slug: fullSlug.slice(5) })),
+                    .map((fullSlug, id) =>
+                        storyFixture({ id, slug: fullSlug.slice('blog/'.length) })
+                    ),
             })
         })
         const response = await request('/api/stories', {
@@ -197,6 +199,23 @@ describe('story routes', () => {
         expect(response.status).toBe(409)
         expect(await response.json()).toEqual({ error: 'Too many posts share this title' })
         expect(calls.some(({ method }) => method === 'POST')).toBe(false)
+    })
+
+    it('stops after a few conflicting writes, whatever the case of the error', async () => {
+        const { request, calls } = await createSignedInApp(({ method, query }) => {
+            if (method === 'POST') return json(['Slug is already taken'], { status: 422 })
+            return query.by_slugs ? json({ stories: [] }) : blogFolder()
+        })
+        const response = await request('/api/stories', {
+            method: 'POST',
+            body: '{"title":"New post"}',
+        })
+        expect(response.status).toBe(409)
+        expect(
+            calls
+                .filter(({ method }) => method === 'POST')
+                .map(({ body }) => (body as { story: { slug: string } }).story.slug)
+        ).toEqual(['new-post', 'new-post-2', 'new-post-3'])
     })
 
     it('fails clearly when the blog folder is missing', async () => {
@@ -271,7 +290,7 @@ describe('story routes', () => {
                           },
                       ],
                   })
-                : json({ story: storyFixture() })
+                : json({ story: storyFixture({ name: 'Hello' }) })
         )
         const versions = await (await request('/api/stories/7/versions')).json()
         expect(versions).toEqual([
@@ -286,6 +305,70 @@ describe('story routes', () => {
             method: 'GET',
             path: 'stories/7/restore_with',
             query: { version: '2', versions_v2: 'true' },
+        })
+        expect(calls.map(({ method }) => method)).not.toContain('PUT')
+    })
+
+    it('fixes the slug of a restored draft whose name already matches its title', async () => {
+        let restored = false
+        const { request, calls } = await createSignedInApp(({ method, path, query }) => {
+            if (path.endsWith('restore_with')) {
+                restored = true
+                return json({})
+            }
+            if (query.by_slugs) return json({ stories: [] })
+            if (method === 'PUT') return json({ story: draftFixture() })
+            const story = restored
+                ? { name: 'Original Title', slug: 'newer-title' }
+                : { name: 'Newer Title', slug: 'newer-title' }
+            return json({
+                story: draftFixture({
+                    ...story,
+                    content: { component: 'Post', title: story.name },
+                }),
+            })
+        })
+        await request('/api/stories/7/versions/2/restore', { method: 'POST' })
+        expect(calls.at(-1)).toMatchObject({
+            method: 'PUT',
+            body: { story: { name: 'Original Title', slug: 'original-title' } },
+        })
+    })
+
+    it('renames a restored draft after its restored title', async () => {
+        let restored = false
+        const { request, calls } = await createSignedInApp(({ method, path, query }) => {
+            if (path.endsWith('restore_with')) {
+                restored = true
+                return json({})
+            }
+            if (query.by_slugs) return json({ stories: [] })
+            if (method === 'PUT') return json({ story: draftFixture() })
+            const title = restored ? 'Original Title' : 'Hello'
+            return json({
+                story: draftFixture({
+                    name: 'Hello',
+                    slug: 'hello',
+                    content: { component: 'Post', title },
+                }),
+            })
+        })
+        const response = await request('/api/stories/7/versions/2/restore', { method: 'POST' })
+        expect(response.status).toBe(204)
+        expect(calls.map(({ method, path }) => `${method} ${path}`)).toEqual([
+            'GET stories/7',
+            'GET stories/7/restore_with',
+            'GET stories/7',
+            'GET stories',
+            'PUT stories/7',
+        ])
+        expect(calls[4]?.body).toEqual({
+            story: {
+                name: 'Original Title',
+                slug: 'original-title',
+                content: { component: 'Post', title: 'Original Title' },
+            },
+            publish: false,
         })
     })
 
@@ -455,6 +538,66 @@ describe('story routes', () => {
         await request('/api/stories/7', { method: 'PUT', body: JSON.stringify({ content }) })
         expect(calls).toHaveLength(2)
         expect(calls[1]?.body).toMatchObject({ story: { name: 'Hello world', slug: 'kept' } })
+    })
+
+    it('moves on to the next slug when saving a draft collides with another post', async () => {
+        let attempts = 0
+        const { request, calls } = await createSignedInApp(({ method, query }) => {
+            if (query.by_slugs) return json({ stories: [] })
+            if (method === 'PUT')
+                return ++attempts === 1 ? slugTaken() : json({ story: draftFixture() })
+            return json({ story: draftFixture({ slug: 'old-title' }) })
+        })
+        const response = await request('/api/stories/7', {
+            method: 'PUT',
+            body: JSON.stringify({ content: { component: 'Post', title: 'New Title' } }),
+        })
+        expect(response.status).toBe(200)
+        expect(
+            calls
+                .filter(({ method }) => method === 'PUT')
+                .map(({ body }) => (body as { story: { slug: string } }).story.slug)
+        ).toEqual(['new-title', 'new-title-2'])
+    })
+
+    it('forwards save errors that are not about the slug without retrying', async () => {
+        const { request, calls } = await createSignedInApp(({ method, query }) => {
+            if (query.by_slugs) return json({ stories: [] })
+            if (method === 'PUT') return json({ content: ['is invalid'] }, { status: 422 })
+            return json({ story: draftFixture({ slug: 'old-title' }) })
+        })
+        const response = await request('/api/stories/7', {
+            method: 'PUT',
+            body: JSON.stringify({ content: { component: 'Post', title: 'New Title' } }),
+        })
+        expect(response.status).toBe(422)
+        expect(await response.json()).toEqual({ error: 'content is invalid' })
+        expect(calls.filter(({ method }) => method === 'PUT')).toHaveLength(1)
+    })
+
+    it('keeps the slug of a live post even without a first publication date', async () => {
+        const { request, calls } = await createSignedInApp(() =>
+            json({ story: storyFixture({ published: true, first_published_at: null }) })
+        )
+        const content = { component: 'Post', title: 'Renamed' }
+        await request('/api/stories/7', { method: 'PUT', body: JSON.stringify({ content }) })
+        expect(calls.map(({ method, path }) => `${method} ${path}`)).toEqual([
+            'GET stories/7',
+            'PUT stories/7',
+        ])
+        expect(calls[1]?.body).toMatchObject({ story: { name: 'Renamed', slug: 'hello-world' } })
+    })
+
+    it.each([
+        [{ title: 42 }, 'Hello world'],
+        [{ title: `${'a'.repeat(254)}😀tail` }, `${'a'.repeat(254)}😀`],
+    ])('names the story from the title %#', async (fields, name) => {
+        const { request, calls } = await createSignedInApp(() => json({ story: storyFixture() }))
+        const content = { component: 'Post', ...fields }
+        await request('/api/stories/7', { method: 'PUT', body: JSON.stringify({ content }) })
+        const story = (calls[1]?.body as { story: { name: string } }).story
+        expect(story.name).toBe(name)
+        expect(story.name.isWellFormed()).toBe(true)
     })
 
     it('only accepts post content', async () => {

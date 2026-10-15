@@ -1,4 +1,5 @@
 import { Node } from '@tiptap/core'
+import { parseHttpsUrl } from '@/lib/embed'
 import { moveCursorAfterNode } from './selection'
 
 const ALLOW =
@@ -6,6 +7,11 @@ const ALLOW =
 
 const frameOf = (element: HTMLElement) =>
     element.tagName === 'IFRAME' ? element : element.querySelector(':scope > iframe')
+
+const sourceOf = (element: HTMLElement) => {
+    const src = frameOf(element)?.getAttribute('src') ?? ''
+    return parseHttpsUrl(src) ? src : null
+}
 
 export const Embed = Node.create({
     name: 'embed',
@@ -17,15 +23,15 @@ export const Embed = Node.create({
         return {
             src: {
                 default: '',
-                parseHTML: (element: HTMLElement) => frameOf(element)?.getAttribute('src') ?? '',
+                parseHTML: (element: HTMLElement) => sourceOf(element) ?? '',
             },
         }
     },
 
     parseHTML() {
         return [
-            { tag: 'div', getAttrs: (element) => (frameOf(element) ? null : false) },
-            { tag: 'iframe[src]' },
+            { tag: 'div', getAttrs: (element) => (sourceOf(element) ? null : false) },
+            { tag: 'iframe[src]', getAttrs: (element) => (sourceOf(element) ? null : false) },
         ]
     },
 

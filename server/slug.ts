@@ -26,11 +26,11 @@ const UNDECOMPOSED = new RegExp(`[${Object.keys(LETTERS).join('')}]`, 'g')
 
 const tokens = (word: string) =>
     word
+        .replace(/['‘’ʼ`´]/g, '')
         .normalize('NFKD')
         .replace(/\p{M}/gu, '')
         .toLowerCase()
         .replace(UNDECOMPOSED, (letter) => LETTERS[letter]!)
-        .replace(/['’]/g, '')
         .split(/[^a-z0-9]+/)
         .filter(Boolean)
 

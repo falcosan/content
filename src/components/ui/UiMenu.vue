@@ -1,13 +1,21 @@
 <script setup lang="ts">
 import { Ellipsis } from '@lucide/vue'
-import { useId, useTemplateRef } from 'vue'
+import { useId, useTemplateRef, type Component } from 'vue'
 import type { MenuItem } from '#types/app'
 import { roveFocus } from '@/lib/focus'
 import UiButton from './UiButton.vue'
 
-const { items } = defineProps<{ items: MenuItem[] }>()
+const {
+    items,
+    label = 'More actions',
+    icon = Ellipsis,
+} = defineProps<{
+    items: MenuItem[]
+    label?: string
+    icon?: Component
+}>()
 
-const LABEL = 'More actions'
+defineOptions({ inheritAttrs: false })
 
 const ITEM_CLASS =
     'flex w-full items-center gap-2 rounded px-3 py-2 text-left text-sm whitespace-nowrap transition-colors hover:not-disabled:bg-text/10 focus-visible:bg-text/10 disabled:opacity-40'
@@ -38,12 +46,13 @@ const select = (item: MenuItem) => {
 
 <template>
     <UiButton
+        v-bind="$attrs"
         variant="ghost"
         size="sm"
-        :icon="Ellipsis"
+        :icon
         :popovertarget="id"
-        :aria-label="LABEL"
-        :title="LABEL"
+        :aria-label="label"
+        :title="label"
         aria-haspopup="menu"
         :style="{ anchorName: `--${id}` }"
     />
@@ -52,7 +61,7 @@ const select = (item: MenuItem) => {
         ref="menu"
         popover
         role="menu"
-        :aria-label="LABEL"
+        :aria-label="label"
         class="anchored-popover max-w-[calc(100vw-2rem)] min-w-48 rounded-md border border-border bg-bg p-1 text-text"
         :style="{ positionAnchor: `--${id}` }"
         @toggle="onToggle"

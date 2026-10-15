@@ -30,5 +30,8 @@ declare module '@tiptap/core' {
         embed: {
             setEmbed: (attributes: { src: string }) => ReturnType
         }
+        kbd: {
+            toggleKbd: () => ReturnType
+        }
     }
 }
