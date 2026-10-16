@@ -1,15 +1,16 @@
 const DATE_ONLY = /^\d{4}-\d{2}-\d{2}$/
 
-const dateFormat = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' })
+const LOCALE = 'en-US'
 
-const dateTimeFormat = new Intl.DateTimeFormat(undefined, {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-})
+const DAY_MONTH_YEAR = { day: '2-digit', month: 'short', year: 'numeric' } as const
 
-const utcDateFormat = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeZone: 'UTC' })
+const dateFormat = new Intl.DateTimeFormat(LOCALE, DAY_MONTH_YEAR)
 
-const relativeFormat = new Intl.RelativeTimeFormat(undefined, { numeric: 'auto' })
+const utcDateFormat = new Intl.DateTimeFormat(LOCALE, { ...DAY_MONTH_YEAR, timeZone: 'UTC' })
+
+const timeFormat = new Intl.DateTimeFormat(LOCALE, { timeStyle: 'short', hourCycle: 'h23' })
+
+const relativeFormat = new Intl.RelativeTimeFormat(LOCALE, { numeric: 'auto' })
 
 const UNITS: [Intl.RelativeTimeFormatUnit, number][] = [
     ['year', 365 * 24 * 60 * 60],
@@ -20,13 +21,23 @@ const UNITS: [Intl.RelativeTimeFormatUnit, number][] = [
     ['minute', 60],
 ]
 
+const dayMonthYear = (format: Intl.DateTimeFormat, date: Date) => {
+    const { day, month, year } = Object.fromEntries(
+        format.formatToParts(date).map(({ type, value }) => [type, value])
+    )
+    return `${day} ${month} ${year}`
+}
+
 export const formatDate = (value: string) => {
     const date = new Date(DATE_ONLY.test(value) ? `${value}T00:00:00Z` : value)
     if (Number.isNaN(date.getTime())) return value
-    return (DATE_ONLY.test(value) ? utcDateFormat : dateFormat).format(date)
+    return dayMonthYear(DATE_ONLY.test(value) ? utcDateFormat : dateFormat, date)
 }
 
-export const formatDateTime = (value: string) => dateTimeFormat.format(new Date(value))
+export const formatDateTime = (value: string) => {
+    const date = new Date(value)
+    return `${dayMonthYear(dateFormat, date)}, ${timeFormat.format(date)}`
+}
 
 export const formatRelative = (value: string, now = Date.now()) => {
     const seconds = (new Date(value).getTime() - now) / 1000

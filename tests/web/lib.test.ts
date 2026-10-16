@@ -26,7 +26,7 @@ import { parseHttpsUrl, parseHttpUrl, toEmbedUrl } from '@/lib/embed'
 import { keepWhileSearching } from '@/lib/filters'
 import { roveFocus } from '@/lib/focus'
 import { flattenFolders, folderLabel } from '@/lib/folders'
-import { formatBytes, formatDate, formatRelative } from '@/lib/format'
+import { formatBytes, formatDate, formatDateTime, formatRelative } from '@/lib/format'
 import { safeRedirect } from '@/lib/navigation'
 import { validateContent } from '@/lib/validation'
 
@@ -261,18 +261,23 @@ describe('format', () => {
     })
 
     it('formats date-only values in UTC to avoid timezone drift', () => {
-        const utc = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeZone: 'UTC' })
-        expect(formatDate('2025-01-01')).toBe(utc.format(Date.UTC(2025, 0, 1)))
+        expect(formatDate('2025-01-01')).toBe('01 Jan 2025')
         expect(formatDate('garbage')).toBe('garbage')
     })
 
+    it('formats dates like the website, whatever the browser language', () => {
+        expect(formatDate('2026-10-15')).toBe('15 Oct 2026')
+        expect(formatDate('2026-09-05')).toBe('05 Sep 2026')
+        expect(formatDate('2022-11-09 00:00')).toBe('09 Nov 2022')
+        expect(formatDateTime('2026-10-15T09:05:00')).toBe('15 Oct 2026, 09:05')
+    })
+
     it('picks the largest fitting relative unit', () => {
-        const relative = new Intl.RelativeTimeFormat(undefined, { numeric: 'auto' })
         const now = Date.parse('2025-06-10T12:00:00Z')
-        expect(formatRelative('2025-06-10T11:59:30Z', now)).toBe(relative.format(0, 'minute'))
-        expect(formatRelative('2025-06-10T09:00:00Z', now)).toBe(relative.format(-3, 'hour'))
-        expect(formatRelative('2025-06-09T12:00:00Z', now)).toBe(relative.format(-1, 'day'))
-        expect(formatRelative('2024-06-10T12:00:00Z', now)).toBe(relative.format(-1, 'year'))
+        expect(formatRelative('2025-06-10T11:59:30Z', now)).toBe('this minute')
+        expect(formatRelative('2025-06-10T09:00:00Z', now)).toBe('3 hours ago')
+        expect(formatRelative('2025-06-09T12:00:00Z', now)).toBe('yesterday')
+        expect(formatRelative('2024-06-10T12:00:00Z', now)).toBe('last year')
     })
 })
 
